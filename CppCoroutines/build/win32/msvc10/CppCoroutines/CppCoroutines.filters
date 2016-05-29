@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Quelldateien">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Headerdateien">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Ressourcendateien">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="Quelldateien\Video">
+      <UniqueIdentifier>{52343e93-138d-4d85-a28b-5750e383b4a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Input">
+      <UniqueIdentifier>{825157e4-6204-4cf2-aef3-d95645cdfd26}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Orbis">
+      <UniqueIdentifier>{0873562e-cf12-42bd-84d9-27ef719c7f8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Math">
+      <UniqueIdentifier>{bf79c526-4787-4f37-aded-23a8569fdb94}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Game">
+      <UniqueIdentifier>{d8be402f-7f26-44e6-b702-8cc4a9b89fcf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Components">
+      <UniqueIdentifier>{683aa64e-f05f-4d91-a570-158537f4e361}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Core">
+      <UniqueIdentifier>{0371fc11-a776-49e4-a4b1-efdfb1f79fc6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\src\Orbis\Main.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\Orbis\Components\TestRenderer.cpp">
+      <Filter>Quelldateien\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\Orbis\Core\StringHelper.cpp">
+      <Filter>Quelldateien\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\Orbis\Game\Entity.cpp">
+      <Filter>Quelldateien\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\Orbis\Game\Level.cpp">
+      <Filter>Quelldateien\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\Orbis\Input\Event.cpp">
+      <Filter>Quelldateien\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\Orbis\Input\EventAdapter.cpp">
+      <Filter>Quelldateien\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\Orbis\Input\InputManager.cpp">
+      <Filter>Quelldateien\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\Orbis\Orbis\Orbis.cpp">
+      <Filter>Quelldateien\Orbis</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\Orbis\Video\Color.cpp">
+      <Filter>Quelldateien\Video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\Orbis\Video\GraphicsAdapter.cpp">
+      <Filter>Quelldateien\Video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\Orbis\Video\RenderDevice.cpp">
+      <Filter>Quelldateien\Video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\Orbis\Video\Source.cpp">
+      <Filter>Quelldateien\Video</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\Orbis\Video\VideoManager.cpp">
+      <Filter>Quelldateien\Video</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\src\Orbis\Components\TestRenderer.h">
+      <Filter>Quelldateien\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\Orbis\Core\Exception.h">
+      <Filter>Quelldateien\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\Orbis\Core\StringHelper.h">
+      <Filter>Quelldateien\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\Orbis\Game\Component.h">
+      <Filter>Quelldateien\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\Orbis\Game\Entity.h">
+      <Filter>Quelldateien\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\Orbis\Game\Level.h">
+      <Filter>Quelldateien\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\Orbis\Game\Transformation.h">
+      <Filter>Quelldateien\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\Orbis\Input\Event.h">
+      <Filter>Quelldateien\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\Orbis\Input\EventAdapter.h">
+      <Filter>Quelldateien\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\Orbis\Input\InputManager.h">
+      <Filter>Quelldateien\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\Orbis\Input\KeyCode.h">
+      <Filter>Quelldateien\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\Orbis\Math\Vector2D.h">
+      <Filter>Quelldateien\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\Orbis\Orbis\Orbis.h">
+      <Filter>Quelldateien\Orbis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\Orbis\Video\Color.h">
+      <Filter>Quelldateien\Video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\Orbis\Video\GraphicsAdapter.h">
+      <Filter>Quelldateien\Video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\Orbis\Video\MatrixMode.h">
+      <Filter>Quelldateien\Video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\Orbis\Video\RenderDevice.h">
+      <Filter>Quelldateien\Video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\Orbis\Video\RenderType.h">
+      <Filter>Quelldateien\Video</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\src\Orbis\Video\VideoManager.h">
+      <Filter>Quelldateien\Video</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
