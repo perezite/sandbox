@@ -1,43 +1,38 @@
 #include <iostream>
+#include <vector>
 
 #include <boost/coroutine/asymmetric_coroutine.hpp>
 using namespace boost::coroutines;
 
-void inner(coroutine<void>::push_type& yield)
+void StartCoroutine(void(*runner)(push_coroutine<void>&))
 {
-	std::cout << "inner 1" << std::endl;
-	yield();
+	pull_coroutine<void> gen{ runner };
 
-	std::cout << "inner 2" << std::endl;
-}
-
-void outer(coroutine<void>::push_type& yield)
-{
-	std::cout << "outer 1 " << std::endl;
-	yield();
-
-	coroutine<void>::pull_type gen { inner };
-	yield();
 	while (gen)
 	{
 		gen();
 	}
+}
+
+void simpler(push_coroutine<void>& yield)
+{
+	std::cout << "simpler 1" << std::endl;
 	yield();
-	 
-	std::cout << "outer 3" << std::endl;
+
+	std::cout << "simpler 2" << std::endl;
+}
+
+void simple(push_coroutine<void>& yield)
+{
+	std::cout << "simple 1" << std::endl;
+	yield();
+
+	StartCoroutine(simpler);
+
+	std::cout << "simple 2" << std::endl;
 }
 
 int main()
 {
-	coroutine<void>::pull_type gen { outer };
-	std::cout << "main" << std::endl;
-	while (gen)
-	{
-		gen();
-		std::cout << "main" << std::endl;
-	}
-
-	std::cin.get();
-
-	return 0;
+	StartCoroutine(simple);
 }
