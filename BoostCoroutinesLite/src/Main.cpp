@@ -4,11 +4,12 @@
 #include <boost/coroutine/coroutine.hpp>
 using namespace boost::coroutines;
 
-pull_coroutine<void>* g_outerCoroutine;
+void(*g_outerCoroutine)(push_coroutine<void>&);
 
 void StartCoroutine(void(*runner)(push_coroutine<void>&))
 {
-	g_outerCoroutine = new pull_coroutine<void>{ runner };
+	// g_outerCoroutine = new pull_coroutine<void>{ runner };
+	g_outerCoroutine = runner;
 }
 
 void StartInnerCoroutine(void(*runner)(push_coroutine<void>&), push_coroutine<void>& yield)
@@ -25,7 +26,7 @@ void StartInnerCoroutine(void(*runner)(push_coroutine<void>&), push_coroutine<vo
 
 void inner(push_coroutine<void>& yield)
 {
-	int max = 3;
+	int max = 2;
 	for (int i = 0; i < max; i++)
 	{
 		std::cout << "inner " << i << std::endl;
@@ -47,19 +48,19 @@ void outer(push_coroutine<void>& yield)
 
 void run()
 {
-	while (*g_outerCoroutine)
+	pull_coroutine<void> gen { g_outerCoroutine };
+	std::cout << "main" << std::endl;
+
+	while (gen)
 	{
-		(*g_outerCoroutine)();
+		gen();
 		std::cout << "main" << std::endl;
 	}
-
-	delete g_outerCoroutine;
 }
 
 int main()
 {
 	StartCoroutine(outer);
-	std::cout << "main" << std::endl;
 
 	run();
 
