@@ -1,9 +1,19 @@
+#include <boost/coroutine/all.hpp>
 #include <iostream>
 
-int main(int argc, char* args[])
-{
-	std::cout << "Whatever" << std::endl;
-	std::cin.get();
+using namespace boost::coroutines;
 
-	return 0;
+void cooperative(coroutine<void>::push_type &sink)
+{
+	std::cout << "Hellohello";
+	sink();
+	std::cout << "world";
+}
+
+int main()
+{
+	coroutine<void>::pull_type source{ cooperative };
+	std::cout << ", ";
+	source();
+	std::cout << "!\n";
 }
