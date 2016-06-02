@@ -2,7 +2,6 @@
 #include <vector>
 
 #include <boost/coroutine/coroutine.hpp>
-#include "Main.h"
 using namespace boost::coroutines;
 
 std::vector<void(*)(push_coroutine<void>&)> g_outerCoroutines;
