@@ -4,12 +4,13 @@
 #include <boost/coroutine/coroutine.hpp>
 using namespace boost::coroutines;
 
-void(*g_outerCoroutine)(push_coroutine<void>&);
+std::vector<void(*)(push_coroutine<void>&)> g_outerCoroutines;
+std::vector<bool> g_outerCoroutinesActiveatable;
 
 void StartCoroutine(void(*runner)(push_coroutine<void>&))
 {
-	// g_outerCoroutine = new pull_coroutine<void>{ runner };
-	g_outerCoroutine = runner;
+	g_outerCoroutines.push_back(runner);
+	g_outerCoroutinesActiveatable.push_back(true);
 }
 
 void StartInnerCoroutine(void(*runner)(push_coroutine<void>&), push_coroutine<void>& yield)
@@ -29,36 +30,66 @@ void inner(push_coroutine<void>& yield)
 	int max = 2;
 	for (int i = 0; i < max; i++)
 	{
-		std::cout << "inner " << i << std::endl;
+		std::cout << "code in INNER coroutine, call " << i << std::endl;
 		yield();
 	}
 
-	std::cout << "inner " << max << std::endl;
+	std::cout << "finishing INNER coroutine" << std::endl;
 }
 
 void outer(push_coroutine<void>& yield)
 {
-	std::cout << "outer 1" << std::endl;
+	std::cout << "code in OUTER coroutine, call 1" << std::endl;
 	yield();
 
+	std::cout << "OUTER coroutine calling INNER coroutine" << std::endl;
 	StartInnerCoroutine(inner, yield);
 
-	std::cout << "outer 2" << std::endl;
+	std::cout << "finishing OUTER coroutine" << std::endl;
 }
 
 void run()
 {
-	pull_coroutine<void> gen { g_outerCoroutine };
-	std::cout << "main" << std::endl;
+	std::vector<pull_coroutine<void>*> coroutines;
+	bool running = true;
 
-	while (gen)
+	while (running)
 	{
-		gen();
-		std::cout << "main" << std::endl;
+		bool hasActiveCoroutines = false;
+
+		// execute the active coroutines
+		for each (pull_coroutine<void>* coroutine in coroutines)
+		{
+			if (*coroutine)
+			{
+				(*coroutine)();
+				hasActiveCoroutines = true;
+			}
+		}
+
+		// activate activeatable coroutines
+		for (unsigned int i = 0; i < g_outerCoroutinesActiveatable.size(); i++)
+		{
+			if (g_outerCoroutinesActiveatable[i] == true)
+			{
+				pull_coroutine<void> *coroutine = new pull_coroutine<void>{ g_outerCoroutines[i] };
+				coroutines.push_back(coroutine);
+				g_outerCoroutinesActiveatable[i] = false;
+				hasActiveCoroutines = true;
+			}
+		}
+
+		running = hasActiveCoroutines;
+	}
+
+	// cleanup 
+	for each (pull_coroutine<void>* coroutine in coroutines)
+	{
+		delete coroutine;
 	}
 }
 
-int main()
+void CoroutineWaitingForOtherCoroutineDemo()
 {
 	StartCoroutine(outer);
 
@@ -68,3 +99,9 @@ int main()
 
 	std::cin.get();
 }
+
+int main()
+{
+	CoroutineWaitingForOtherCoroutineDemo();
+}
+
