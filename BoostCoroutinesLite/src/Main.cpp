@@ -33,16 +33,25 @@ void WaitForSeconds(push_coroutine<void>& yield)
 	time_t startTime;
 	time_t currentTime;
 	double secondsElapsed = 0;
+	int counter = 0;
 
 	time(&startTime);
 	time(&currentTime);
+
 
 	while (secondsElapsed < secondsToWait)
 	{
 		yield();
 		time(&currentTime);
 		secondsElapsed = difftime(currentTime, startTime);
+		
+		if (counter % 1000 == 0)
+		{
+			std::cout << ".";
+		}
+		counter++;
 	}
+	std::cout << std::endl;
 }
 
 void inner(push_coroutine<void>& yield)
@@ -211,4 +220,3 @@ int main()
 
 	CoroutineWaitingForSecondsDemo();
 }
-
