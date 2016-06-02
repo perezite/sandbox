@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <time.h>
 
 #include <boost/coroutine/coroutine.hpp>
 using namespace boost::coroutines;
@@ -22,6 +23,25 @@ void StartInnerCoroutine(void(*runner)(push_coroutine<void>&), push_coroutine<vo
 	{
 		gen();
 		yield();
+	}
+}
+
+void WaitForSeconds(push_coroutine<void>& yield)
+{
+	double secondsToWait = 3.0;
+
+	time_t startTime;
+	time_t currentTime;
+	double secondsElapsed = 0;
+
+	time(&startTime);
+	time(&currentTime);
+
+	while (secondsElapsed < secondsToWait)
+	{
+		yield();
+		time(&currentTime);
+		secondsElapsed = difftime(currentTime, startTime);
 	}
 }
 
@@ -78,6 +98,16 @@ void outer4(push_coroutine<void>& yield)
 		std::cout << "code in OUTER4, call " << i << std::endl;
 		yield();
 	}
+}
+
+void outer5(push_coroutine<void>& yield)
+{
+	std::cout << "code in OUTER5, call 0" << std::endl;
+
+	std::cout << "waiting for 3 seconds... " << std::endl;
+	StartInnerCoroutine(WaitForSeconds, yield);
+
+	std::cout << "code in OUTER5, call 1" << std::endl;
 }
 
 void run()
@@ -160,6 +190,17 @@ void CoroutineSpawningAnotherCoroutineDemo()
 	std::cin.get();
 }
 
+void CoroutineWaitingForSecondsDemo()
+{
+	std::cout << "Demo: Coroutine waiting for seconds demo" << std::endl;
+
+	StartCoroutine(outer5);
+
+	run();
+	std::cout << "done" << std::endl;
+	std::cin.get();
+}
+
 int main()
 {
 	CoroutineWaitingForAnotherCoroutineDemo();
@@ -167,5 +208,7 @@ int main()
 	TwoConcurrentCoroutinesDemo();
 
 	CoroutineSpawningAnotherCoroutineDemo();
+
+	CoroutineWaitingForSecondsDemo();
 }
 
