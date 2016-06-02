@@ -2,6 +2,7 @@
 #include <vector>
 
 #include <boost/coroutine/coroutine.hpp>
+#include "Main.h"
 using namespace boost::coroutines;
 
 std::vector<void(*)(push_coroutine<void>&)> g_outerCoroutines;
@@ -30,22 +31,54 @@ void inner(push_coroutine<void>& yield)
 	int max = 2;
 	for (int i = 0; i < max; i++)
 	{
-		std::cout << "code in INNER coroutine, call " << i << std::endl;
+		std::cout << "code in INNER, call " << i << std::endl;
 		yield();
 	}
-
-	std::cout << "finishing INNER coroutine" << std::endl;
 }
 
 void outer(push_coroutine<void>& yield)
 {
-	std::cout << "code in OUTER coroutine, call 1" << std::endl;
+	std::cout << "code in OUTER, call 0" << std::endl;
 	yield();
 
-	std::cout << "OUTER coroutine calling INNER coroutine" << std::endl;
+	std::cout << "OUTER calling INNER" << std::endl;
 	StartInnerCoroutine(inner, yield);
 
-	std::cout << "finishing OUTER coroutine" << std::endl;
+	std::cout << "code in OUTER, call 1" << std::endl;
+}
+
+void outer2(push_coroutine<void>& yield)
+{
+	for (int i = 0; i < 3; i++)
+	{
+		std::cout << "code in OUTER2, call " << i << std::endl;
+		yield();
+	}
+}
+
+void outer3(push_coroutine<void>& yield)
+{
+	for (int i = 0; i < 3; i++)
+	{
+		std::cout << "code in OUTER3, call " << i << std::endl;
+		yield();
+	}
+}
+
+void outer4(push_coroutine<void>& yield)
+{
+	std::cout << "code in OUTER4, call 0" << std::endl;
+	yield();
+
+	std::cout << "OUTER4 spawning OUTER3" << std::endl;
+	StartCoroutine(outer3);
+	yield();
+
+	for (int i = 1; i < 4; i++)
+	{
+		std::cout << "code in OUTER4, call " << i << std::endl;
+		yield();
+	}
 }
 
 void run()
@@ -87,10 +120,14 @@ void run()
 	{
 		delete coroutine;
 	}
+	g_outerCoroutines.clear();
+	g_outerCoroutinesActiveatable.clear();
 }
 
-void CoroutineWaitingForOtherCoroutineDemo()
+void CoroutineWaitingForAnotherCoroutineDemo()
 {
+	std::cout << "Demo: Coroutine waiting for another coroutine" << std::endl;
+
 	StartCoroutine(outer);
 
 	run();
@@ -100,8 +137,36 @@ void CoroutineWaitingForOtherCoroutineDemo()
 	std::cin.get();
 }
 
+void TwoConcurrentCoroutinesDemo()
+{
+	std::cout << "Demo: Two concurrent coroutines demo" << std::endl;
+
+	StartCoroutine(outer2);
+	StartCoroutine(outer3);
+
+	run();
+	std::cout << "done" << std::endl;
+
+	std::cin.get();
+}
+
+void CoroutineSpawningAnotherCoroutineDemo()
+{
+	std::cout << "Demo: Coroutine spawning another independent coroutine" << std::endl;
+
+	StartCoroutine(outer4);
+
+	run();
+	std::cout << "done" << std::endl;
+	std::cin.get();
+}
+
 int main()
 {
-	CoroutineWaitingForOtherCoroutineDemo();
+	CoroutineWaitingForAnotherCoroutineDemo();
+
+	TwoConcurrentCoroutinesDemo();
+
+	CoroutineSpawningAnotherCoroutineDemo();
 }
 
