@@ -7,8 +7,8 @@ ndk-build
 Copy: OpenGLEngine/Engine/engine.h -> Application/jni/src/include
 Copy: OpenGLEngine/libs -> Application/jni/src/libs
 cd Application
-ndk-build
-ant debug install
+build-and-run.bat
 
 # Reference
 https://www.youtube.com/watch?v=iVir4N55YQg
+http://stackoverflow.com/questions/9026152/how-to-run-an-android-app-on-the-device-with-ant
