@@ -21,13 +21,14 @@ struct engine
 	EGLDisplay display;
 	EGLSurface surface;
 	EGLContext context;
-	int32_t programObject;
-	float width;
-	float height;
 	float touchX;
 	float touchY;
 	bool touchIsDown;
 };
+
+int32_t shaderProgram;
+float width;
+float height;
 
 GLuint LoadShader(const char *shaderSrc, GLenum type)
 {
@@ -63,6 +64,117 @@ GLuint LoadShader(const char *shaderSrc, GLenum type)
 		}
 	}
 	return shader;
+}
+
+static int init() {
+	// Initialize GL state.
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_DEPTH_TEST);
+
+	char vShaderStr[] =
+			"attribute vec4 a_vPosition;   \n"
+			"attribute vec4 a_vColor;	   \n"
+			"varying vec4 v_vColor;		   \n"
+			"void main()                   \n"
+			"{                             \n"
+			"   gl_Position = a_vPosition; \n"
+			"	v_vColor = a_vColor;       \n"
+			"}                             \n";
+
+	char fShaderStr[] =
+			"precision mediump float;                   \n"
+			"varying vec4 v_vColor;		 				\n"
+			"void main()                                \n"
+			"{                                          \n"
+			"  gl_FragColor = v_vColor;					\n"
+			"}                                          \n";
+
+	GLuint vertexShader;
+	GLuint fragmentShader;
+	GLint linked;
+
+	// Load the vertex/fragment shaders
+	vertexShader = LoadShader(vShaderStr, GL_VERTEX_SHADER);
+	fragmentShader = LoadShader(fShaderStr, GL_FRAGMENT_SHADER);
+
+	// Create the program object
+	shaderProgram = glCreateProgram();
+	if(shaderProgram == 0)
+	{
+		return -1;
+	}
+
+	// Attach shaders to program
+	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, fragmentShader);
+
+	// Bind a_vPosition to attribute 0 and a_vColor to 1
+	glBindAttribLocation(shaderProgram, POSITION_PARAMETER_INDEX, "a_vPosition");
+	glBindAttribLocation(shaderProgram, COLOR_PARAMETER_INDEX, "a_vColor");
+
+	// Link the program
+	glLinkProgram(shaderProgram);
+
+	// Check the link status
+	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &linked);
+	if(!linked)
+	{
+		GLint infoLen = 0;
+		glGetProgramiv(shaderProgram, GL_INFO_LOG_LENGTH, &infoLen);
+
+		if(infoLen > 1)
+		{
+			char* infoLog = new char[infoLen];
+			glGetProgramInfoLog(shaderProgram, infoLen, NULL, infoLog);
+			LOGW("Error linking program:\n%s\n", infoLog);
+
+			delete[] infoLog;
+		}
+
+		glDeleteProgram(shaderProgram);
+		return -1;
+	}
+
+	return 0;
+}
+
+static void display()
+{ 
+    static const int32_t PositionNumElements = 3;
+    static const int32_t ColorNumElements = 4;
+    static const int32_t VertexSize = sizeof(GLfloat) * (PositionNumElements + ColorNumElements);
+
+	glViewport(0, 0, width, height);
+
+	// Just fill the screen with a color.
+	glClearColor(0.95f, 0.95f, 0.95f, 1);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	// Use the program object
+	glUseProgram(shaderProgram);
+
+	glEnableVertexAttribArray(POSITION_PARAMETER_INDEX);
+	glEnableVertexAttribArray(COLOR_PARAMETER_INDEX);
+
+	const float z = 0.0f; 
+	float left = -0.1f;
+	float right = 0.1f;
+	float top = 0.1f;
+	float bottom = -0.1f;
+	const float color[] = { 1.0f, 0.0f, 0.0f, 1.0f };
+	GLfloat triangle[] = { 0.0f, top, z,
+        color[0], color[1], color[2], color[3],
+        left, bottom, z,
+        color[0], color[1], color[2], color[3],
+        right, bottom, z,
+        color[0], color[1], color[2], color[3] };
+
+	glVertexAttribPointer(POSITION_PARAMETER_INDEX, PositionNumElements, GL_FLOAT, GL_FALSE, VertexSize, triangle);
+	glVertexAttribPointer(COLOR_PARAMETER_INDEX, ColorNumElements, GL_FLOAT, GL_FALSE, VertexSize, &triangle[3]);
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+    
+	glDisableVertexAttribArray(POSITION_PARAMETER_INDEX);
+	glDisableVertexAttribArray(COLOR_PARAMETER_INDEX);
 }
 
 static int initEGL(struct engine* engine)
@@ -127,123 +239,11 @@ static int initEGL(struct engine* engine)
 	engine->display = display;
 	engine->context = context;
 	engine->surface = surface;
-	engine->width = w;
-	engine->height = h;
+	width = w;
+	height = h;
 	engine->touchX = 0.0f;
 	engine->touchY = 0.0f;
 	engine->touchIsDown = false;  
-}
-
-static int init(struct engine* engine) {
-	// Initialize GL state.
-	glDisable(GL_CULL_FACE);
-	glDisable(GL_DEPTH_TEST);
-
-	char vShaderStr[] =
-			"attribute vec4 a_vPosition;   \n"
-			"attribute vec4 a_vColor;	   \n"
-			"varying vec4 v_vColor;		   \n"
-			"void main()                   \n"
-			"{                             \n"
-			"   gl_Position = a_vPosition; \n"
-			"	v_vColor = a_vColor;       \n"
-			"}                             \n";
-
-	char fShaderStr[] =
-			"precision mediump float;                   \n"
-			"varying vec4 v_vColor;		 				\n"
-			"void main()                                \n"
-			"{                                          \n"
-			"  gl_FragColor = v_vColor;					\n"
-			"}                                          \n";
-
-	GLuint vertexShader;
-	GLuint fragmentShader;
-	GLuint programObject;
-	GLint linked;
-
-	// Load the vertex/fragment shaders
-	vertexShader = LoadShader(vShaderStr, GL_VERTEX_SHADER);
-	fragmentShader = LoadShader(fShaderStr, GL_FRAGMENT_SHADER);
-
-	// Create the program object
-	engine->programObject = glCreateProgram();
-	if(engine->programObject == 0)
-	{
-		return -1;
-	}
-
-	// Attach shaders to program
-	glAttachShader(engine->programObject, vertexShader);
-	glAttachShader(engine->programObject, fragmentShader);
-
-	// Bind a_vPosition to attribute 0 and a_vColor to 1
-	glBindAttribLocation(engine->programObject, POSITION_PARAMETER_INDEX, "a_vPosition");
-	glBindAttribLocation(engine->programObject, COLOR_PARAMETER_INDEX, "a_vColor");
-
-	// Link the program
-	glLinkProgram(engine->programObject);
-
-	// Check the link status
-	glGetProgramiv(engine->programObject, GL_LINK_STATUS, &linked);
-	if(!linked)
-	{
-		GLint infoLen = 0;
-		glGetProgramiv(engine->programObject, GL_INFO_LOG_LENGTH, &infoLen);
-
-		if(infoLen > 1)
-		{
-			char* infoLog = new char[infoLen];
-			glGetProgramInfoLog(engine->programObject, infoLen, NULL, infoLog);
-			LOGW("Error linking program:\n%s\n", infoLog);
-
-			delete[] infoLog;
-		}
-
-		glDeleteProgram(engine->programObject);
-		return -1;
-	}
-
-	return 0;
-}
-
-static void display(int displayWidth, int displayHeight, GLuint program)
-{ 
-    static const int32_t PositionNumElements = 3;
-    static const int32_t ColorNumElements = 4;
-    static const int32_t VertexSize = sizeof(GLfloat) * (PositionNumElements + ColorNumElements);
-
-	glViewport(0, 0, displayWidth, displayHeight);
-
-	// Just fill the screen with a color.
-	glClearColor(0.95f, 0.95f, 0.95f, 1);
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	// Use the program object
-	glUseProgram(program);
-
-	glEnableVertexAttribArray(POSITION_PARAMETER_INDEX);
-	glEnableVertexAttribArray(COLOR_PARAMETER_INDEX);
-
-	const float z = 0.0f; 
-	float left = -0.1f;
-	float right = 0.1f;
-	float top = 0.1f;
-	float bottom = -0.1f;
-	const float color[] = { 1.0f, 0.0f, 0.0f, 1.0f };
-	GLfloat triangle[] = { 0.0f, top, z,
-        color[0], color[1], color[2], color[3],
-        left, bottom, z,
-        color[0], color[1], color[2], color[3],
-        right, bottom, z,
-        color[0], color[1], color[2], color[3] };
-
-	glVertexAttribPointer(POSITION_PARAMETER_INDEX, PositionNumElements, GL_FLOAT, GL_FALSE, VertexSize, triangle);
-	glVertexAttribPointer(COLOR_PARAMETER_INDEX, ColorNumElements, GL_FLOAT, GL_FALSE, VertexSize, &triangle[3]);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-    
-	glDisableVertexAttribArray(POSITION_PARAMETER_INDEX);
-	glDisableVertexAttribArray(COLOR_PARAMETER_INDEX);
 }
 
 static void close(struct engine* engine)
@@ -287,8 +287,8 @@ static int32_t input(struct android_app* app, AInputEvent* event)
 
 		if (ret)
 		{
-			engine->touchX = static_cast<float>(AMotionEvent_getRawX(event, 0)) / engine->width;
-			engine->touchY = static_cast<float>(AMotionEvent_getRawY(event, 0)) / engine->height;
+			engine->touchX = static_cast<float>(AMotionEvent_getRawX(event, 0)) / width;
+			engine->touchY = static_cast<float>(AMotionEvent_getRawY(event, 0)) / height;
 		}
 		return ret;
 	}
@@ -305,8 +305,8 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd)
 		if (engine->app->window != NULL)
 		{
             initEGL(engine);
-			init(engine);
-			display((int)engine->width, (int)engine->height, engine->programObject);
+			init();
+			display();
 		}
 		break;
 	case APP_CMD_TERM_WINDOW:
@@ -355,7 +355,7 @@ void android_main(struct android_app* state)
 			}
 		}
         
-		display((int)engine.width, (int)engine.height, engine.programObject);
+		display();
         eglSwapBuffers(engine.display, engine.surface);
 	}
 }
