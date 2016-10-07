@@ -11,61 +11,14 @@
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "native-activity", __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "native-activity", __VA_ARGS__))
 
-/**
- * Game Structures
- */
-struct Paddle
-{
-	float x;
-	float y;
-};
-
-static const float PADDLE_HALF_WIDTH = 0.15f;
-static const float PADDLE_HALF_HEIGHT = 0.025f;
-static const float PADDLE_START_X = 0.0f;
-static const float PADDLE_START_Y = -0.775f;
-static const float PADDLE_LEFT_BOUND = (-1.0f + PADDLE_HALF_WIDTH);
-static const float PADDLE_RIGHT_BOUND = (1.0f - PADDLE_HALF_WIDTH);
-
-static const float BALL_HALF_WIDTH = 0.025f;
-static const float BALL_HALF_HEIGHT = 0.025f;
-static const float BALL_START_X = 0.0f;
-static const float BALL_START_Y = 0.0f;
-static const float BALL_VELOCITY = 0.015f;
-static const float BALL_LEFT_BOUND = (-1.0f + BALL_HALF_WIDTH);
-static const float BALL_RIGHT_BOUND = (1.0f - BALL_HALF_WIDTH);
-static const float BALL_TOP_BOUND = (1.0f - BALL_HALF_HEIGHT);
-static const float BALL_BOTTOM_BOUND = (-1.0f + BALL_HALF_HEIGHT);
-
-static const float BLOCK_HALF_WIDTH = 0.15f;
-static const float BLOCK_WIDTH = BLOCK_HALF_WIDTH * 2.0f;
-static const float BLOCK_HALF_HEIGHT = 0.05f;
-static const float BLOCK_HEIGHT = BLOCK_HALF_HEIGHT * 2.0f;
-static const float BLOCK_START_POSITION = -0.62f;
-static const float BLOCK_HORIZONTAL_GAP = 0.01f;
-
-static const int32_t NUM_BLOCKS = 15;
-static const int32_t NUM_BLOCKS_ROW = 5;
-
 static const int32_t VERTEX_SIZE = sizeof(GLfloat) * 7;
 static const int32_t POSITION_PARAMETER_INDEX = 0;
-static const int32_t POSITION_NUM_ELEMENTS = 3;
 static const int32_t COLOR_PARAMETER_INDEX = 1;
+static const int32_t POSITION_NUM_ELEMENTS = 3;
 static const int32_t COLOR_NUM_ELEMENTS = 4;
 
-static const int32_t TRIANGLE_NUM_VERTICES = 3;
 static const int32_t QUAD_NUM_VERTICES = 6;
 
-struct block
-{
-	float x;
-	float y;
-	bool isActive;
-};
-
-/**
- * Shared state for our app.
- */
 struct engine
 {
 	struct android_app* app;
@@ -78,27 +31,8 @@ struct engine
 	float height;
 	float touchX;
 	float touchY;
-	float playerX;
-	float playerY;
-	float ballX;
-	float ballY;
-	float ballVelocityX;
-	float ballVelocityY;
 	bool touchIsDown;
-	block blocks[NUM_BLOCKS];
 };
-
-static void engine_init_blocks(struct engine* engine)
-{
-	float blockYPos[] = { 0.8f, 0.675f, 0.55f };
-
-	for (int32_t i=0; i<NUM_BLOCKS; ++i)
-	{
-		engine->blocks[i].x = BLOCK_START_POSITION + ((BLOCK_WIDTH + BLOCK_HORIZONTAL_GAP) * (i % NUM_BLOCKS_ROW));
-		engine->blocks[i].y = blockYPos[i / NUM_BLOCKS_ROW];
-		engine->blocks[i].isActive = true;
-	}
-}
 
 GLuint LoadShader(const char *shaderSrc, GLenum type)
 {
@@ -136,10 +70,7 @@ GLuint LoadShader(const char *shaderSrc, GLenum type)
 	return shader;
 }
 
-/**
- * Initialize an EGL context for the current display.
- */
-static int engine_init_display(struct engine* engine) {
+static int init(struct engine* engine) {
 	// initialize OpenGL ES and EGL
 
 	/*
@@ -205,12 +136,6 @@ static int engine_init_display(struct engine* engine) {
 	engine->touchX = 0.0f;
 	engine->touchY = 0.0f;
 	engine->touchIsDown = false;
-	engine->playerX = PADDLE_START_X;
-	engine->playerY = PADDLE_START_Y;
-	engine->ballX = BALL_START_X;
-	engine->ballY = BALL_START_Y;
-	engine->ballVelocityX = BALL_VELOCITY;
-	engine->ballVelocityY = BALL_VELOCITY;
 
 	// Initialize GL state.
 	glDisable(GL_CULL_FACE);
@@ -281,15 +206,10 @@ static int engine_init_display(struct engine* engine) {
 		return -1;
 	}
 
-	engine_init_blocks(engine);
-
 	return 0;
 }
 
-/**
- * Just the current frame in the display.
- */
-static void engine_draw_frame(struct engine* engine)
+static void display(struct engine* engine)
 {
 	glViewport(0, 0, static_cast<int32_t>(engine->width), static_cast<int32_t>(engine->height));
 
@@ -304,10 +224,10 @@ static void engine_draw_frame(struct engine* engine)
 	glEnableVertexAttribArray(COLOR_PARAMETER_INDEX);
 
 	const float z = 0.0f; 
-	float left = engine->ballX - BALL_HALF_WIDTH;
-	float right = engine->ballX + BALL_HALF_WIDTH;
-	float top = engine->ballY - BALL_HALF_HEIGHT;
-	float bottom = engine->ballY + BALL_HALF_HEIGHT;
+	float left = -0.1f;
+	float right = 0.1f;
+	float top = -0.1f;
+	float bottom = 0.1f;
 	const float ballColor[] = {1.0f, 0.0f, 0.0f, 1.0f};
 	GLfloat ball[] = {left,  top, z,
 			ballColor[0], ballColor[1], ballColor[2], ballColor[3],
@@ -332,9 +252,6 @@ static void engine_draw_frame(struct engine* engine)
 	eglSwapBuffers(engine->display, engine->surface);
 }
 
-/**
- * Tear down the EGL context currently associated with the display.
- */
 static void engine_term_display(struct engine* engine)
 {
 	if (engine->display != EGL_NO_DISPLAY)
@@ -355,9 +272,6 @@ static void engine_term_display(struct engine* engine)
 	engine->surface = EGL_NO_SURFACE;
 }
 
-/**
- * Process the next input event.
- */
 static int32_t engine_handle_input(struct android_app* app, AInputEvent* event)
 {
 	struct engine* engine = (struct engine*)app->userData;
@@ -387,9 +301,6 @@ static int32_t engine_handle_input(struct android_app* app, AInputEvent* event)
 	return 0;
 }
 
-/**
- * Process the next main command.
- */
 static void engine_handle_cmd(struct android_app* app, int32_t cmd)
 {
 	struct engine* engine = static_cast<struct engine*>(app->userData);
@@ -399,8 +310,8 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd)
 		// The window is being shown, get it ready.
 		if (engine->app->window != NULL)
 		{
-			engine_init_display(engine);
-			engine_draw_frame(engine);
+			init(engine);
+			display(engine);
 		}
 		break;
 	case APP_CMD_TERM_WINDOW:
@@ -410,11 +321,6 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd)
 	}
 }
 
-/**
- * This is the main entry point of a native application that is using
- * android_native_app_glue.  It runs in its own thread, with its own
- * event loop for receiving input events and doing other things.
- */
 void android_main(struct android_app* state)
 {
 	struct engine engine;
@@ -454,6 +360,6 @@ void android_main(struct android_app* state)
 			}
 		}
         
-		engine_draw_frame(&engine);
+		display(&engine);
 	}
 }

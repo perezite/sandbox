@@ -1,5 +1,7 @@
 @echo off
 
+cls
+
 cd jni
 call ndk-build
 cd ..
