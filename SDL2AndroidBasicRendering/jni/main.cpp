@@ -291,12 +291,6 @@ static int engine_init_display(struct engine* engine) {
  */
 static void engine_draw_frame(struct engine* engine)
 {
-	if (engine->display == NULL)
-	{
-		// No display.
-		return;
-	}
-
 	glViewport(0, 0, static_cast<int32_t>(engine->width), static_cast<int32_t>(engine->height));
 
 	// Just fill the screen with a color.
@@ -309,57 +303,11 @@ static void engine_draw_frame(struct engine* engine)
 	glEnableVertexAttribArray(POSITION_PARAMETER_INDEX);
 	glEnableVertexAttribArray(COLOR_PARAMETER_INDEX);
 
-	const float z = 0.0f;
-	const float buttonColor[] = {0.25f, 0.25f, 0.25f, 1.0f};
-	GLfloat leftButton[] = {-0.85f, 0.75f, z,
-			buttonColor[0], buttonColor[1], buttonColor[2], buttonColor[3],
-			-0.9f, 0.8f, z,
-			buttonColor[0], buttonColor[1], buttonColor[2], buttonColor[3],
-			-0.85f,  0.85f, z,
-			buttonColor[0], buttonColor[1], buttonColor[2], buttonColor[3]};
-
-	// Load the vertex data
-	glVertexAttribPointer(POSITION_PARAMETER_INDEX, POSITION_NUM_ELEMENTS, GL_FLOAT, GL_FALSE, VERTEX_SIZE, leftButton);
-	glVertexAttribPointer(COLOR_PARAMETER_INDEX, COLOR_NUM_ELEMENTS, GL_FLOAT, GL_FALSE, VERTEX_SIZE, &leftButton[3]);
-	glDrawArrays(GL_TRIANGLES, 0, TRIANGLE_NUM_VERTICES);
-
-	GLfloat rightButton[] = {0.85f,  0.75f, z,
-			buttonColor[0], buttonColor[1], buttonColor[2], buttonColor[3],
-			0.9f, 0.8f, z,
-			buttonColor[0], buttonColor[1], buttonColor[2], buttonColor[3],
-			0.85f,  0.85f, z,
-			buttonColor[0], buttonColor[1], buttonColor[2], buttonColor[3]};
-
-	glVertexAttribPointer(POSITION_PARAMETER_INDEX, POSITION_NUM_ELEMENTS, GL_FLOAT, GL_FALSE, VERTEX_SIZE, rightButton);
-	glVertexAttribPointer(COLOR_PARAMETER_INDEX, COLOR_NUM_ELEMENTS, GL_FLOAT, GL_FALSE, VERTEX_SIZE, &rightButton[3]);
-	glDrawArrays(GL_TRIANGLES, 0, TRIANGLE_NUM_VERTICES);
-
-	float left = engine->playerX - PADDLE_HALF_WIDTH;
-	float right = engine->playerX + PADDLE_HALF_WIDTH;
-	float top = engine->playerY - PADDLE_HALF_HEIGHT;
-	float bottom = engine->playerY + PADDLE_HALF_HEIGHT;
-	const float paddleColor[] = {1.0f, 0.0f, 0.0f, 1.0f};
-	GLfloat paddle[] = {left, top, z,
-			paddleColor[0], paddleColor[1], paddleColor[2], paddleColor[3],
-			left, bottom, z,
-			paddleColor[0], paddleColor[1], paddleColor[2], paddleColor[3],
-			right, top, z,
-			paddleColor[0], paddleColor[1], paddleColor[2], paddleColor[3],
-			right, top, z,
-			paddleColor[0], paddleColor[1], paddleColor[2], paddleColor[3],
-			left, bottom, z,
-			paddleColor[0], paddleColor[1], paddleColor[2], paddleColor[3],
-			right, bottom, z,
-			paddleColor[0], paddleColor[1], paddleColor[2], paddleColor[3]};
-
-	glVertexAttribPointer(POSITION_PARAMETER_INDEX, POSITION_NUM_ELEMENTS, GL_FLOAT, GL_FALSE, VERTEX_SIZE, paddle);
-	glVertexAttribPointer(COLOR_PARAMETER_INDEX, COLOR_NUM_ELEMENTS, GL_FLOAT, GL_FALSE, VERTEX_SIZE, &paddle[3]);
-	glDrawArrays(GL_TRIANGLES, 0, QUAD_NUM_VERTICES);
-
-	left = engine->ballX - BALL_HALF_WIDTH;
-	right = engine->ballX + BALL_HALF_WIDTH;
-	top = engine->ballY - BALL_HALF_HEIGHT;
-	bottom = engine->ballY + BALL_HALF_HEIGHT;
+	const float z = 0.0f; 
+	float left = engine->ballX - BALL_HALF_WIDTH;
+	float right = engine->ballX + BALL_HALF_WIDTH;
+	float top = engine->ballY - BALL_HALF_HEIGHT;
+	float bottom = engine->ballY + BALL_HALF_HEIGHT;
 	const float ballColor[] = {1.0f, 0.0f, 0.0f, 1.0f};
 	GLfloat ball[] = {left,  top, z,
 			ballColor[0], ballColor[1], ballColor[2], ballColor[3],
@@ -377,41 +325,7 @@ static void engine_draw_frame(struct engine* engine)
 	glVertexAttribPointer(POSITION_PARAMETER_INDEX, POSITION_NUM_ELEMENTS, GL_FLOAT, GL_FALSE, VERTEX_SIZE, ball);
 	glVertexAttribPointer(COLOR_PARAMETER_INDEX, COLOR_NUM_ELEMENTS, GL_FLOAT, GL_FALSE, VERTEX_SIZE, &ball[3]);
 	glDrawArrays(GL_TRIANGLES, 0, QUAD_NUM_VERTICES);
-
-	GLfloat blockColors[][4] = { {0.0f, 1.0f, 0.0f, 1.0f},{0.0f, 0.0f, 1.0f, 1.0f} };
-	for (int32_t i=0; i<NUM_BLOCKS; ++i)
-	{
-		block& currentBlock = engine->blocks[i];
-		if (currentBlock.isActive)
-		{
-			const int32_t colorIndex = i % 2;
-			const float r = blockColors[colorIndex][0];
-			const float g = blockColors[colorIndex][1];
-			const float b = blockColors[colorIndex][2];
-			const float a = blockColors[colorIndex][3];
-			const float left = currentBlock.x - BLOCK_HALF_WIDTH;
-			const float right = currentBlock.x + BLOCK_HALF_WIDTH;
-			const float top = currentBlock.y + BLOCK_HALF_HEIGHT;
-			const float bottom = currentBlock.y - BLOCK_HALF_HEIGHT;
-			GLfloat block[] = {left, top, z,
-					r, g, b, a,
-					left, bottom, z,
-					r, g, b, a,
-					right, top, z,
-					r, g, b, a,
-					right, top, z,
-					r, g, b, a,
-					left, bottom, z,
-					r, g, b, a,
-					right, bottom, z,
-					r, g, b, a};
-
-			glVertexAttribPointer(POSITION_PARAMETER_INDEX, POSITION_NUM_ELEMENTS, GL_FLOAT, GL_FALSE, VERTEX_SIZE, block);
-			glVertexAttribPointer(COLOR_PARAMETER_INDEX, COLOR_NUM_ELEMENTS, GL_FLOAT, GL_FALSE, VERTEX_SIZE, &block[3]);
-			glDrawArrays(GL_TRIANGLES, 0, QUAD_NUM_VERTICES);
-		}
-	}
-
+    
 	glDisableVertexAttribArray(POSITION_PARAMETER_INDEX);
 	glDisableVertexAttribArray(COLOR_PARAMETER_INDEX);
 
