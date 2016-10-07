@@ -207,20 +207,20 @@ static int init(struct engine* engine) {
 	return 0;
 }
 
-static void display(struct engine* engine)
+static void display(int displayWidth, int displayHeight, GLuint program)
 { 
     static const int32_t PositionNumElements = 3;
     static const int32_t ColorNumElements = 4;
     static const int32_t VertexSize = sizeof(GLfloat) * (PositionNumElements + ColorNumElements);
 
-	glViewport(0, 0, static_cast<int32_t>(engine->width), static_cast<int32_t>(engine->height));
+	glViewport(0, 0, displayWidth, displayHeight);
 
 	// Just fill the screen with a color.
 	glClearColor(0.95f, 0.95f, 0.95f, 1);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	// Use the program object
-	glUseProgram(engine->programObject);
+	glUseProgram(program);
 
 	glEnableVertexAttribArray(POSITION_PARAMETER_INDEX);
 	glEnableVertexAttribArray(COLOR_PARAMETER_INDEX);
@@ -306,7 +306,7 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd)
 		{
             initEGL(engine);
 			init(engine);
-			display(engine);
+			display((int)engine->width, (int)engine->height, engine->programObject);
 		}
 		break;
 	case APP_CMD_TERM_WINDOW:
@@ -355,7 +355,7 @@ void android_main(struct android_app* state)
 			}
 		}
         
-		display(&engine);
+		display((int)engine.width, (int)engine.height, engine.programObject);
         eglSwapBuffers(engine.display, engine.surface);
 	}
 }
