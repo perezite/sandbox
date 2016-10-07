@@ -11,13 +11,8 @@
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "native-activity", __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "native-activity", __VA_ARGS__))
 
-static const int32_t VERTEX_SIZE = sizeof(GLfloat) * 7;
 static const int32_t POSITION_PARAMETER_INDEX = 0;
 static const int32_t COLOR_PARAMETER_INDEX = 1;
-static const int32_t POSITION_NUM_ELEMENTS = 3;
-static const int32_t COLOR_NUM_ELEMENTS = 4;
-
-static const int32_t QUAD_NUM_VERTICES = 6;
 
 struct engine
 {
@@ -140,9 +135,6 @@ static int initEGL(struct engine* engine)
 }
 
 static int init(struct engine* engine) {
-
-    initEGL(engine);
-
 	// Initialize GL state.
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
@@ -216,7 +208,11 @@ static int init(struct engine* engine) {
 }
 
 static void display(struct engine* engine)
-{
+{ 
+    static const int32_t PositionNumElements = 3;
+    static const int32_t ColorNumElements = 4;
+    static const int32_t VertexSize = sizeof(GLfloat) * (PositionNumElements + ColorNumElements);
+
 	glViewport(0, 0, static_cast<int32_t>(engine->width), static_cast<int32_t>(engine->height));
 
 	// Just fill the screen with a color.
@@ -232,33 +228,25 @@ static void display(struct engine* engine)
 	const float z = 0.0f; 
 	float left = -0.1f;
 	float right = 0.1f;
-	float top = -0.1f;
-	float bottom = 0.1f;
-	const float ballColor[] = {1.0f, 0.0f, 0.0f, 1.0f};
-	GLfloat ball[] = {left,  top, z,
-			ballColor[0], ballColor[1], ballColor[2], ballColor[3],
-			left, bottom,  z,
-			ballColor[0], ballColor[1], ballColor[2], ballColor[3],
-			right,   top, z,
-			ballColor[0], ballColor[1], ballColor[2], ballColor[3],
-			right,   top, z,
-			ballColor[0], ballColor[1], ballColor[2], ballColor[3],
-			left, bottom,  z,
-			ballColor[0], ballColor[1], ballColor[2], ballColor[3],
-			right,  bottom, z,
-			ballColor[0], ballColor[1], ballColor[2], ballColor[3]};
+	float top = 0.1f;
+	float bottom = -0.1f;
+	const float color[] = { 1.0f, 0.0f, 0.0f, 1.0f };
+	GLfloat triangle[] = { 0.0f, top, z,
+        color[0], color[1], color[2], color[3],
+        left, bottom, z,
+        color[0], color[1], color[2], color[3],
+        right, bottom, z,
+        color[0], color[1], color[2], color[3] };
 
-	glVertexAttribPointer(POSITION_PARAMETER_INDEX, POSITION_NUM_ELEMENTS, GL_FLOAT, GL_FALSE, VERTEX_SIZE, ball);
-	glVertexAttribPointer(COLOR_PARAMETER_INDEX, COLOR_NUM_ELEMENTS, GL_FLOAT, GL_FALSE, VERTEX_SIZE, &ball[3]);
-	glDrawArrays(GL_TRIANGLES, 0, QUAD_NUM_VERTICES);
+	glVertexAttribPointer(POSITION_PARAMETER_INDEX, PositionNumElements, GL_FLOAT, GL_FALSE, VertexSize, triangle);
+	glVertexAttribPointer(COLOR_PARAMETER_INDEX, ColorNumElements, GL_FLOAT, GL_FALSE, VertexSize, &triangle[3]);
+	glDrawArrays(GL_TRIANGLES, 0, 3);
     
 	glDisableVertexAttribArray(POSITION_PARAMETER_INDEX);
 	glDisableVertexAttribArray(COLOR_PARAMETER_INDEX);
-
-	eglSwapBuffers(engine->display, engine->surface);
 }
 
-static void engine_term_display(struct engine* engine)
+static void close(struct engine* engine)
 {
 	if (engine->display != EGL_NO_DISPLAY)
 	{
@@ -278,7 +266,7 @@ static void engine_term_display(struct engine* engine)
 	engine->surface = EGL_NO_SURFACE;
 }
 
-static int32_t engine_handle_input(struct android_app* app, AInputEvent* event)
+static int32_t input(struct android_app* app, AInputEvent* event)
 {
 	struct engine* engine = (struct engine*)app->userData;
 	if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION)
@@ -316,13 +304,14 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd)
 		// The window is being shown, get it ready.
 		if (engine->app->window != NULL)
 		{
+            initEGL(engine);
 			init(engine);
 			display(engine);
 		}
 		break;
 	case APP_CMD_TERM_WINDOW:
 		// The window is being hidden or closed, clean it up.
-		engine_term_display(engine);
+		close(engine);
 		break;
 	}
 }
@@ -337,7 +326,7 @@ void android_main(struct android_app* state)
 	memset(&engine, 0, sizeof(engine));
 	state->userData = &engine;
 	state->onAppCmd = engine_handle_cmd;
-	state->onInputEvent = engine_handle_input;
+	state->onInputEvent = input;
 	engine.app = state;
 
 	// loop waiting for stuff to do.
@@ -361,11 +350,12 @@ void android_main(struct android_app* state)
 			// Check if we are exiting.
 			if (state->destroyRequested != 0)
 			{
-				engine_term_display(&engine);
+				close(&engine);
 				return;
 			}
 		}
         
 		display(&engine);
+        eglSwapBuffers(engine.display, engine.surface);
 	}
 }
