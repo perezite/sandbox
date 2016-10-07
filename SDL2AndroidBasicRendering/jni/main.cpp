@@ -70,7 +70,8 @@ GLuint LoadShader(const char *shaderSrc, GLenum type)
 	return shader;
 }
 
-static int init(struct engine* engine) {
+static int initEGL(struct engine* engine)
+{
 	// initialize OpenGL ES and EGL
 
 	/*
@@ -135,7 +136,12 @@ static int init(struct engine* engine) {
 	engine->height = h;
 	engine->touchX = 0.0f;
 	engine->touchY = 0.0f;
-	engine->touchIsDown = false;
+	engine->touchIsDown = false;  
+}
+
+static int init(struct engine* engine) {
+
+    initEGL(engine);
 
 	// Initialize GL state.
 	glDisable(GL_CULL_FACE);
