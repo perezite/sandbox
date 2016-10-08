@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <math.h>
 #include <string>
 
 #include "SDL.h"
@@ -11,10 +12,12 @@
 
 #include <android/log.h>
 
-using namespace std;
+#define _USE_MATH_DEFINES
 
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "native-activity", __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "native-activity", __VA_ARGS__))
+
+using namespace std;
 
 static const int32_t POSITION_PARAMETER_INDEX = 0;
 static const int32_t COLOR_PARAMETER_INDEX = 1;
@@ -138,28 +141,51 @@ static void display()
     static const int32_t VertexSize = sizeof(GLfloat) * (PositionNumElements + ColorNumElements);
 
 	glViewport(0, 0, width, height);
-
+    
 	// Just fill the screen with a color.
-	glClearColor(0.95f, 0.95f, 0.95f, 1);
-	glClear(GL_COLOR_BUFFER_BIT);
+    clearScreen(0.95f, 0.95f, 0.95f, 1.0f); // call from the external opengl engine
 
 	// Use the program object
 	glUseProgram(shaderProgram);
-
+    
 	glEnableVertexAttribArray(POSITION_PARAMETER_INDEX);
 	glEnableVertexAttribArray(COLOR_PARAMETER_INDEX);
-
-	const float z = 0.0f; 
-	float left = -0.1f;
-	float right = 0.1f;
-	float top = 0.1f;
-	float bottom = -0.1f;
+    
+    // compute time delta in seconds
+    static Uint32 previousTicks = SDL_GetTicks();
+    Uint32 currentTicks = SDL_GetTicks();
+    Uint32 elapsedTicks = currentTicks - previousTicks;  
+    previousTicks = SDL_GetTicks();
+    float deltaTime = (float)elapsedTicks / 1000.0f;
+    
+    // set untransformed points
+    const float z = 0.0f; 
+	float leftX = -0.3f;
+    float leftY = -0.3f;
+    float rightX = 0.3f;
+    float rightY = -0.3f;
+    float topX = 0.0f;
+    float topY = 0.3f;
+              
+    // compute rotated points
+    // float degToRad = (2.0f * M_PI) / 360.0f; 
+    float omega = M_PI; 
+    static float alpha = 0.0f;
+    alpha += omega * deltaTime;
+    float rotLeftX = cos(alpha)*leftX - sin(alpha)*leftY;
+    float rotLeftY = sin(alpha)*leftX + cos(alpha)*leftY;
+    float rotRightX = cos(alpha)*rightX - sin(alpha)*rightY;
+    float rotRightY = sin(alpha)*rightX + cos(alpha)*rightY;
+    float rotTopX = cos(alpha)*topX - sin(alpha)*topY;
+    float rotTopY = sin(alpha)*topX + cos(alpha)*topY;
+  
+    // render
 	const float color[] = { 1.0f, 0.0f, 0.0f, 1.0f };
-	GLfloat triangle[] = { 0.0f, top, z,
+	GLfloat triangle[] = { rotTopX, rotTopY, z,
         color[0], color[1], color[2], color[3],
-        left, bottom, z,
+        rotLeftX, rotLeftY, z,
         color[0], color[1], color[2], color[3],
-        right, bottom, z,
+        rotRightX, rotRightY, z,
         color[0], color[1], color[2], color[3] };
 
 	glVertexAttribPointer(POSITION_PARAMETER_INDEX, PositionNumElements, GL_FLOAT, GL_FALSE, VertexSize, triangle);
@@ -228,12 +254,10 @@ int main(int argc, char *argv[])
 
 		SDL_Log("%d\n", count++);
 
-        /*glClearColor((rand() % 256) / 256.0f, (rand() % 256) / 256.0f, (rand() % 256) / 256.0f, 1);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);*/
         display();
              
 		SDL_GL_SwapWindow(window);
-		SDL_Delay(10);
+		// SDL_Delay(10);
 	}
 
 	exit(0);
