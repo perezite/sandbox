@@ -25,6 +25,9 @@
 #ifndef IMPORTGL_H_INCLUDED
 #define IMPORTGL_H_INCLUDED
 
+#ifndef ANDROID_NDK
+#define ANDROID_NDK
+#endif
 
 #ifdef __cplusplus
 extern "C" {

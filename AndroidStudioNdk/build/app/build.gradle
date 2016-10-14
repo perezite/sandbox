@@ -15,12 +15,13 @@ android {
         targetSdkVersion 23
         versionCode  1
         versionName  "1.0"
+        /*
         externalNativeBuild {
             cmake {
                 arguments '-DANDROID_PLATFORM=android-9',
                           '-DANDROID_TOOLCHAIN=gcc'
             }
-        }
+        }*/
     }
     buildTypes {
         release {
@@ -30,8 +31,11 @@ android {
         }
     }
     externalNativeBuild {
-        cmake {
+        /*cmake {
             path 'src/main/cpp/CMakeLists.txt'
+        }*/
+        ndkBuild {
+            path 'src/main/cpp/jni/Android.mk'
         }
     }
     splits {
