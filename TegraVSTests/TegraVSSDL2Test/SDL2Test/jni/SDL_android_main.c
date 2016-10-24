@@ -14,7 +14,7 @@ Functions called by JNI
 #include <jni.h>
 
 /* Called before SDL_main() to initialize JNI bindings in SDL library */
-extern void SDL_Android_Init(JNIEnv* env, jclass cls);
+// extern void SDL_Android_Init(JNIEnv* env, jclass cls);
 
 /* Start up the SDL app */
 JNIEXPORT int JNICALL Java_org_libsdl_app_SDLActivity_nativeInit(JNIEnv* env, jclass cls, jobject array)
@@ -29,10 +29,10 @@ JNIEXPORT int JNICALL Java_org_libsdl_app_SDLActivity_nativeInit(JNIEnv* env, jc
 	SDL_SetMainReady();
 
 	/* Prepare the arguments. */
-
 	int len = (*env)->GetArrayLength(env, array);
-	char* argv = malloc(sizeof(char*) * (1 + len + 1));
+	char** argv = malloc(sizeof(char*) * (1 + len + 1));
 	// char* argv[1 + len + 1];
+
 	argc = 0;
 	/* Use the name "app_process" so PHYSFS_platformCalcBaseDir() works.
 	https://bitbucket.org/MartinFelis/love-android-sdl2/issue/23/release-build-crash-on-start
