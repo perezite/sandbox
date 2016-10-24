@@ -41,16 +41,17 @@
     <ClCompile>
       <CppLanguageStandard>gnu++11</CppLanguageStandard>
       <AdditionalIncludeDirectories>../include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>__ANDROID__</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>../lib/SharedLibrary</AdditionalLibraryDirectories>
-      <AdditionalDependencies>android;EGL;GLESv1_CM;SharedLibrary</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../lib/SharedLibrary;../lib/SDL2;../lib/OpenGLEngine</AdditionalLibraryDirectories>
+      <AdditionalDependencies>android;EGL;GLESv1_CM;GLESv2;SharedLibrary;OpenGLEngine;SDL2</AdditionalDependencies>
     </Link>
     <AntBuild>
-      <NativeLibDirectories>../lib/SharedLibrary</NativeLibDirectories>
+      <NativeLibDirectories>../lib/SharedLibrary;../lib/SDL2;../lib/OpenGLEngine</NativeLibDirectories>
     </AntBuild>
     <AntBuild>
-      <NativeLibDependencies>SharedLibrary</NativeLibDependencies>
+      <NativeLibDependencies>SharedLibrary;OpenGLEngine;SDL2</NativeLibDependencies>
     </AntBuild>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Tegra-Android'">
@@ -72,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="jni\HelloJni.cpp" />
+    <ClCompile Include="jni\SDL_android_main.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

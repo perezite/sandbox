@@ -84,6 +84,7 @@ public class HelloJni extends Activity
      * installation time by the package manager.
      */
     static {
+        System.loadLibrary("SDL2");
         System.loadLibrary("SDL2Test");
     }
 }
