@@ -18,8 +18,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{103B124D-A117-47B9-9243-71300032DF04}</ProjectGuid>
-    <RootNamespace>SharedLibraryConsumer</RootNamespace>
+    <ProjectGuid>{82531199-42F9-4DE8-93E5-1BA700E4591C}</ProjectGuid>
+    <RootNamespace>Android1</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|Tegra-Android'">
@@ -40,57 +40,40 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Tegra-Android'">
     <ClCompile>
       <CppLanguageStandard>gnu++11</CppLanguageStandard>
+      <PreprocessorDefinitions>DISABLE_IMPORTGL</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>..\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SharedLibrary</AdditionalDependencies>
+      <AdditionalDependencies>android;EGL;GLESv1_CM</AdditionalDependencies>
     </Link>
-    <ProjectReference>
-      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
-    </ProjectReference>
-    <AntBuild>
-      <NativeLibDirectories>..\Lib;%(NativeLibDirectories)</NativeLibDirectories>
-    </AntBuild>
-    <AntBuild>
-      <NativeLibDependencies>SharedLibrary</NativeLibDependencies>
-    </AntBuild>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Tegra-Android'">
     <ClCompile>
       <CppLanguageStandard>gnu++11</CppLanguageStandard>
+      <PreprocessorDefinitions>DISABLE_IMPORTGL</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>C:\test\TegraSharedLibrary\SharedLibrary\Tegra-Android\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SharedLibrary</AdditionalDependencies>
+      <AdditionalDependencies>android;EGL;GLESv1_CM</AdditionalDependencies>
     </Link>
-    <ProjectReference>
-      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
-    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Shipping|Tegra-Android'">
     <ClCompile>
       <CppLanguageStandard>gnu++11</CppLanguageStandard>
+      <PreprocessorDefinitions>DISABLE_IMPORTGL</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>C:\test\TegraSharedLibrary\SharedLibrary\Tegra-Android\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SharedLibrary</AdditionalDependencies>
+      <AdditionalDependencies>android;EGL;GLESv1_CM</AdditionalDependencies>
     </Link>
-    <ProjectReference>
-      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
-    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
     <AndroidBuild Include="AndroidManifest.xml" />
     <AndroidBuild Include="res\values\strings.xml" />
   </ItemGroup>
   <ItemGroup>
-    <JCompile Include="src\com\example\hellojni\HelloJni.java" />
+    <ClCompile Include="jni\main.cpp" />
+    <ClCompile Include="native_app_glue\android_native_app_glue.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="jni\HelloJni.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="jni\SharedLibrary.h" />
+    <ClInclude Include="native_app_glue\android_native_app_glue.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
