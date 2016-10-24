@@ -16,7 +16,7 @@ LOCAL_MODULE := main
 #SDL_PATH := ../SDL2
 MY_CODE_PATH := $(LOCAL_PATH)/../../../../../src
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../../include
-LOCAL_SRC_FILES := SDL_android_main.c \
+LOCAL_SRC_FILES := $(MY_CODE_PATH)/SDL_android_main.c \
     $(MY_CODE_PATH)/main.cpp
 LOCAL_SHARED_LIBRARIES := SDL2
 LOCAL_LDLIBS := -lGLESv1_CM -lGLESv2 -llog
