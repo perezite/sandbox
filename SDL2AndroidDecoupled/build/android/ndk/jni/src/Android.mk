@@ -13,7 +13,6 @@ include $(PREBUILT_SHARED_LIBRARY)
 #####################
 include $(CLEAR_VARS)
 LOCAL_MODULE := main
-#SDL_PATH := ../SDL2
 MY_CODE_PATH := $(LOCAL_PATH)/../../../../../src
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../../include
 LOCAL_SRC_FILES := $(MY_CODE_PATH)/SDL_android_main.c \
