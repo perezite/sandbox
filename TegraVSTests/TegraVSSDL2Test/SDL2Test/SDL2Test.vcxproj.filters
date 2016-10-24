@@ -13,13 +13,13 @@
     <Filter Include="res\values">
       <UniqueIdentifier>01acebaf-ca77-41be-a8ea-4bb60e2a16bc</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\com">
+    <Filter Include="src\org">
       <UniqueIdentifier>f8442267-c8b0-43b9-8cfc-a8edde560c0c</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\com\example">
+    <Filter Include="src\org\libsdl">
       <UniqueIdentifier>2af088c8-2ba2-42ec-8505-418ef5ed0a4e</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\com\example\hellojni">
+    <Filter Include="src\org\libsdl\app">
       <UniqueIdentifier>a24a7af2-1c67-4e46-8ca7-506cb4d55fc4</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -30,16 +30,16 @@
     </AndroidBuild>
   </ItemGroup>
   <ItemGroup>
-    <JCompile Include="src\com\example\hellojni\HelloJni.java">
-      <Filter>src\com\example\hellojni</Filter>
-    </JCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="jni\HelloJni.cpp">
-      <Filter>jni</Filter>
-    </ClCompile>
     <ClCompile Include="jni\SDL_android_main.c">
       <Filter>jni</Filter>
     </ClCompile>
+    <ClCompile Include="jni\SDL_main.cpp">
+      <Filter>jni</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <JCompile Include="src\org\libsdl\app\SDLActivity.java">
+      <Filter>src\org\libsdl\app</Filter>
+    </JCompile>
   </ItemGroup>
 </Project>

@@ -69,11 +69,11 @@
     <AndroidBuild Include="res\values\strings.xml" />
   </ItemGroup>
   <ItemGroup>
-    <JCompile Include="src\com\example\hellojni\HelloJni.java" />
+    <ClCompile Include="jni\SDL_main.cpp" />
+    <ClCompile Include="jni\SDL_android_main.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="jni\HelloJni.cpp" />
-    <ClCompile Include="jni\SDL_android_main.c" />
+    <JCompile Include="src\org\libsdl\app\SDLActivity.java" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
