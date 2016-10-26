@@ -1,0 +1,2 @@
+set solib-search-path Z:/Indie/Development/Simulo/sandbox/TegraVSTests/TegraVSSDL2WithMakefilesTest/build/android/ndk/obj/local/mips64
+directory Z:/Indie/Software/Android/android-ndk-r12b/build//../platforms/android-21/arch-mips64/usr/include Z:/Indie/Development/Simulo/sandbox/TegraVSTests/TegraVSSDL2WithMakefilesTest/build/android/ndk/jni Z:/Indie/Software/Android/android-ndk-r12b/build//../sources/cxx-stl/system
