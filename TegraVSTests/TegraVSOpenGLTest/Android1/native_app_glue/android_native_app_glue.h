@@ -18,6 +18,10 @@
 #ifndef _ANDROID_NATIVE_APP_GLUE_H
 #define _ANDROID_NATIVE_APP_GLUE_H
 
+#ifndef size_t
+    #define size_t uint
+#endif 
+
 #include <poll.h>
 #include <pthread.h>
 #include <sched.h>

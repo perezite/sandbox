@@ -246,3 +246,4 @@ paket-files/
 
 # FAKE - F# Make
 .fake/
+/TegraVSTests/TegraVSOpenGLTest/Android1/.oracle_jre_usage/*.timestamp
