@@ -248,3 +248,4 @@ paket-files/
 .fake/
 /TegraVSTests/TegraVSOpenGLTest/Android1/.oracle_jre_usage/*.timestamp
 /TegraVSTests/TegraVSSDL2WithMakefilesTest/build/android/ndk/gen
+/TegraVSTests/TegraVSSDL2WithMakefilesTest/build/android/vs-tegra/SDL2Test/.oracle_jre_usage
