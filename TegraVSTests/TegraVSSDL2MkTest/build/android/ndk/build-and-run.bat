@@ -32,7 +32,7 @@ call ant debug install
 rem # Run
 echo Run ...
 @echo on
-call adb shell am start -a android.intent.action.MAIN -n com.example.hellojni/.HelloJni
+call adb shell am start -a android.intent.action.MAIN -n org.libsdl.app/.SDLActivity
 @echo off
 
 rem # Debug

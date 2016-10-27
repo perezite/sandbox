@@ -17,7 +17,7 @@ include $(PREBUILT_SHARED_LIBRARY)
 # Application Module
 #####################
 include $(CLEAR_VARS)
-LOCAL_MODULE    := hello-jni
+LOCAL_MODULE    := main
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../include
 LOCAL_SRC_FILES := ../../../../src/hello-jni.c \
 	../../../../src/SDL_main.cpp \
