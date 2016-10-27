@@ -41,6 +41,11 @@
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Tegra-Android'">
+    <ClCompile>
+      <CppLanguageStandard>gnu++11</CppLanguageStandard>    
+      <PreprocessorDefinitions>__ANDROID__</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../include</AdditionalIncludeDirectories>
+    </ClCompile>  
     <AntBuild>
       <AntBuildPath>..\..\ndk</AntBuildPath>
       <NativeLibDirectories>$(MSBuildProjectDirectory)\..\..\lib\OpenGLEngine\$(ArchAbi)</NativeLibDirectories>
@@ -76,6 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\hello-jni.c" />
+    <ClCompile Include="..\..\..\..\src\SDL_main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <JCompile Include="..\..\ndk\src\com\example\hellojni\HelloJni.java" />

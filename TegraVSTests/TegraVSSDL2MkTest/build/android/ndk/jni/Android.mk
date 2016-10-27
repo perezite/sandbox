@@ -18,6 +18,9 @@ include $(PREBUILT_SHARED_LIBRARY)
 #####################
 include $(CLEAR_VARS)
 LOCAL_MODULE    := hello-jni
-LOCAL_SRC_FILES := ../../../../src/hello-jni.c
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../include
+LOCAL_SRC_FILES := ../../../../src/hello-jni.c \
+	../../../../src/SDL_main.cpp
 LOCAL_SHARED_LIBRARIES := SDL2 openGLSharedLibrary
+LOCAL_LDLIBS := -lGLESv1_CM -lGLESv2 -llog
 include $(BUILD_SHARED_LIBRARY)
