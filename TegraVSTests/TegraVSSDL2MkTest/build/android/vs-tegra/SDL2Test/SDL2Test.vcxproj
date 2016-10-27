@@ -80,7 +80,6 @@
     <None Include="..\..\ndk\res\values\strings.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\src\hello-jni.c" />
     <ClCompile Include="..\..\..\..\src\SDL_android_main.c" />
     <ClCompile Include="..\..\..\..\src\SDL_main.cpp" />
   </ItemGroup>

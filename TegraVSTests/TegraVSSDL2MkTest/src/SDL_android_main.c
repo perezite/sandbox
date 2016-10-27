@@ -30,7 +30,7 @@ JNIEXPORT int JNICALL Java_org_libsdl_app_SDLActivity_nativeInit(JNIEnv* env, jc
 
     /* Prepare the arguments. */
 
-    int len = (*env)->GetArrayLength(env, array);
+    int len = (const int)(*env)->GetArrayLength(env, array);
     char* argv[1 + len + 1];
     argc = 0;
     /* Use the name "app_process" so PHYSFS_platformCalcBaseDir() works.
