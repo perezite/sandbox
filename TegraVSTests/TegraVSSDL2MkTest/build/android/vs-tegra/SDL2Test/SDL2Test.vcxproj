@@ -43,6 +43,9 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Tegra-Android'">
     <AntBuild>
       <AntBuildPath>..\..\ndk</AntBuildPath>
+      <NativeLibDirectories>$(MSBuildProjectDirectory)\..\..\lib\OpenGLEngine\$(ArchAbi)</NativeLibDirectories>
+      <NativeLibDependencies>
+      </NativeLibDependencies>
     </AntBuild>
     <NdkBuild>
       <NdkProjectPath>..\..\ndk</NdkProjectPath>
