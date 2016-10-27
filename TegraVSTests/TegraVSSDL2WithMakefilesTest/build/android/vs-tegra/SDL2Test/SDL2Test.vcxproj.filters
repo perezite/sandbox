@@ -1,42 +1,59 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <None Include="..\..\..\ndk\AndroidManifest.xml" />
-    <None Include="..\..\..\ndk\default.properties" />
-    <None Include="..\..\..\ndk\jni\Android.mk">
-      <Filter>jni</Filter>
+    <None Include="..\..\ndk\jni\Android.mk">
+      <Filter>build\jni</Filter>
     </None>
-    <None Include="..\..\..\ndk\jni\Application.mk">
-      <Filter>jni</Filter>
+    <None Include="..\..\ndk\jni\Application.mk">
+      <Filter>build\jni</Filter>
     </None>
-    <None Include="..\..\..\ndk\res\values\strings.xml">
-      <Filter>res\values</Filter>
+    <None Include="..\..\ndk\res\values\strings.xml">
+      <Filter>build\res\values</Filter>
     </None>
-    <None Include="..\..\..\ndk\src\com\example\hellojni\HelloJni.java">
-      <Filter>src\com\example\hellojni</Filter>
+    <None Include="..\..\ndk\AndroidManifest.xml">
+      <Filter>build</Filter>
+    </None>
+    <None Include="..\..\ndk\default.properties">
+      <Filter>build</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="jni">
-      <UniqueIdentifier>{38c6e91f-ba7a-4f3d-b5ea-31894c5b3de6}</UniqueIdentifier>
+    <Filter Include="build">
+      <UniqueIdentifier>{774bc8de-b09b-4df4-acb9-c0d86e5cfcf0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="res">
-      <UniqueIdentifier>{2ae71aeb-4c1e-4080-a593-d9e7e40aa2fc}</UniqueIdentifier>
+    <Filter Include="build\res">
+      <UniqueIdentifier>{c3954bfb-1970-4a91-b852-b610695a8c42}</UniqueIdentifier>
     </Filter>
-    <Filter Include="res\values">
-      <UniqueIdentifier>{d4d6d955-e4ac-4b16-a45b-3a8b1acb0b0f}</UniqueIdentifier>
+    <Filter Include="build\res\values">
+      <UniqueIdentifier>{0d89a7af-bcc2-43d2-9447-bb49201d9d6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="build\src">
+      <UniqueIdentifier>{9c607aad-6511-43d5-a24a-f7e971ef0d2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="build\src\com">
+      <UniqueIdentifier>{076a8bac-a0fa-4bad-826f-3cc4c141cecb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="build\src\com\example">
+      <UniqueIdentifier>{2a8a84e9-7241-49f1-98c1-d5e064740123}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="build\src\com\example\hellojni">
+      <UniqueIdentifier>{e199c3f5-ac15-4836-bf65-71e886627885}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="build\jni">
+      <UniqueIdentifier>{827fb5ef-3876-4d47-a695-e4dbb77dccb0}</UniqueIdentifier>
     </Filter>
     <Filter Include="src">
-      <UniqueIdentifier>{3e5443ec-e22d-45c2-91c9-b972ff06cfd1}</UniqueIdentifier>
+      <UniqueIdentifier>{b6394026-fd6c-446d-ac98-8a334b55f775}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\com">
-      <UniqueIdentifier>{c34c0617-cd68-4ef8-988b-891da2a2a65c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\com\example">
-      <UniqueIdentifier>{1ffaa8ec-f7b9-4abe-95a5-dadba49d36f9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\com\example\hellojni">
-      <UniqueIdentifier>{b488a458-16c7-4ba1-83ed-e0f069882141}</UniqueIdentifier>
-    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <JCompile Include="..\..\ndk\src\com\example\hellojni\HelloJni.java">
+      <Filter>build\src\com\example\hellojni</Filter>
+    </JCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\src\hello-jni.c">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

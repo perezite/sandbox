@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDL2Test", "SDL2Test\SDL2Test.vcxproj", "{9A8055E5-4FD5-4705-BE9C-B4EBE4F8CB9A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDL2Test", "SDL2Test\SDL2Test.vcxproj", "{B4D4ABC4-22E6-4BE2-B6BD-02AB117E9C8F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -12,12 +12,12 @@ Global
 		Shipping|Tegra-Android = Shipping|Tegra-Android
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9A8055E5-4FD5-4705-BE9C-B4EBE4F8CB9A}.Debug|Tegra-Android.ActiveCfg = Debug|Tegra-Android
-		{9A8055E5-4FD5-4705-BE9C-B4EBE4F8CB9A}.Debug|Tegra-Android.Build.0 = Debug|Tegra-Android
-		{9A8055E5-4FD5-4705-BE9C-B4EBE4F8CB9A}.Release|Tegra-Android.ActiveCfg = Release|Tegra-Android
-		{9A8055E5-4FD5-4705-BE9C-B4EBE4F8CB9A}.Release|Tegra-Android.Build.0 = Release|Tegra-Android
-		{9A8055E5-4FD5-4705-BE9C-B4EBE4F8CB9A}.Shipping|Tegra-Android.ActiveCfg = Shipping|Tegra-Android
-		{9A8055E5-4FD5-4705-BE9C-B4EBE4F8CB9A}.Shipping|Tegra-Android.Build.0 = Shipping|Tegra-Android
+		{B4D4ABC4-22E6-4BE2-B6BD-02AB117E9C8F}.Debug|Tegra-Android.ActiveCfg = Debug|Tegra-Android
+		{B4D4ABC4-22E6-4BE2-B6BD-02AB117E9C8F}.Debug|Tegra-Android.Build.0 = Debug|Tegra-Android
+		{B4D4ABC4-22E6-4BE2-B6BD-02AB117E9C8F}.Release|Tegra-Android.ActiveCfg = Release|Tegra-Android
+		{B4D4ABC4-22E6-4BE2-B6BD-02AB117E9C8F}.Release|Tegra-Android.Build.0 = Release|Tegra-Android
+		{B4D4ABC4-22E6-4BE2-B6BD-02AB117E9C8F}.Shipping|Tegra-Android.ActiveCfg = Shipping|Tegra-Android
+		{B4D4ABC4-22E6-4BE2-B6BD-02AB117E9C8F}.Shipping|Tegra-Android.Build.0 = Shipping|Tegra-Android
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

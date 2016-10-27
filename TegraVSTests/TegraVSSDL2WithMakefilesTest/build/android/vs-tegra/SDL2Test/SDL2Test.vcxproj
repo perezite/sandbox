@@ -18,7 +18,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{9A8055E5-4FD5-4705-BE9C-B4EBE4F8CB9A}</ProjectGuid>
+    <ProjectGuid>{B4D4ABC4-22E6-4BE2-B6BD-02AB117E9C8F}</ProjectGuid>
     <RootNamespace>SDL2Test</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -65,19 +65,18 @@
     </NdkBuild>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="..\..\..\ndk\AndroidManifest.xml" />
-    <None Include="..\..\..\ndk\default.properties" />
-    <None Include="..\..\..\ndk\jni\Android.mk" />
-    <None Include="..\..\..\ndk\jni\Application.mk" />
-    <None Include="..\..\..\ndk\res\values\strings.xml" />
-    <None Include="..\..\..\ndk\src\com\example\hellojni\HelloJni.java" />
+    <None Include="..\..\ndk\AndroidManifest.xml" />
+    <None Include="..\..\ndk\default.properties" />
+    <None Include="..\..\ndk\jni\Android.mk" />
+    <None Include="..\..\ndk\jni\Application.mk" />
+    <None Include="..\..\ndk\res\values\strings.xml" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\hello-jni.c" />
-  </ItemGroup> 
+  </ItemGroup>
   <ItemGroup>
     <JCompile Include="..\..\ndk\src\com\example\hellojni\HelloJni.java" />
-  </ItemGroup>  
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
