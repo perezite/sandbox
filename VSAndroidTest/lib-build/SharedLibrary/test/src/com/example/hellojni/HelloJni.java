@@ -61,6 +61,7 @@ public class HelloJni extends Activity
      * installation time by the package manager.
      */
     static {
+        System.loadLibrary("SharedLibrary");
         System.loadLibrary("hello-jni");
     }
 }

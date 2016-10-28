@@ -5,7 +5,6 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 LOCAL_MODULE := SharedLibrary
 LOCAL_SRC_FILES := ../../libs/$(TARGET_ARCH_ABI)/libSharedLibrary.so
-LOCAL_EXPORT_C_INCLUDES := ../../jni
 include $(PREBUILT_SHARED_LIBRARY)
 
 # Main module
