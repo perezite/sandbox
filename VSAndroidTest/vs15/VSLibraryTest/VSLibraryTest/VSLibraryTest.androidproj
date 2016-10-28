@@ -152,9 +152,6 @@
     <AntProjectPropertiesFile Include="project.properties" />
     <JavaCompile Include="src\com\VSLibraryTest\HelloJni.java" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\SharedLibrary\SharedLibrary.vcxproj" />
-  </ItemGroup>
   <Import Project="$(AndroidTargetsPath)\Android.targets" />
   <ImportGroup Label="ExtensionTargets" />
 </Project>
