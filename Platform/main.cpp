@@ -2,9 +2,6 @@
 
 #include <iostream>                                   
   
-#undef WIN32
-#define WIN32
-  
 int main()
 {                                           
 	std::string tapResult = Input::GetTap();
