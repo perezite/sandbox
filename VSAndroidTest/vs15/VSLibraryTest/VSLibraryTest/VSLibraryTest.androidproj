@@ -144,6 +144,8 @@
     </AntPackage>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <Content Include="libs\armeabi-v7a\libSharedLibrary.so" />
+    <Content Include="libs\armeabi\libSharedLibrary.so" />
     <Content Include="res\values\strings.xml" />
     <AntBuildXml Include="build.xml" />
     <AndroidManifest Include="AndroidManifest.xml">
