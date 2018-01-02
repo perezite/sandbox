@@ -1,0 +1,3 @@
+[submodule "Boost4Android"]
+	path = Boost4Android
+	url = https://github.com/perezite/Boost4Android
