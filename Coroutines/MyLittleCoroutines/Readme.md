@@ -1,0 +1,1 @@
+Yet another approach at c++ coroutines using macros
