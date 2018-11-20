@@ -80,13 +80,13 @@ namespace Application
 
         GLuint vertexShader;
         GLuint fragmentShader;
-        GLint linked;
+        // GLint linked;
 
         // Load the vertex/fragment shaders
         vertexShader = LoadShader(vShaderStr, GL_VERTEX_SHADER);
         fragmentShader = LoadShader(fShaderStr, GL_FRAGMENT_SHADER);
 
-        // Create the program object
+        // // Create the program object
         m_shaderProgram = glCreateProgram();
         if(m_shaderProgram == 0)
         {
