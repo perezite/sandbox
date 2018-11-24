@@ -10,22 +10,22 @@ namespace sb
 		class Drawable
 		{
 		public:
+			Drawable()
+			{ }
+
 			Drawable(const Vector2f& position, const Vector2f scale)
 				: m_transform(position, scale)
 			{ }
 
-			virtual ~Drawable()
-			{ }
-
 		public:
-			inline Transform& getTransform() { return m_transform; }	
-
-			inline virtual const Mesh& getMesh() const = 0;
+			inline Transform& getTransform() { return m_transform; }
+			
+			inline const Mesh& getMesh() const { return m_mesh; }
 
 		private: 
 			Transform m_transform;
 
-			static const Mesh TheMesh;
+			static const Mesh m_mesh;
 		};
 	}
 }
