@@ -12,6 +12,10 @@ namespace sb
 			: mesh(mesh_), transform(transform_)
 		{ }
 
+		inline void setPosition(const Vector2f position) { transform.position = position; }
+
+		inline void setScale(const Vector2f scale) { transform.scale = scale; }
+
 	public:
 		const Mesh& mesh;
 

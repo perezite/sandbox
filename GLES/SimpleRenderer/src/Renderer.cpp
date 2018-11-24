@@ -10,17 +10,17 @@ namespace sb
 		m_shader.init();
 	}
 
-	void Renderer::add(Drawable& drawable)
+	void Renderer::add(Drawable* drawable)
 	{
-		if (std::find(m_drawables.begin(), m_drawables.end(), &drawable) != m_drawables.end())
+		if (std::find(m_drawables.begin(), m_drawables.end(), drawable) != m_drawables.end())
 			return;
 
-		m_drawables.push_back(&drawable);
+		m_drawables.push_back(drawable);
 	}
 
-	void Renderer::remove(Drawable& drawable)
+	void Renderer::remove(Drawable* drawable)
 	{
-		m_drawables.erase(std::remove(m_drawables.begin(), m_drawables.end(), &drawable), m_drawables.end());
+		m_drawables.erase(std::remove(m_drawables.begin(), m_drawables.end(), drawable), m_drawables.end());
 	}
 
 	void Renderer::render()

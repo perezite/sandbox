@@ -20,9 +20,9 @@ namespace sb
 
 		void display();
 
-		void show(Drawable& drawable) { m_renderer.add(drawable); }
+		void show(Drawable* drawable) { m_renderer.add(drawable); }
 
-		void hide(Drawable& drawable) { m_renderer.remove(drawable); }
+		void hide(Drawable* drawable) { m_renderer.remove(drawable); }
 
 	private:
 		bool m_isOpen;

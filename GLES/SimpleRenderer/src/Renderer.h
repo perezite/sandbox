@@ -12,9 +12,9 @@ namespace sb
 	public:
 		void init();
 
-		void add(Drawable& drawable);
+		void add(Drawable* drawable);
 
-		void remove(Drawable& drawable);
+		void remove(Drawable* drawable);
 
 		void render();
 
