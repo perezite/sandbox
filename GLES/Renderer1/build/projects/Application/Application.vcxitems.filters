@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\application\Main.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\application\Renderer1.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\application\RenderUtil.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\application\Renderer1.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\application\RenderUtil.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="headers">
+      <UniqueIdentifier>{4e5af800-2999-4727-8d29-b6b8a8793092}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
