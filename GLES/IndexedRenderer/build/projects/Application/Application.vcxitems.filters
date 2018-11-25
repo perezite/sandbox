@@ -45,7 +45,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Drawable.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Rectangle.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Rectangle.h">
+      <Filter>headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Main.cpp" />
@@ -55,6 +57,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Window.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Triangle.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Renderer.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Mesh.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Rectangle.cpp" />
   </ItemGroup>
 </Project>

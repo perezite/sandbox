@@ -9,8 +9,8 @@
 #include <vector>
 using namespace sb;
 
-const unsigned int NumTrianglesHorz = 10; 
-const unsigned int NumTrianglesVert = 10; 
+const unsigned int NumTrianglesHorz = 100; 
+const unsigned int NumTrianglesVert = 100; 
 
 void run();
 void spawnDrawables(std::vector<Drawable*>& drawables);
@@ -35,7 +35,7 @@ void run()
 
 	while (window.isOpen()) {
 		window.update();
-		update(drawables, window);
+		// update(drawables, window);
 		window.draw();
 		logPerformance();
 	}

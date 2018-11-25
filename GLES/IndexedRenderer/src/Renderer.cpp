@@ -26,6 +26,11 @@ namespace sb
 	void Renderer::render()
 	{
 		calcVertices();
+		if (m_indicesNeedUpdate) {
+			calcIndices();
+			m_indicesNeedUpdate = false;
+		}
+
 		setupDraw();
 		draw();
 		cleanupDraw();
@@ -33,27 +38,53 @@ namespace sb
 
 	void Renderer::calcVertices()
 	{
-		m_vertices.resize(getNumVertices());
+		m_vertices.resize(countVertices());
 		
 		unsigned int counter = 0;
 		for (std::size_t i = 0; i < m_drawables.size(); i++) {
 			for (std::size_t j = 0; j < m_drawables[i]->mesh.getVertexCount(); j++) {
-				m_vertices[counter].position = m_drawables[i]->transform * m_drawables[i]->mesh[j].position;
+				m_vertices[counter].position = m_drawables[i]->transform * m_drawables[i]->mesh[j].position;			// todo: add a method that gets all vertices at once
 				m_vertices[counter].color = m_drawables[i]->mesh[j].color;
 				counter++;
 			}
 		}
 	}
-
-	std::size_t Renderer::getNumVertices()
+	
+	std::size_t Renderer::countVertices()
 	{
 		std::size_t numVertices = 0;
 		for (std::size_t i = 0; i < m_drawables.size(); i++)
 			numVertices += m_drawables[i]->mesh.getVertexCount();
 
+		Error().dieIf(numVertices > 65536) << "There are more than 65536 vertices in one draw batch, aborting " << std::endl;
+
 		return numVertices;
 	}
 
+	void Renderer::calcIndices()
+	{
+		m_indices.resize(countIndices());
+
+		unsigned int offset = 0;
+		unsigned int counter = 0;
+
+		for (std::size_t i = 0; i < m_drawables.size(); i++) {
+			const std::vector<GLushort>& indices = m_drawables[i]->mesh.getIndices();
+			for (std::size_t j = 0; j < indices.size(); j++)
+				m_indices[counter + j] = indices[j] + offset;
+			offset += m_drawables[i]->mesh.getVertexCount();
+			counter += indices.size();
+		}
+	}
+
+	std::size_t Renderer::countIndices()
+	{
+		std::size_t numIndices = 0;
+		for (std::size_t i = 0; i < m_drawables.size(); i++)
+			numIndices += m_drawables[i]->mesh.getIndexCount();
+
+		return numIndices;
+	}
 
 	void Renderer::setupDraw()
 	{
@@ -72,8 +103,10 @@ namespace sb
 
 	void Renderer::draw()
 	{
-		glDrawArrays(GL_TRIANGLES, 0, m_vertices.size());
+		// glDrawArrays(GL_TRIANGLES, 0, m_vertices.size());
+		glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_SHORT, m_indices.data());
 		checkGLErrors();
+
 	}
 
 	void Renderer::checkGLErrors()

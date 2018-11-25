@@ -1,5 +1,6 @@
 #pragma once
 
+#include "GL.h"
 #include "Drawable.h"
 #include "Vertex.h"
 #include "Shader.h"
@@ -21,7 +22,11 @@ namespace sb
 	protected:
 		void calcVertices();
 
-		std::size_t getNumVertices();
+		std::size_t countVertices();
+
+		void calcIndices();
+
+		std::size_t countIndices();
 
 		void draw();
 
@@ -38,6 +43,11 @@ namespace sb
 
 		std::vector<Vertex> m_vertices;
 
+		std::vector<GLushort> m_indices;
+
+		bool m_indicesNeedUpdate;
+
 		Shader m_shader;
+
 	};
 }
