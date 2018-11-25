@@ -18,7 +18,7 @@ namespace sb
 
 		void update();
 
-		void display();
+		void draw();
 
 		void show(Drawable* drawable) { m_renderer.add(drawable); }
 

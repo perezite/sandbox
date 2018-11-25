@@ -48,7 +48,7 @@ namespace sb
 				m_isOpen = false;
 	}
 
-	void Window::display()
+	void Window::draw()
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
 		m_renderer.render();
