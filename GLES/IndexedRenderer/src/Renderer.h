@@ -45,7 +45,7 @@ namespace sb
 
 		std::vector<GLushort> m_indices;
 
-		bool m_indicesNeedUpdate;
+		bool m_drawablesChanged;
 
 		Shader m_shader;
 

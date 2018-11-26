@@ -20,7 +20,7 @@ void update(std::vector<Drawable*>& drawables, Window& window);
 
 int main(int argc, char* args[])
 {
-	SDL_Log("Simple Renderer: Build %s %s", __DATE__, __TIME__);
+	SDL_Log("Indexed Renderer: Build %s %s", __DATE__, __TIME__);
 
 	run();
 }
@@ -35,7 +35,7 @@ void run()
 
 	while (window.isOpen()) {
 		window.update();
-		// update(drawables, window);
+		update(drawables, window);
 		window.draw();
 		logPerformance();
 	}

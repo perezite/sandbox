@@ -16,19 +16,21 @@ namespace sb
 			return;
 
 		m_drawables.push_back(drawable);
+		m_drawablesChanged = true;
 	}
 
 	void Renderer::remove(Drawable* drawable)
 	{
 		m_drawables.erase(std::remove(m_drawables.begin(), m_drawables.end(), drawable), m_drawables.end());
+		m_drawablesChanged = true;
 	}
 
 	void Renderer::render()
 	{
 		calcVertices();
-		if (m_indicesNeedUpdate) {
+		if (m_drawablesChanged) {
 			calcIndices();
-			m_indicesNeedUpdate = false;
+			m_drawablesChanged = false;
 		}
 
 		setupDraw();
@@ -43,7 +45,7 @@ namespace sb
 		unsigned int counter = 0;
 		for (std::size_t i = 0; i < m_drawables.size(); i++) {
 			for (std::size_t j = 0; j < m_drawables[i]->mesh.getVertexCount(); j++) {
-				m_vertices[counter].position = m_drawables[i]->transform * m_drawables[i]->mesh[j].position;			// todo: add a method that gets all vertices at once
+				m_vertices[counter].position = m_drawables[i]->transform * m_drawables[i]->mesh[j].position;		
 				m_vertices[counter].color = m_drawables[i]->mesh[j].color;
 				counter++;
 			}
@@ -56,7 +58,7 @@ namespace sb
 		for (std::size_t i = 0; i < m_drawables.size(); i++)
 			numVertices += m_drawables[i]->mesh.getVertexCount();
 
-		Error().dieIf(numVertices > 65536) << "There are more than 65536 vertices in one draw batch, aborting " << std::endl;
+		Error().dieIf(numVertices > 65536) << "There are more than 65536 vertices in a single draw batch, aborting" << std::endl;
 
 		return numVertices;
 	}
