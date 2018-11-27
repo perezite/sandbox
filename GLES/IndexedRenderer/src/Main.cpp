@@ -9,8 +9,8 @@
 #include <vector>
 using namespace sb;
 
-const unsigned int NumTrianglesHorz = 100; 
-const unsigned int NumTrianglesVert = 100; 
+const unsigned int NumTrianglesHorz = 2; 
+const unsigned int NumTrianglesVert = 2; 
 
 void run();
 void spawnDrawables(std::vector<Drawable*>& drawables);
@@ -35,7 +35,7 @@ void run()
 
 	while (window.isOpen()) {
 		window.update();
-		update(drawables, window);
+		// update(drawables, window);
 		window.draw();
 		logPerformance();
 	}
@@ -66,21 +66,6 @@ void showDrawables(std::vector<Drawable*>& drawables, Window& window)
 		window.show(drawables[i]);
 }
 
-void logPerformance()
-{
-	static Stopwatch stopwatch;
-	static unsigned int frames = 0;
-
-	float elapsed = stopwatch.getElapsedSeconds();
-	frames++;
-	if (elapsed > 1.0f) {
-		float fps = frames / elapsed;
-		SDL_Log("FPS: %f", fps);
-		frames = 0;
-		stopwatch.reset();
-	}
-}
-
 void update(std::vector<Drawable*>& drawables, Window& window)
 {
 	static Stopwatch sw;
@@ -97,5 +82,20 @@ void update(std::vector<Drawable*>& drawables, Window& window)
 		
 		sw.reset();
 		count++;
+	}
+}
+
+void logPerformance()
+{
+	static Stopwatch stopwatch;
+	static unsigned int frames = 0;
+
+	float elapsed = stopwatch.getElapsedSeconds();
+	frames++;
+	if (elapsed > 1.0f) {
+		float fps = frames / elapsed;
+		SDL_Log("FPS: %f", fps);
+		frames = 0;
+		stopwatch.reset();
 	}
 }

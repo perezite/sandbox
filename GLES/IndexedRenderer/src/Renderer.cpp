@@ -1,7 +1,9 @@
 #include "Renderer.h"
 #include "Error.h"
 #include <algorithm>
+#include <numeric>
 #include <iostream>
+#include <functional>
 
 namespace sb
 {
@@ -16,61 +18,49 @@ namespace sb
 			return;
 
 		m_drawables.push_back(drawable);
-		m_drawablesChanged = true;
 	}
 
 	void Renderer::remove(Drawable* drawable)
 	{
 		m_drawables.erase(std::remove(m_drawables.begin(), m_drawables.end(), drawable), m_drawables.end());
-		m_drawablesChanged = true;
 	}
 
 	void Renderer::render()
 	{
-		calcVertices();
-		if (m_drawablesChanged) {
+		if (m_drawables.size() > m_numOldDrawables) {
+			countVertices();
+			countIndices();
 			calcIndices();
-			m_drawablesChanged = false;
 		}
+
+		calcVertices();
 
 		setupDraw();
 		draw();
 		cleanupDraw();
+
+		m_numOldDrawables = m_drawables.size();
 	}
 
-	void Renderer::calcVertices()
+	void Renderer::countIndices()
 	{
-		m_vertices.resize(countVertices());
-		
-		unsigned int counter = 0;
-		for (std::size_t i = 0; i < m_drawables.size(); i++) {
-			for (std::size_t j = 0; j < m_drawables[i]->mesh.getVertexCount(); j++) {
-				m_vertices[counter].position = m_drawables[i]->transform * m_drawables[i]->mesh[j].position;		
-				m_vertices[counter].color = m_drawables[i]->mesh[j].color;
-				counter++;
-			}
-		}
+		m_numOldIndices = m_numIndices;
+		m_numIndices = std::accumulate(m_drawables.begin() + m_numOldDrawables, m_drawables.end(), m_numIndices, &Renderer::accumulateIndices);
 	}
-	
-	std::size_t Renderer::countVertices()
+
+	void Renderer::countVertices()
 	{
-		std::size_t numVertices = 0;
-		for (std::size_t i = 0; i < m_drawables.size(); i++)
-			numVertices += m_drawables[i]->mesh.getVertexCount();
-
-		Error().dieIf(numVertices > 65536) << "There are more than 65536 vertices in a single draw batch, aborting" << std::endl;
-
-		return numVertices;
+		m_numVertices = std::accumulate(m_drawables.begin() + m_numOldDrawables, m_drawables.end(), m_numVertices, &Renderer::accumulateVertices);
+		Error().dieIf(m_numVertices > 65536) << "There are more than 65536 vertices in a single draw batch, aborting" << std::endl;
 	}
 
 	void Renderer::calcIndices()
 	{
-		m_indices.resize(countIndices());
+		m_indices.resize(m_numIndices);
 
-		unsigned int offset = 0;
+		unsigned int offset = m_numOldIndices;
 		unsigned int counter = 0;
-
-		for (std::size_t i = 0; i < m_drawables.size(); i++) {
+		for (std::size_t i = m_numOldDrawables; i < m_drawables.size(); i++) {
 			const std::vector<GLushort>& indices = m_drawables[i]->mesh.getIndices();
 			for (std::size_t j = 0; j < indices.size(); j++)
 				m_indices[counter + j] = indices[j] + offset;
@@ -79,13 +69,18 @@ namespace sb
 		}
 	}
 
-	std::size_t Renderer::countIndices()
+	void Renderer::calcVertices()
 	{
-		std::size_t numIndices = 0;
-		for (std::size_t i = 0; i < m_drawables.size(); i++)
-			numIndices += m_drawables[i]->mesh.getIndexCount();
-
-		return numIndices;
+		m_vertices.resize(m_numVertices);
+	
+		unsigned int counter = 0;
+		for (std::size_t i = 0; i < m_drawables.size(); i++) {
+			for (std::size_t j = 0; j < m_drawables[i]->mesh.getVertexCount(); j++) {
+				m_vertices[counter].position = m_drawables[i]->transform * m_drawables[i]->mesh[j].position;		
+				m_vertices[counter].color = m_drawables[i]->mesh[j].color;
+				counter++;
+			}
+		}
 	}
 
 	void Renderer::setupDraw()
@@ -105,7 +100,6 @@ namespace sb
 
 	void Renderer::draw()
 	{
-		// glDrawArrays(GL_TRIANGLES, 0, m_vertices.size());
 		glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_SHORT, m_indices.data());
 		checkGLErrors();
 
@@ -123,5 +117,15 @@ namespace sb
 	{
 		glDisableVertexAttribArray(m_shader.getAttributeLocation("a_vColor"));
 		glDisableVertexAttribArray(m_shader.getAttributeLocation("a_vPosition"));
+	}
+
+	std::size_t Renderer::accumulateVertices(std::size_t current, sb::Drawable* drawable)
+	{
+		return current + drawable->mesh.getVertexCount();
+	}
+
+	std::size_t Renderer::accumulateIndices(std::size_t current, sb::Drawable* drawable)
+	{
+		return current + drawable->mesh.getIndexCount();
 	}
 }

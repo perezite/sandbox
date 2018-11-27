@@ -11,6 +11,10 @@ namespace sb
 	class Renderer
 	{
 	public:
+		Renderer() : 
+			m_numOldDrawables(0), m_numVertices(0), m_numOldIndices(0), m_numIndices(0)
+		{ }
+
 		void init();
 
 		void add(Drawable* drawable);
@@ -20,16 +24,16 @@ namespace sb
 		void render();
 
 	protected:
-		void calcVertices();
+		void countVertices();
 
-		std::size_t countVertices();
+		void countIndices();
+
+		void calcVertices();
 
 		void calcIndices();
 
-		std::size_t countIndices();
-
 		void draw();
-
+		
 		void setupDraw();
 
 		void setVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer);
@@ -38,16 +42,27 @@ namespace sb
 
 		void cleanupDraw();
 
+	protected:
+
+		static std::size_t accumulateVertices(std::size_t current, sb::Drawable* drawable);
+
+		static std::size_t accumulateIndices(std::size_t current, sb::Drawable* drawable);
+
 	private:
 		std::vector<Drawable*> m_drawables;
 
+		std::size_t m_numOldDrawables;
+
 		std::vector<Vertex> m_vertices;
+
+		std::size_t m_numVertices;
 
 		std::vector<GLushort> m_indices;
 
-		bool m_drawablesChanged;
+		std::size_t m_numOldIndices;
+
+		std::size_t m_numIndices;
 
 		Shader m_shader;
-
 	};
 }
