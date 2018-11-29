@@ -1,4 +1,5 @@
 #include "Mesh.h"
+#include <algorithm>
 
 namespace sb
 {
@@ -9,5 +10,7 @@ namespace sb
 			m_indices.push_back(i - 1);
 			m_indices.push_back(i);
 		}
+
+		m_largestIndex = *std::max_element(m_indices.begin(), m_indices.end());
 	}
 }

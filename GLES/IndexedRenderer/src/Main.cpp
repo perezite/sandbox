@@ -13,6 +13,7 @@ const unsigned int NumTrianglesHorz = 2;
 const unsigned int NumTrianglesVert = 2; 
 
 void run();
+void run2();
 void spawnDrawables(std::vector<Drawable*>& drawables);
 void showDrawables(std::vector<Drawable*>& drawables, Window& window);
 void logPerformance();
@@ -22,7 +23,21 @@ int main(int argc, char* args[])
 {
 	SDL_Log("Indexed Renderer: Build %s %s", __DATE__, __TIME__);
 
-	run();
+	run2();
+}
+
+void run2()
+{
+	Window window;
+	Triangle triangle;
+	Triangle triangle2;
+	window.show(&triangle);
+	window.show(&triangle2);
+
+	while (window.isOpen()) {
+		window.update();
+		window.draw();
+	}
 }
 
 void run()

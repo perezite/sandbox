@@ -7,125 +7,124 @@
 
 namespace sb
 {
+	typedef std::map<Drawable*, IndexInfo>::iterator DrawableIter;
+
 	void Renderer::init()
 	{
-		m_shader.init();
+		
 	}
 
 	void Renderer::add(Drawable* drawable)
 	{
-		if (std::find(m_drawables.begin(), m_drawables.end(), drawable) != m_drawables.end())
+		if(m_drawables.find(drawable) != m_drawables.end())
 			return;
 
-		m_drawables.push_back(drawable);
+		m_drawablesToAdd.push_back(drawable);
 	}
 
 	void Renderer::remove(Drawable* drawable)
 	{
-		m_drawables.erase(std::remove(m_drawables.begin(), m_drawables.end(), drawable), m_drawables.end());
+		m_drawablesToRemove.push_back(drawable);
 	}
 
 	void Renderer::render()
 	{
-		if (m_drawables.size() > m_numOldDrawables) {
-			countVertices();
-			countIndices();
-			calcIndices();
+		calculateIndices();
+		print();
+	}
+
+	void Renderer::calculateIndices()
+	{
+		Drawable* start = removeDrawables();
+		recalcIndices(start);
+		shrinkIndices();
+		Drawable* start2 = addDrawables();
+		recalcIndices(start);
+		m_drawablesToRemove.clear();
+		m_drawablesToAdd.clear();
+	}
+
+	void Renderer::shrinkIndices()
+	{
+		std::size_t numRemovedIndices = countRemovedIndices();
+		m_indices.resize(m_indices.size() + numRemovedIndices);
+	}
+
+	void Renderer::print()
+	{
+		std::cout << "indices:" << std::endl;
+		for (std::size_t i = 0; i < m_indices.size(); i++)
+			std::cout << m_indices[i] << " ";
+		std::cout << std::endl;
+
+		std::cout << "press any key to continue" << std::endl;
+		std::cin.get();
+	}
+
+	Drawable* Renderer::removeDrawables() 
+	{
+		DrawableIter start = m_drawables.end();
+
+		for (std::size_t i = 0; i < m_drawablesToRemove.size(); i++) {
+			DrawableIter it = m_drawables.find(m_drawablesToRemove[i]);
+			std::size_t position = it->second.position;
+			start = position < start->second.position ? it : start;
+			m_drawables.erase(it);
 		}
 
-		calcVertices();
-
-		setupDraw();
-		draw();
-		cleanupDraw();
-
-		m_numOldDrawables = m_drawables.size();
+		return start->first;
 	}
 
-	void Renderer::countIndices()
-	{
-		m_numOldIndices = m_numIndices;
-		m_numIndices = std::accumulate(m_drawables.begin() + m_numOldDrawables, m_drawables.end(), m_numIndices, &Renderer::accumulateIndices);
-	}
+	Drawable* Renderer::addDrawables() {
+		if (m_drawablesToAdd.empty())
+			return NULL;
 
-	void Renderer::countVertices()
-	{
-		m_numVertices = std::accumulate(m_drawables.begin() + m_numOldDrawables, m_drawables.end(), m_numVertices, &Renderer::accumulateVertices);
-		Error().dieIf(m_numVertices > 65536) << "There are more than 65536 vertices in a single draw batch, aborting" << std::endl;
-	}
+		IndexInfo indexInfo = m_drawables.empty() ? IndexInfo() : std::prev(m_drawables.end(), 1)->second;
+		m_drawables[m_drawablesToAdd[0]] = IndexInfo();
 
-	void Renderer::calcIndices()
-	{
-		m_indices.resize(m_numIndices);
-
-		unsigned int offset = m_numOldIndices;
-		unsigned int counter = 0;
-		for (std::size_t i = m_numOldDrawables; i < m_drawables.size(); i++) {
-			const std::vector<GLushort>& indices = m_drawables[i]->mesh.getIndices();
-			for (std::size_t j = 0; j < indices.size(); j++)
-				m_indices[counter + j] = indices[j] + offset;
-			offset += m_drawables[i]->mesh.getVertexCount();
-			counter += indices.size();
+		for (std::size_t i = 1; i < m_drawablesToAdd.size(); i++) {
+			indexInfo.position += m_drawablesToAdd[i - 1]->mesh.getIndexCount();
+			indexInfo.offset += m_drawablesToAdd[i - 1]->mesh.getLargestIndex();
+			m_drawables[m_drawablesToAdd[i]] = indexInfo;
 		}
+
+		return NULL;
 	}
 
-	void Renderer::calcVertices()
+	void Renderer::resizeIndices()
 	{
-		m_vertices.resize(m_numVertices);
+		std::size_t numRemovedIndices = countRemovedIndices();
+		std::size_t numAddedIndices = countAddedIndices();
+		m_indices.resize(m_indices.size() + numAddedIndices - numRemovedIndices);
+	}
+
+	std::size_t Renderer::countRemovedIndices()
+	{
+		std::size_t numRemovedIndices = 0;
+		for (std::size_t i = 0; i < m_drawablesToRemove.size(); i++)
+			numRemovedIndices += m_drawablesToRemove[i]->mesh.getIndexCount();
 	
-		unsigned int counter = 0;
-		for (std::size_t i = 0; i < m_drawables.size(); i++) {
-			for (std::size_t j = 0; j < m_drawables[i]->mesh.getVertexCount(); j++) {
-				m_vertices[counter].position = m_drawables[i]->transform * m_drawables[i]->mesh[j].position;		
-				m_vertices[counter].color = m_drawables[i]->mesh[j].color;
-				counter++;
+		return numRemovedIndices;
+	}
+
+	std::size_t Renderer::countAddedIndices()
+	{
+		std::size_t numRemovedIndices = 0;
+		for (std::size_t i = 0; i < m_drawablesToAdd.size(); i++)
+			numRemovedIndices += m_drawablesToAdd[i]->mesh.getIndexCount();
+
+		return numRemovedIndices;
+	}
+
+	void Renderer::recalcIndices(Drawable* start) 
+	{
+		DrawableIter it = std::prev(m_drawables.find(start), 1);
+
+		for (it; it != m_drawables.end(); it++) {
+			const std::vector<GLushort>& indices = it->first->mesh.getIndices();
+			for (std::size_t i = 0; i < indices.size(); i++) {
+				m_indices[it->second.position + i] = it->second.offset + indices[i];
 			}
 		}
-	}
-
-	void Renderer::setupDraw()
-	{
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glEnable(GL_BLEND);
-		m_shader.use();
-		setVertexAttribPointer(m_shader.getAttributeLocation("a_vPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), &(m_vertices[0].position));
-		setVertexAttribPointer(m_shader.getAttributeLocation("a_vColor"), 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), &(m_vertices[0].color));
-	}
-
-	void Renderer::setVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer)
-	{
-		glEnableVertexAttribArray(index);
-		glVertexAttribPointer(index, size, type, normalized, stride, pointer);
-	}
-
-	void Renderer::draw()
-	{
-		glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_SHORT, m_indices.data());
-		checkGLErrors();
-
-	}
-
-	void Renderer::checkGLErrors()
-	{
-		GLuint error = glGetError();
-		if (error != 0) {
-			Error().die() << "GL error: " << error << std::endl;
-		}
-	}
-
-	void Renderer::cleanupDraw()
-	{
-		glDisableVertexAttribArray(m_shader.getAttributeLocation("a_vColor"));
-		glDisableVertexAttribArray(m_shader.getAttributeLocation("a_vPosition"));
-	}
-
-	std::size_t Renderer::accumulateVertices(std::size_t current, sb::Drawable* drawable)
-	{
-		return current + drawable->mesh.getVertexCount();
-	}
-
-	std::size_t Renderer::accumulateIndices(std::size_t current, sb::Drawable* drawable)
-	{
-		return current + drawable->mesh.getIndexCount();
 	}
 }
