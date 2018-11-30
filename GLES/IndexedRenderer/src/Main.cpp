@@ -22,8 +22,6 @@ void logPerformance();
 void update(std::vector<Drawable*>& drawables, Window& window);
 
 void run2();
-void spawnDrawables2(std::vector<Drawable*>& drawables);
-void showDrawables2(std::vector<Drawable*>& drawables, Window& window);
 void update2(std::vector<Drawable*>& drawables, Window& window);
 
 int main(int argc, char* args[])
@@ -38,45 +36,43 @@ void run2()
 	std::vector<Drawable*> drawables;
 
 	Window window;
-	spawnDrawables2(drawables);
-	showDrawables2(drawables, window);
+
+	srand(42);
 
 	while (window.isOpen()) {
+		static int frameCnt = 0;
+		std::cout << "Frame: " << frameCnt << std::endl;
+		frameCnt++;
 		window.update();
-		window.draw();
 		update2(drawables, window);
+		window.draw();
+		// std::cin.get();
 	}
-}
-
-void spawnDrawables2(std::vector<Drawable*>& drawables)
-{
-	drawables.push_back(new Line(Vector2f(0, 0)));
-	drawables.push_back(new sb::Rectangle(Vector2f(0, 0)));
-	drawables.push_back(new Triangle(Vector2f(0, 0)));
-}
-
-void showDrawables2(std::vector<Drawable*>& drawables, Window& window)
-{
-	for (std::size_t i = 0; i < drawables.size(); i++)
-		window.show(drawables[i]);
 }
 
 void update2(std::vector<Drawable*>& drawables, Window& window) {
-	std::size_t numToRemove = rand() % 2;
-	std::cout << "Deleted: ";
-	for (std::size_t i = 0; i < numToRemove; i++) {
-		int rnd = rand() % drawables.size();
-		window.hide(drawables[rnd]); drawables.erase(drawables.begin() + rnd);
+	std::cout << "Adding: ";
+	std::size_t rnd = rand() % 2;
+	for (std::size_t i = 0; i < rnd; i++) {
+		int type = rand() % 4;
+		Drawable* drawable = type == 0 ? (Drawable*)new Point() : type == 1 ? (Drawable*)new Line() : type == 2 ? (Drawable*)new Triangle() : (Drawable*)new sb::Rectangle();
+		window.show(drawable);
+		drawables.push_back(drawable);
+		std::cout << (type == 0 ? "Point" : type == 1 ? "Line" : type == 2 ? "Triangle" : "Rectangle") << " ";
 	}
+	std::cout << std::endl;
 
-	std::size_t numToAdd = rand() % 2;
-	std::cout << "Added: ";
-	for (std::size_t i = 0; i < numToAdd; i++) {
-		int rnd = rand() % 4;
-		Drawable* drw = rnd == 0 ? (Drawable*)new Point() : rnd == 1 ? (Drawable*)new Line() : rnd == 2 ? (Drawable*)new Triangle() : (Drawable*)new sb::Rectangle();
-		drawables.push_back(drw); window.show(drw); 
-		std::cout << (rnd == 0 ? "Point" : rnd == 1 ? "Line" : rnd == 2 ? "Triangle" : "Rectangle");
+	std::cout << std::endl;
+	rnd = drawables.size() >= 2 ? rand() % 2 : 0;
+	std::cout << "Removing: ";
+	for (std::size_t i = 0; i < rnd; i++) {
+		std::size_t pos = rand() % drawables.size();
+		window.hide(drawables[pos]);
+		delete drawables[pos];
+		drawables.erase(std::remove(drawables.begin(), drawables.end(), drawables[pos]));
+		std::cout << i << " ";
 	}
+	std::cout << std::endl;
 }
 
 /*************************************************************************************/

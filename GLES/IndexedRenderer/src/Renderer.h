@@ -9,48 +9,58 @@
 
 namespace sb
 {
-	struct IndexInfo {
-		std::size_t position;
-		std::size_t count;
-		std::size_t offset;
+	struct DrawableInfo {
+		DrawableInfo(std::size_t positionInDrawableList_ = 0, std::size_t positionInIndexList_ = 0, GLushort offsetInIndexList_ = 0)
+			: positionInDrawableList(positionInDrawableList_), positionInIndexList(positionInIndexList_), offsetInIndexList(offsetInIndexList_)
+		{ }
+		
+		std::size_t positionInDrawableList;
+		std::size_t positionInIndexList;
+		GLushort offsetInIndexList;
 	};
 
 	class Renderer
 	{
 	public:
 		Renderer()
-		{ }
+		{
+			cleanupRender();
+		}
 
 		void init();
 
-		void add(Drawable* drawable);
-
 		void remove(Drawable* drawable);
+
+		void add(Drawable* drawable);
 
 		void render();
 
 	protected:
-		void addDrawables(std::size_t& startDrawable, std::size_t& numAddedIndices);
+		void addDrawables();
 
-		void removeDrawables(std::size_t& startDrawable, std::size_t& numRemovedIndices);
+		void removeDrawables();
 
-		void resizeIndices(std::size_t numAddedIndices, std::size_t numRemovedIndices);
+		void resizeIndices();
 
-		void recalcIndices(std::size_t start);
+		void recalcIndices();
 
 		void print();
+
+		void cleanupRender();
 
 	private:
 		std::vector<Drawable*> m_drawables;
 
-		std::vector<IndexInfo> m_indexInfos;
-
-		std::map<Drawable*, std::size_t> m_drawablePositions;
+		std::map<Drawable*, DrawableInfo> m_drawableInfos;
 
 		std::vector<Drawable*> m_drawablesToAdd;
 
 		std::vector<Drawable*> m_drawablesToRemove;
 
-		std::vector<GLuint> m_indices;
+		int m_numIndicesToAdd;
+
+		std::vector<GLushort> m_indices;
+
+		std::size_t m_firstAffectedDrawable;
 	};
 }

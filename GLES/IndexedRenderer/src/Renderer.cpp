@@ -12,92 +12,92 @@ namespace sb
 		
 	}
 
-	void Renderer::add(Drawable* drawable)
-	{
-		if(std::find(m_drawables.begin(), m_drawables.end(), drawable) != m_drawables.end())
-			return;
-
-		m_drawablesToAdd.push_back(drawable);
-	}
-
 	void Renderer::remove(Drawable* drawable)
 	{
+		if (m_drawableInfos.find(drawable) == m_drawableInfos.end() && 
+			std::find(m_drawablesToAdd.begin(), m_drawablesToAdd.end(), (drawable)) == m_drawables.end())
+			Error().die() << "Trying to remove a non-existing drawable, aborting";
+
 		m_drawablesToRemove.push_back(drawable);
+		m_numIndicesToAdd -= drawable->mesh.getIndexCount();
+		m_firstAffectedDrawable = std::min(m_firstAffectedDrawable, m_drawableInfos[drawable].positionInDrawableList);
+	}
+
+	void Renderer::add(Drawable* drawable)
+	{
+		if (m_drawableInfos.find(drawable) != m_drawableInfos.end() && 
+			std::find(m_drawablesToRemove.begin(), m_drawablesToRemove.end(), drawable) == m_drawables.end())
+			Error().die() << "Trying to add an already existing drawable, aborting";
+
+		m_drawablesToAdd.push_back(drawable);
+		m_numIndicesToAdd += drawable->mesh.getIndexCount();
 	}
 
 	void Renderer::render()
 	{
-		std::size_t addedStart; std::size_t numAddedIndices;
-		addDrawables(addedStart, numAddedIndices);
-
-		std::size_t removedStart; std::size_t numRemovedIndices;
-		removeDrawables(removedStart, numRemovedIndices);
-
-		resizeIndices(numAddedIndices, numRemovedIndices);
-		recalcIndices(std::min(addedStart, removedStart));
-
-		m_drawablesToAdd.clear();
-		m_drawablesToRemove.clear();
+		addDrawables();
+		removeDrawables();
+		resizeIndices();
+		recalcIndices();
 
 		print();
-	}
-	void Renderer::addDrawables(std::size_t& startDrawable, std::size_t& numAddedIndices)
-	{
-		std::size_t indexPosition = m_drawables.empty() ? 0 : m_indexInfos.rbegin()->position + (*m_drawables.rbegin())->mesh.getIndexCount();
-		std::size_t indexOffset = m_drawables.empty() ? 0 : m_indexInfos.rbegin()->offset + (*m_drawables.rbegin())->mesh.getVertexCount();
-		startDrawable = m_drawables.size();
-		numAddedIndices = 0;
-		std::size_t position = m_drawables.size();
+		cleanupRender();
+ 	}
 
-		for (std::size_t i = 0; i < m_drawablesToAdd.size(); i++) {
+	void Renderer::addDrawables()
+	{
+		if (m_drawablesToAdd.empty()) 
+			return;
+
+		for (std::size_t i = 0; i < m_drawablesToAdd.size(); i++) 
 			m_drawables.push_back(m_drawablesToAdd[i]);
-			m_indexInfos.push_back( IndexInfo { indexPosition, m_drawablesToAdd[i]->mesh.getIndexCount(), indexOffset } );
-			m_drawablePositions[m_drawablesToAdd[i]] = position;
-			indexPosition += m_drawablesToAdd[i]->mesh.getIndexCount();
-			indexOffset += m_drawablesToAdd[i]->mesh.getVertexCount();
-			numAddedIndices += m_drawablesToAdd[i]->mesh.getIndexCount();
-			position += 1;
-		}
 	}
 
-	void Renderer::removeDrawables(std::size_t& startDrawable, std::size_t& numRemovedIndices) 
+	void Renderer::removeDrawables() 
 	{
-		startDrawable = m_drawables.size();
-		numRemovedIndices = 0;
-
 		std::vector<Drawable*>::iterator it = m_drawables.end();
 		for (std::size_t i = 0; i < m_drawablesToRemove.size(); i++) {
-			std::size_t drawablePos = m_drawablePositions[m_drawablesToRemove[i]];
-			startDrawable = std::min(startDrawable, drawablePos);
 			it = std::remove(m_drawables.begin(), it, m_drawablesToRemove[i]);
-			numRemovedIndices += m_indexInfos[drawablePos].count; // m_drawablesToRemove[i]->mesh.getIndexCount();
+			m_drawableInfos.erase(m_drawablesToRemove[i]);
 		}
 
 		m_drawables.erase(it, m_drawables.end());
 	}
 
-	void Renderer::resizeIndices(std::size_t numAddedIndices, std::size_t numRemovedIndices)
+
+	void Renderer::resizeIndices()
 	{
-		m_indices.resize(m_indices.size() + numAddedIndices - numRemovedIndices);
+		m_indices.resize(m_indices.size() + m_numIndicesToAdd);
 	}
 
-	void Renderer::recalcIndices(std::size_t start)
+	void Renderer::recalcIndices()
 	{
-		for (std::size_t i = start; i < m_drawables.size(); i++) {
-			IndexInfo indexInfo = m_indexInfos[i];
-			const Mesh& mesh = m_drawables[i]->mesh;
-			const std::vector<GLushort>& indices = mesh.getIndices();
-			
+		bool allAffected = m_firstAffectedDrawable == 0;
+		Drawable* lastUnaffectedDrawable = allAffected ? NULL : m_drawables[m_firstAffectedDrawable - 1];
+		DrawableInfo* lastUnaffectedInfo = allAffected ? NULL : &m_drawableInfos[lastUnaffectedDrawable];
+		std::size_t positionInDrawableList = allAffected ? 0 : m_firstAffectedDrawable;
+		std::size_t positionInIndexList = allAffected ? 0 : lastUnaffectedInfo->positionInIndexList + lastUnaffectedDrawable->mesh.getIndexCount();
+		GLushort offsetInIndexList = allAffected ? 0 : lastUnaffectedInfo->offsetInIndexList + (GLushort)lastUnaffectedDrawable->mesh.getVertexCount();
+
+		for (std::size_t i = m_firstAffectedDrawable; i < m_drawables.size(); i++) {
+			const std::vector<GLushort>& indices = m_drawables[i]->mesh.getIndices();
 			for (std::size_t j = 0; j < indices.size(); j++)
-				m_indices[indexInfo.position + j] = indices[j] + indexInfo.offset;
+				m_indices[positionInIndexList + j] = offsetInIndexList + indices[j];
+
+			Drawable* drawable = m_drawables[i];
+			m_drawableInfos[drawable] = DrawableInfo(positionInDrawableList, positionInIndexList, offsetInIndexList);
+			positionInDrawableList += 1;
+			positionInIndexList += drawable->mesh.getIndexCount();
+			offsetInIndexList += (GLushort)drawable->mesh.getVertexCount();
 		}
 	}
 
 	void Renderer::print()
 	{
+		std::cout << "number of drawables: " << m_drawables.size() << std::endl;
 		std::cout << "indices:" << std::endl;
 		for (std::size_t i = 0; i < m_drawables.size(); i++) {
-			std::size_t startPos = m_indexInfos[i].position;
+			std::size_t startPos = m_drawableInfos[m_drawables[i]].positionInIndexList;
 			std::size_t numIndices = m_drawables[i]->mesh.getIndexCount();
 			for (std::size_t j = 0; j < numIndices; j++)
 				std::cout << m_indices[startPos + j] << " ";
@@ -106,8 +106,13 @@ namespace sb
 		}
 
 		std::cout << std::endl;
+	}
 
-		std::cout << "press any key to continue" << std::endl;
-		std::cin.get();
+	void Renderer::cleanupRender()
+	{
+		m_drawablesToAdd.clear();
+		m_numIndicesToAdd = 0;
+		m_drawablesToRemove.clear();
+		m_firstAffectedDrawable = m_drawables.size();
 	}
 }
