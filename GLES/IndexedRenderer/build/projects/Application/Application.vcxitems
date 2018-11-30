@@ -19,6 +19,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Drawable.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Error.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\GL.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\IndexList.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Line.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Mesh.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Point.h" />
@@ -34,6 +35,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\IndexList.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Line.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Main.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Mesh.cpp" />
