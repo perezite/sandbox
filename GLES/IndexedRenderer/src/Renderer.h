@@ -11,6 +11,11 @@ namespace sb
 	class Renderer
 	{
 	public:
+		Renderer()
+		{
+			reset();
+		}
+
 		void init();
 
 		void add(Drawable* drawable);
@@ -20,9 +25,38 @@ namespace sb
 		void render();
 
 	protected: 
-		void print();
+		void addDrawables();
+
+		void removeDrawables();
+
+		void resizeVertices();
+
+		void calcVertices();
+
+		void setupDraw();
+
+		void setVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer);
+
+		void draw();
+
+		void checkGLErrors();
+
+		void reset();
 
 	private:
+		std::vector<Drawable*> m_drawables;
+
+		std::vector<Vertex> m_vertices;
+
 		IndexList m_indexList;
+
+		std::vector<Drawable*> m_drawablesToAdd;
+
+		std::vector<Drawable*> m_drawablesRemove;
+
+		std::size_t m_numVerticesToAdd;
+
+		Shader m_shader;
+	
 	};
 }

@@ -1,8 +1,6 @@
 #include <iostream>
 #include <vector>
 #include "Window.h"
-#include "Point.h"
-#include "Line.h"
 #include "Triangle.h"
 #include "Rectangle.h"
 #include "Stopwatch.h"
@@ -21,61 +19,12 @@ void showDrawables(std::vector<Drawable*>& drawables, Window& window);
 void logPerformance();
 void update(std::vector<Drawable*>& drawables, Window& window);
 
-void run2();
-void update2(std::vector<Drawable*>& drawables, Window& window);
-
 int main(int argc, char* args[])
 {
 	SDL_Log("Indexed Renderer: Build %s %s", __DATE__, __TIME__);
 
-	run2();
+	run();
 }
-
-void run2()
-{
-	std::vector<Drawable*> drawables;
-
-	Window window;
-
-	srand(42);
-
-	while (window.isOpen()) {
-		static int frameCnt = 0;
-		std::cout << "Frame: " << frameCnt << std::endl;
-		frameCnt++;
-		window.update();
-		update2(drawables, window);
-		window.draw();
-		// std::cin.get();
-	}
-}
-
-void update2(std::vector<Drawable*>& drawables, Window& window) {
-	std::cout << "Adding: ";
-	std::size_t rnd = rand() % 2;
-	for (std::size_t i = 0; i < rnd; i++) {
-		int type = rand() % 4;
-		Drawable* drawable = type == 0 ? (Drawable*)new Point() : type == 1 ? (Drawable*)new Line() : type == 2 ? (Drawable*)new Triangle() : (Drawable*)new sb::Rectangle();
-		window.show(drawable);
-		drawables.push_back(drawable);
-		std::cout << (type == 0 ? "Point" : type == 1 ? "Line" : type == 2 ? "Triangle" : "Rectangle") << " ";
-	}
-	std::cout << std::endl;
-
-	std::cout << std::endl;
-	rnd = drawables.size() >= 2 ? rand() % 2 : 0;
-	std::cout << "Removing: ";
-	for (std::size_t i = 0; i < rnd; i++) {
-		std::size_t pos = rand() % drawables.size();
-		window.hide(drawables[pos]);
-		delete drawables[pos];
-		drawables.erase(std::remove(drawables.begin(), drawables.end(), drawables[pos]));
-		std::cout << i << " ";
-	}
-	std::cout << std::endl;
-}
-
-/*************************************************************************************/
 
 void run()
 {
