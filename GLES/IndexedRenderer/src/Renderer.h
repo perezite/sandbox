@@ -11,7 +11,8 @@ namespace sb
 {
 	struct IndexInfo {
 		std::size_t position;
-		GLuint offset;
+		std::size_t count;
+		std::size_t offset;
 	};
 
 	class Renderer
@@ -29,26 +30,22 @@ namespace sb
 		void render();
 
 	protected:
-		void calculateIndices();
+		void addDrawables(std::size_t& startDrawable, std::size_t& numAddedIndices);
+
+		void removeDrawables(std::size_t& startDrawable, std::size_t& numRemovedIndices);
+
+		void resizeIndices(std::size_t numAddedIndices, std::size_t numRemovedIndices);
+
+		void recalcIndices(std::size_t start);
 
 		void print();
 
-		Drawable* removeDrawables();
-
-		Drawable* addDrawables();
-
-		void resizeIndices();
-
-		void shrinkIndices();
-
-		std::size_t countRemovedIndices();
-
-		std::size_t countAddedIndices();
-
-		void recalcIndices(Drawable* start);
-
 	private:
-		std::map<Drawable*, IndexInfo> m_drawables;
+		std::vector<Drawable*> m_drawables;
+
+		std::vector<IndexInfo> m_indexInfos;
+
+		std::map<Drawable*, std::size_t> m_drawablePositions;
 
 		std::vector<Drawable*> m_drawablesToAdd;
 

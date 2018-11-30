@@ -1,23 +1,30 @@
 #include <iostream>
 #include <vector>
 #include "Window.h"
+#include "Point.h"
+#include "Line.h"
 #include "Triangle.h"
 #include "Rectangle.h"
 #include "Stopwatch.h"
 #include "Error.h"
 #include <SDL2/SDL.h>
 #include <vector>
+#include <algorithm>
 using namespace sb;
 
 const unsigned int NumTrianglesHorz = 2; 
 const unsigned int NumTrianglesVert = 2; 
 
 void run();
-void run2();
 void spawnDrawables(std::vector<Drawable*>& drawables);
 void showDrawables(std::vector<Drawable*>& drawables, Window& window);
 void logPerformance();
 void update(std::vector<Drawable*>& drawables, Window& window);
+
+void run2();
+void spawnDrawables2(std::vector<Drawable*>& drawables);
+void showDrawables2(std::vector<Drawable*>& drawables, Window& window);
+void update2(std::vector<Drawable*>& drawables, Window& window);
 
 int main(int argc, char* args[])
 {
@@ -28,17 +35,51 @@ int main(int argc, char* args[])
 
 void run2()
 {
+	std::vector<Drawable*> drawables;
+
 	Window window;
-	Triangle triangle;
-	Triangle triangle2;
-	window.show(&triangle);
-	window.show(&triangle2);
+	spawnDrawables2(drawables);
+	showDrawables2(drawables, window);
 
 	while (window.isOpen()) {
 		window.update();
 		window.draw();
+		update2(drawables, window);
 	}
 }
+
+void spawnDrawables2(std::vector<Drawable*>& drawables)
+{
+	drawables.push_back(new Line(Vector2f(0, 0)));
+	drawables.push_back(new sb::Rectangle(Vector2f(0, 0)));
+	drawables.push_back(new Triangle(Vector2f(0, 0)));
+}
+
+void showDrawables2(std::vector<Drawable*>& drawables, Window& window)
+{
+	for (std::size_t i = 0; i < drawables.size(); i++)
+		window.show(drawables[i]);
+}
+
+void update2(std::vector<Drawable*>& drawables, Window& window) {
+	std::size_t numToRemove = rand() % 2;
+	std::cout << "Deleted: ";
+	for (std::size_t i = 0; i < numToRemove; i++) {
+		int rnd = rand() % drawables.size();
+		window.hide(drawables[rnd]); drawables.erase(drawables.begin() + rnd);
+	}
+
+	std::size_t numToAdd = rand() % 2;
+	std::cout << "Added: ";
+	for (std::size_t i = 0; i < numToAdd; i++) {
+		int rnd = rand() % 4;
+		Drawable* drw = rnd == 0 ? (Drawable*)new Point() : rnd == 1 ? (Drawable*)new Line() : rnd == 2 ? (Drawable*)new Triangle() : (Drawable*)new sb::Rectangle();
+		drawables.push_back(drw); window.show(drw); 
+		std::cout << (rnd == 0 ? "Point" : rnd == 1 ? "Line" : rnd == 2 ? "Triangle" : "Rectangle");
+	}
+}
+
+/*************************************************************************************/
 
 void run()
 {

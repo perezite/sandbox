@@ -7,8 +7,6 @@
 
 namespace sb
 {
-	typedef std::map<Drawable*, IndexInfo>::iterator DrawableIter;
-
 	void Renderer::init()
 	{
 		
@@ -16,7 +14,7 @@ namespace sb
 
 	void Renderer::add(Drawable* drawable)
 	{
-		if(m_drawables.find(drawable) != m_drawables.end())
+		if(std::find(m_drawables.begin(), m_drawables.end(), drawable) != m_drawables.end())
 			return;
 
 		m_drawablesToAdd.push_back(drawable);
@@ -29,102 +27,87 @@ namespace sb
 
 	void Renderer::render()
 	{
-		calculateIndices();
+		std::size_t addedStart; std::size_t numAddedIndices;
+		addDrawables(addedStart, numAddedIndices);
+
+		std::size_t removedStart; std::size_t numRemovedIndices;
+		removeDrawables(removedStart, numRemovedIndices);
+
+		resizeIndices(numAddedIndices, numRemovedIndices);
+		recalcIndices(std::min(addedStart, removedStart));
+
+		m_drawablesToAdd.clear();
+		m_drawablesToRemove.clear();
+
 		print();
 	}
-
-	void Renderer::calculateIndices()
+	void Renderer::addDrawables(std::size_t& startDrawable, std::size_t& numAddedIndices)
 	{
-		Drawable* start = removeDrawables();
-		recalcIndices(start);
-		shrinkIndices();
-		Drawable* start2 = addDrawables();
-		recalcIndices(start);
-		m_drawablesToRemove.clear();
-		m_drawablesToAdd.clear();
+		std::size_t indexPosition = m_drawables.empty() ? 0 : m_indexInfos.rbegin()->position + (*m_drawables.rbegin())->mesh.getIndexCount();
+		std::size_t indexOffset = m_drawables.empty() ? 0 : m_indexInfos.rbegin()->offset + (*m_drawables.rbegin())->mesh.getVertexCount();
+		startDrawable = m_drawables.size();
+		numAddedIndices = 0;
+		std::size_t position = m_drawables.size();
+
+		for (std::size_t i = 0; i < m_drawablesToAdd.size(); i++) {
+			m_drawables.push_back(m_drawablesToAdd[i]);
+			m_indexInfos.push_back( IndexInfo { indexPosition, m_drawablesToAdd[i]->mesh.getIndexCount(), indexOffset } );
+			m_drawablePositions[m_drawablesToAdd[i]] = position;
+			indexPosition += m_drawablesToAdd[i]->mesh.getIndexCount();
+			indexOffset += m_drawablesToAdd[i]->mesh.getVertexCount();
+			numAddedIndices += m_drawablesToAdd[i]->mesh.getIndexCount();
+			position += 1;
+		}
 	}
 
-	void Renderer::shrinkIndices()
+	void Renderer::removeDrawables(std::size_t& startDrawable, std::size_t& numRemovedIndices) 
 	{
-		std::size_t numRemovedIndices = countRemovedIndices();
-		m_indices.resize(m_indices.size() + numRemovedIndices);
+		startDrawable = m_drawables.size();
+		numRemovedIndices = 0;
+
+		std::vector<Drawable*>::iterator it = m_drawables.end();
+		for (std::size_t i = 0; i < m_drawablesToRemove.size(); i++) {
+			std::size_t drawablePos = m_drawablePositions[m_drawablesToRemove[i]];
+			startDrawable = std::min(startDrawable, drawablePos);
+			it = std::remove(m_drawables.begin(), it, m_drawablesToRemove[i]);
+			numRemovedIndices += m_indexInfos[drawablePos].count; // m_drawablesToRemove[i]->mesh.getIndexCount();
+		}
+
+		m_drawables.erase(it, m_drawables.end());
+	}
+
+	void Renderer::resizeIndices(std::size_t numAddedIndices, std::size_t numRemovedIndices)
+	{
+		m_indices.resize(m_indices.size() + numAddedIndices - numRemovedIndices);
+	}
+
+	void Renderer::recalcIndices(std::size_t start)
+	{
+		for (std::size_t i = start; i < m_drawables.size(); i++) {
+			IndexInfo indexInfo = m_indexInfos[i];
+			const Mesh& mesh = m_drawables[i]->mesh;
+			const std::vector<GLushort>& indices = mesh.getIndices();
+			
+			for (std::size_t j = 0; j < indices.size(); j++)
+				m_indices[indexInfo.position + j] = indices[j] + indexInfo.offset;
+		}
 	}
 
 	void Renderer::print()
 	{
 		std::cout << "indices:" << std::endl;
-		for (std::size_t i = 0; i < m_indices.size(); i++)
-			std::cout << m_indices[i] << " ";
+		for (std::size_t i = 0; i < m_drawables.size(); i++) {
+			std::size_t startPos = m_indexInfos[i].position;
+			std::size_t numIndices = m_drawables[i]->mesh.getIndexCount();
+			for (std::size_t j = 0; j < numIndices; j++)
+				std::cout << m_indices[startPos + j] << " ";
+
+			std::cout << "| ";
+		}
+
 		std::cout << std::endl;
 
 		std::cout << "press any key to continue" << std::endl;
 		std::cin.get();
-	}
-
-	Drawable* Renderer::removeDrawables() 
-	{
-		DrawableIter start = m_drawables.end();
-
-		for (std::size_t i = 0; i < m_drawablesToRemove.size(); i++) {
-			DrawableIter it = m_drawables.find(m_drawablesToRemove[i]);
-			std::size_t position = it->second.position;
-			start = position < start->second.position ? it : start;
-			m_drawables.erase(it);
-		}
-
-		return start->first;
-	}
-
-	Drawable* Renderer::addDrawables() {
-		if (m_drawablesToAdd.empty())
-			return NULL;
-
-		IndexInfo indexInfo = m_drawables.empty() ? IndexInfo() : std::prev(m_drawables.end(), 1)->second;
-		m_drawables[m_drawablesToAdd[0]] = IndexInfo();
-
-		for (std::size_t i = 1; i < m_drawablesToAdd.size(); i++) {
-			indexInfo.position += m_drawablesToAdd[i - 1]->mesh.getIndexCount();
-			indexInfo.offset += m_drawablesToAdd[i - 1]->mesh.getLargestIndex();
-			m_drawables[m_drawablesToAdd[i]] = indexInfo;
-		}
-
-		return NULL;
-	}
-
-	void Renderer::resizeIndices()
-	{
-		std::size_t numRemovedIndices = countRemovedIndices();
-		std::size_t numAddedIndices = countAddedIndices();
-		m_indices.resize(m_indices.size() + numAddedIndices - numRemovedIndices);
-	}
-
-	std::size_t Renderer::countRemovedIndices()
-	{
-		std::size_t numRemovedIndices = 0;
-		for (std::size_t i = 0; i < m_drawablesToRemove.size(); i++)
-			numRemovedIndices += m_drawablesToRemove[i]->mesh.getIndexCount();
-	
-		return numRemovedIndices;
-	}
-
-	std::size_t Renderer::countAddedIndices()
-	{
-		std::size_t numRemovedIndices = 0;
-		for (std::size_t i = 0; i < m_drawablesToAdd.size(); i++)
-			numRemovedIndices += m_drawablesToAdd[i]->mesh.getIndexCount();
-
-		return numRemovedIndices;
-	}
-
-	void Renderer::recalcIndices(Drawable* start) 
-	{
-		DrawableIter it = std::prev(m_drawables.find(start), 1);
-
-		for (it; it != m_drawables.end(); it++) {
-			const std::vector<GLushort>& indices = it->first->mesh.getIndices();
-			for (std::size_t i = 0; i < indices.size(); i++) {
-				m_indices[it->second.position + i] = it->second.offset + indices[i];
-			}
-		}
 	}
 }

@@ -23,8 +23,6 @@ namespace sb
 
 		inline const std::vector<GLushort>& getIndices() const { return m_indices; }
 
-		inline const GLushort getLargestIndex() const { return m_largestIndex; }
-
 	protected:
 		void calcIndices();
 
@@ -32,7 +30,5 @@ namespace sb
 		std::vector<Vertex> m_vertices;
 
 		std::vector<GLushort> m_indices;
-
-		GLushort m_largestIndex;
 	};
 }
