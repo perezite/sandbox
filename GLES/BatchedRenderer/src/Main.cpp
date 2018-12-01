@@ -7,6 +7,7 @@
 #include "Error.h"
 #include <SDL2/SDL.h>
 #include <vector>
+#include <algorithm>
 using namespace sb;
 
 const unsigned int NumTrianglesHorz = 100; 
@@ -20,7 +21,7 @@ void update(std::vector<Drawable*>& drawables, Window& window);
 
 int main(int argc, char* args[])
 {
-	SDL_Log("Simple Renderer: Build %s %s", __DATE__, __TIME__);
+	SDL_Log("Indexed Renderer: Build %s %s", __DATE__, __TIME__);
 
 	run();
 }
@@ -29,13 +30,13 @@ void run()
 {
 	std::vector<Drawable*> drawables;
 
-	Window window;
+	Window window(800, 800);
 	spawnDrawables(drawables);
 	showDrawables(drawables, window);
 
 	while (window.isOpen()) {
 		window.update();
-		// update(drawables, window);
+		update(drawables, window);
 		window.draw();
 		logPerformance();
 	}
@@ -66,21 +67,6 @@ void showDrawables(std::vector<Drawable*>& drawables, Window& window)
 		window.show(drawables[i]);
 }
 
-void logPerformance()
-{
-	static Stopwatch stopwatch;
-	static unsigned int frames = 0;
-
-	float elapsed = stopwatch.getElapsedSeconds();
-	frames++;
-	if (elapsed > 1.0f) {
-		float fps = frames / elapsed;
-		SDL_Log("FPS: %f", fps);
-		frames = 0;
-		stopwatch.reset();
-	}
-}
-
 void update(std::vector<Drawable*>& drawables, Window& window)
 {
 	static Stopwatch sw;
@@ -97,5 +83,20 @@ void update(std::vector<Drawable*>& drawables, Window& window)
 		
 		sw.reset();
 		count++;
+	}
+}
+
+void logPerformance()
+{
+	static Stopwatch stopwatch;
+	static unsigned int frames = 0;
+
+	float elapsed = stopwatch.getElapsedSeconds();
+	frames++;
+	if (elapsed > 1.0f) {
+		float fps = frames / elapsed;
+		SDL_Log("FPS: %f", fps);
+		frames = 0;
+		stopwatch.reset();
 	}
 }

@@ -4,7 +4,7 @@
 #include "Drawable.h"
 #include "Vertex.h"
 #include "Shader.h"
-#include <vector>
+#include "IndexList.h" 
 
 namespace sb
 {
@@ -19,35 +19,41 @@ namespace sb
 
 		void render();
 
-	protected:
+	protected: 
+		void addDrawables();
+
+		void removeDrawables();
+
+		void resizeVertices();
+
 		void calcVertices();
-
-		std::size_t countVertices();
-
-		void calcIndices();
-
-		std::size_t countIndices();
-
-		void draw();
 
 		void setupDraw();
 
 		void setVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer);
 
+		void draw();
+
 		void checkGLErrors();
 
 		void cleanupDraw();
+
+		void reset();
 
 	private:
 		std::vector<Drawable*> m_drawables;
 
 		std::vector<Vertex> m_vertices;
 
-		std::vector<GLushort> m_indices;
+		IndexList m_indexList;
 
-		bool m_indicesNeedUpdate;
+		std::vector<Drawable*> m_drawablesToAdd;
+
+		std::vector<Drawable*> m_drawablesRemove;
+
+		std::size_t m_numVerticesToAdd;
 
 		Shader m_shader;
-
+	
 	};
 }

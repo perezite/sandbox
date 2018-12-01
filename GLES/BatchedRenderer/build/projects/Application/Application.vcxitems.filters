@@ -48,6 +48,18 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Rectangle.h">
       <Filter>headers</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Utils.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Point.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Line.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\IndexList.h">
+      <Filter>headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Main.cpp" />
@@ -59,5 +71,8 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Renderer.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Mesh.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Rectangle.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Point.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Line.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\IndexList.cpp" />
   </ItemGroup>
 </Project>
