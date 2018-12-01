@@ -10,6 +10,7 @@ namespace sb
 	void Renderer::init()
 	{
 		m_shader.init();
+		reset();
 	}
 
 	void Renderer::add(Drawable* drawable)
@@ -36,7 +37,9 @@ namespace sb
 		resizeVertices();
 		calcVertices();
 
+		setupDraw();
 		draw();
+		cleanupDraw();
 
 		reset();
 	}
@@ -90,7 +93,9 @@ namespace sb
 	void Renderer::draw()
 	{
 		glDrawElements(GL_TRIANGLES, m_indexList.getIndices().size(), GL_UNSIGNED_SHORT, m_indexList.getIndices().data());
-		checkGLErrors();
+		#ifdef _DEBUG
+			checkGLErrors();
+		#endif
 	}
 
 	void Renderer::checkGLErrors()
@@ -100,12 +105,16 @@ namespace sb
 			Error().die() << "GL error: " << error << std::endl;
 	}
 
+	void Renderer::cleanupDraw()
+	{
+		glDisableVertexAttribArray(m_shader.getAttributeLocation("a_vColor"));
+		glDisableVertexAttribArray(m_shader.getAttributeLocation("a_vPosition"));
+	}
+
 	void Renderer::reset()
 	{
 		m_drawablesToAdd.clear();
 		m_drawablesRemove.clear();
 		m_numVerticesToAdd = 0;
-		glDisableVertexAttribArray(m_shader.getAttributeLocation("a_vColor"));
-		glDisableVertexAttribArray(m_shader.getAttributeLocation("a_vPosition"));
 	}
 }

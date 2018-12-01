@@ -10,8 +10,8 @@
 #include <algorithm>
 using namespace sb;
 
-const unsigned int NumTrianglesHorz = 2; 
-const unsigned int NumTrianglesVert = 2; 
+const unsigned int NumTrianglesHorz = 100; 
+const unsigned int NumTrianglesVert = 100; 
 
 void run();
 void spawnDrawables(std::vector<Drawable*>& drawables);
@@ -30,13 +30,13 @@ void run()
 {
 	std::vector<Drawable*> drawables;
 
-	Window window;
+	Window window(800, 800);
 	spawnDrawables(drawables);
 	showDrawables(drawables, window);
 
 	while (window.isOpen()) {
 		window.update();
-		// update(drawables, window);
+		update(drawables, window);
 		window.draw();
 		logPerformance();
 	}

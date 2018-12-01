@@ -11,11 +11,6 @@ namespace sb
 	class Renderer
 	{
 	public:
-		Renderer()
-		{
-			reset();
-		}
-
 		void init();
 
 		void add(Drawable* drawable);
@@ -40,6 +35,8 @@ namespace sb
 		void draw();
 
 		void checkGLErrors();
+
+		void cleanupDraw();
 
 		void reset();
 
