@@ -10,14 +10,11 @@
 #include <algorithm>
 using namespace sb;
 
-const unsigned int NumTrianglesHorz = 100; 
-const unsigned int NumTrianglesVert = 100; 
+const unsigned int NumTrianglesHorz = 1; 
+const unsigned int NumTrianglesVert = 1; 
 
 void run();
-void spawnDrawables(std::vector<Drawable*>& drawables);
-void showDrawables(std::vector<Drawable*>& drawables, Window& window);
 void logPerformance();
-void update(std::vector<Drawable*>& drawables, Window& window);
 
 int main(int argc, char* args[])
 {
@@ -28,61 +25,28 @@ int main(int argc, char* args[])
 
 void run()
 {
-	std::vector<Drawable*> drawables;
-
 	Window window(800, 800);
-	spawnDrawables(drawables);
-	showDrawables(drawables, window);
+
+	Triangle triangle(Vector2f(-0.5f, 0.5f), Vector2f (0.3f, 0.3f));
+	sb::Rectangle rectangle(Vector2f(-0.2f, 0.1f), Vector2f(0.2f, 0.2f), 30 * sb::ToRadian);
+	window.show(&triangle);
+	window.show(&rectangle);
+
+	/* 
+	DrawBatch batch;
+	for (std::size_t i = 0; i < 100; i++) {
+		Vector2f pos(rand() % 100 / 100.0f * 0.5f, rand() % 100 / 100.0f * 0.5f);
+		batch.add(Triangle(pos, Vector2f(0.1f, 0.1f));		// https://stackoverflow.com/questions/84427/is-it-legal-to-pass-a-newly-constructed-object-by-reference-to-a-function
+	}
+	
+	window.show(batch);
+	*/
+
 
 	while (window.isOpen()) {
 		window.update();
-		update(drawables, window);
 		window.draw();
 		logPerformance();
-	}
-}
-
-void spawnDrawables(std::vector<Drawable*>& drawables)
-{
-	float stepWidth = 2.0f / NumTrianglesHorz;
-	float stepHeight = 2.0f / NumTrianglesVert;
-	Vector2f scale(0.9f * stepWidth, 0.9f * stepHeight);
-
-	int count = 0;
-	for (std::size_t i = 0; i < NumTrianglesHorz; i++) {
-		for (std::size_t j = 0; j < NumTrianglesVert; j++) {
-			Vector2f position(-1.0f + (i + 0.5f) * stepWidth, -1.0f + (j + 0.5f) * stepHeight);
-			drawables.push_back(count % 2 == 0 ?
-				(Drawable*)new sb::Rectangle(position, scale, 10 * ToRadian) :
-				(Drawable*)new sb::Triangle(position, scale, 10 * ToRadian));
-			count++;
-		}
-		count++;
-	}
-}
-
-void showDrawables(std::vector<Drawable*>& drawables, Window& window)
-{
-	for (std::size_t i = 0; i < drawables.size(); i++)
-		window.show(drawables[i]);
-}
-
-void update(std::vector<Drawable*>& drawables, Window& window)
-{
-	static Stopwatch sw;
-	static int count = 0;
-	static int index = -1;
-
-	if (sw.getElapsedSeconds() > 0.1) {
-		if (count % 2 == 0) {
-			index = rand() % drawables.size();
-			window.hide(drawables[index]);
-		}
-		else
-			window.show(drawables[index]);
-		
-		sw.reset();
-		count++;
 	}
 }
 
