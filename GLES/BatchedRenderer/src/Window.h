@@ -24,6 +24,8 @@ namespace sb
 
 		void hide(Drawable* drawable) { m_renderer.remove(drawable); }
 
+		void show(DrawBatch* batch) { m_renderer.add(batch); }
+
 	private:
 		bool m_isOpen;
 

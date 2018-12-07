@@ -5,6 +5,7 @@
 #include "Vertex.h"
 #include "Shader.h"
 #include "IndexList.h" 
+#include "DrawBatch.h"
 
 namespace sb
 {
@@ -13,47 +14,38 @@ namespace sb
 	public:
 		void init();
 
-		void add(Drawable* drawable);
+		void add(Drawable* drawable) { m_mainBatch.add(drawable); }
 
-		void remove(Drawable* drawable);
+		void remove(Drawable* drawable) { m_mainBatch.remove(drawable); }
+
+		void add(DrawBatch* batch) { m_batchesToAdd.push_back(batch); }
 
 		void render();
 
+		void reset();
+
 	protected: 
-		void addDrawables();
+		void render(DrawBatch* batch);
 
-		void removeDrawables();
+		void addBatches();
 
-		void resizeVertices();
+		void setupDraw(DrawBatch* batch);
 
-		void calcVertices();
+		void setupVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer);
 
-		void setupDraw();
-
-		void setVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer);
-
-		void draw();
+		void draw(DrawBatch* batch);
 
 		void checkGLErrors();
 
 		void cleanupDraw();
 
-		void reset();
-
 	private:
-		std::vector<Drawable*> m_drawables;
+		DrawBatch m_mainBatch;
 
-		std::vector<Vertex> m_vertices;
+		std::vector<DrawBatch*> m_batches;
 
-		IndexList m_indexList;
-
-		std::vector<Drawable*> m_drawablesToAdd;
-
-		std::vector<Drawable*> m_drawablesRemove;
-
-		std::size_t m_numVerticesToAdd;
+		std::vector<DrawBatch*> m_batchesToAdd;
 
 		Shader m_shader;
-	
 	};
 }
