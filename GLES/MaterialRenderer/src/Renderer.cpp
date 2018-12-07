@@ -7,14 +7,36 @@
 
 namespace sb
 {
-	void Renderer::render()
+	void Renderer::add(Drawable* drawable)
 	{
+		m_mainBatches[drawable->material].add(drawable);
+	}
+
+	void Renderer::remove(Drawable* drawable)
+	{
+		m_mainBatches[drawable->material].remove(drawable);		
+	}
+
+	void Renderer::draw()
+	{
+		cleanupMainBatches();
+		for (std::map<Material, DrawBatch>::iterator it = m_mainBatches.begin(); it != m_mainBatches.end(); it++)
+			draw(&it->second);
+
 		addBatches();
-
-		render(&m_mainBatch);
-
 		for (std::size_t i = 0; i < m_batches.size(); i++)
-			render(m_batches[i]);
+			draw(m_batches[i]);
+
+		reset();
+	}
+
+	void Renderer::cleanupMainBatches()
+	{
+		std::map<Material, DrawBatch>::iterator it;
+		for (it = m_mainBatches.begin(); it != m_mainBatches.end(); it++) {
+			if (it->second.getDrawableCount() == 0)
+				it = m_mainBatches.erase(it);
+		}
 	}
 
 	void Renderer::addBatches()
@@ -22,15 +44,13 @@ namespace sb
 		m_batches.insert(m_batches.end(), m_batchesToAdd.begin(), m_batchesToAdd.end());
 	}
 
-	void Renderer::render(DrawBatch* batch)
+	void Renderer::draw(DrawBatch* batch)
 	{
 		batch->calculate();
 
 		setupDraw(batch);
-		draw(batch);
+		drawBatch(batch);
 		cleanupDraw(batch);
-
-		reset();
 	}
 
 	void Renderer::setupDraw(DrawBatch* batch)
@@ -50,7 +70,7 @@ namespace sb
 		glVertexAttribPointer(index, size, type, normalized, stride, pointer);
 	}
 
-	void Renderer::draw(DrawBatch* batch)
+	void Renderer::drawBatch(DrawBatch* batch)
 	{
 		glDrawElements(GL_TRIANGLES, batch->getIndices().size(), GL_UNSIGNED_SHORT, batch->getIndices().data());
 		#ifdef _DEBUG

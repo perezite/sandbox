@@ -2,6 +2,7 @@
 
 #include "Mesh.h"
 #include "Transform.h"
+#include "Material.h"
 
 namespace sb
 {
@@ -12,9 +13,15 @@ namespace sb
 			: mesh(mesh_), transform(transform_)
 		{ }
 
+		Drawable(const Mesh& mesh_, Transform& transform_, Material& material_)
+			: mesh(mesh_), transform(transform_), material(material_)
+		{ }
+
 	public:
 		const Mesh& mesh;
 
 		Transform& transform;
+
+		Material material;
 	};
 }

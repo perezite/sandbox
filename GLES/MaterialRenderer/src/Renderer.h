@@ -6,24 +6,29 @@
 #include "Shader.h"
 #include "IndexList.h" 
 #include "DrawBatch.h"
+#include "Material.h"
+#include <map>
+
 
 namespace sb
 {
 	class Renderer
 	{
 	public:
-		void add(Drawable* drawable) { m_mainBatch.add(drawable); }
+		void add(Drawable* drawable);
 
-		void remove(Drawable* drawable) { m_mainBatch.remove(drawable); }
+		void remove(Drawable* drawable);
 
 		void add(DrawBatch* batch) { m_batchesToAdd.push_back(batch); }
 
-		void render();
+		void draw();
 
 		void reset();
 
 	protected: 
-		void render(DrawBatch* batch);
+		void draw(DrawBatch* batch);
+
+		void cleanupMainBatches();
 
 		void addBatches();
 
@@ -31,14 +36,14 @@ namespace sb
 
 		void setupVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer);
 
-		void draw(DrawBatch* batch);
+		void drawBatch(DrawBatch* batch);
 
 		void checkGLErrors();
 
 		void cleanupDraw(DrawBatch* batch);
 
 	private:
-		DrawBatch m_mainBatch;
+		std::map<Material, DrawBatch> m_mainBatches;
 
 		std::vector<DrawBatch*> m_batches;
 

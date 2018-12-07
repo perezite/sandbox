@@ -12,6 +12,8 @@ namespace sb
 	public:
 		Shader();
 
+		inline GLuint GetShaderId() const { return m_shader; }
+
 		GLuint getAttributeLocation(std::string attribute);
 
 		void use();
@@ -32,4 +34,6 @@ namespace sb
 
 		std::map<std::string, GLuint> m_attributeLocations;
 	};
+
+
 }

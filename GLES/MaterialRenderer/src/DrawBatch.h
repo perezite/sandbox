@@ -15,7 +15,7 @@ namespace sb
 
 		inline const Drawable* operator[](std::size_t index) const { return m_drawables[index]; }
 
-		inline std::size_t getDrawableCount() const { return m_drawables.size(); }
+		inline std::size_t getDrawableCount() const { return m_drawables.size() + m_drawablesToAdd.size(); }
 
 		inline const std::vector<Vertex>& getVertices() const { return m_vertices; }
 

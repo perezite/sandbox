@@ -21,11 +21,11 @@ namespace sb
 
 		void draw();
 
-		void show(Drawable* drawable) { m_renderer->add(drawable); }
+		void show(Drawable* drawable) { m_renderer.add(drawable); }
 
-		void hide(Drawable* drawable) { m_renderer->remove(drawable); }
+		void hide(Drawable* drawable) { m_renderer.remove(drawable); }
 
-		void show(DrawBatch* batch) { m_renderer->add(batch); }
+		void show(DrawBatch* batch) { m_renderer.add(batch); }
 
 	private:
 		bool m_isOpen;
@@ -34,6 +34,6 @@ namespace sb
 
 		SDL_GLContext m_glContext;
 
-		Renderer* m_renderer;
+		Renderer m_renderer;
 	};
 }

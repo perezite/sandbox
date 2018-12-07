@@ -31,13 +31,10 @@ namespace sb
 
 		glClearColor(1, 1, 1, 1);
 		SDL_GL_SetSwapInterval(0);
-
-		m_renderer = new Renderer();
 	}
 
 	Window::~Window()
 	{
-		delete m_renderer;
 		SDL_DestroyWindow(m_sdlWindow);
 		SDL_Quit();
 	}
@@ -53,7 +50,7 @@ namespace sb
 	void Window::draw()
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
-		m_renderer->render();
+		m_renderer.draw();
 		SDL_GL_SwapWindow(m_sdlWindow);
 	}
 }

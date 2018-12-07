@@ -4,8 +4,11 @@
 
 namespace sb
 {
-	struct Material
+	class Material
 	{
+	public:
 		Shader shader;
 	};
+
+	bool operator <(const Material& left, const Material& right);
 }
