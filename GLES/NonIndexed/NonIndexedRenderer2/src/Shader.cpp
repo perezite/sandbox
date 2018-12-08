@@ -4,7 +4,13 @@
 
 namespace sb
 {
-	void Shader::init()
+	Shader::Shader() 
+		: Shader(getDefaultVertexShaderSource(), getDefaultFragmentShaderSource())
+	{
+
+	}
+
+	Shader::Shader(std::string vertexShaderSource, std::string fragmentShaderSource)
 	{
 		m_shader = glCreateProgram();
 		if (m_shader == 0) {
@@ -12,8 +18,8 @@ namespace sb
 			std::cin.get();
 		}
 
-		std::string vertexShaderCode = getDefaultVertexShaderSource();
-		std::string fragmentShaderCode = getDefaultFragmentShaderSource();
+		std::string vertexShaderCode = vertexShaderSource;
+		std::string fragmentShaderCode = fragmentShaderSource;
 		GLuint vertexShader = compile(vertexShaderCode, GL_VERTEX_SHADER);
 		GLuint fragmentShader = compile(fragmentShaderCode, GL_FRAGMENT_SHADER);
 
@@ -39,31 +45,6 @@ namespace sb
 	void Shader::destroy()
 	{
 		glDeleteProgram(m_shader);
-	}
-
-	std::string Shader::getDefaultVertexShaderSource()
-	{
-		return
-			"attribute vec2 a_vPosition;										\n"
-			"attribute vec4 a_vColor;											\n"
-			"varying vec4 v_vColor;												\n"
-			"void main()														\n"
-			"{																	\n"
-			"   gl_Position = vec4(a_vPosition.x, a_vPosition.y, 0 , 1 );		\n"
-			"	v_vColor = a_vColor;											\n"
-			"}";
-	}
-
-	std::string Shader::getDefaultFragmentShaderSource()
-	{
-		return
-			"#version 100										\n"
-			"precision mediump float;						\n"
-			"varying vec4 v_vColor;		 					\n"
-			"void main()									\n"
-			"{												\n"
-			"  gl_FragColor = v_vColor;						\n"
-			"}												\n";
 	}
 
 	GLuint Shader::compile(std::string shaderCode, GLenum type)
@@ -115,5 +96,30 @@ namespace sb
 
 			glDeleteProgram(m_shader);
 		}
+	}
+
+	std::string Shader::getDefaultVertexShaderSource()
+	{
+		return
+			"attribute vec2 a_vPosition;										\n"
+			"attribute vec4 a_vColor;											\n"
+			"varying vec4 v_vColor;												\n"
+			"void main()														\n"
+			"{																	\n"
+			"   gl_Position = vec4(a_vPosition.x, a_vPosition.y, 0 , 1 );		\n"
+			"	v_vColor = a_vColor;											\n"
+			"}";
+	}
+
+	std::string Shader::getDefaultFragmentShaderSource()
+	{
+		return
+			"#version 100									\n"
+			"precision mediump float;						\n"
+			"varying vec4 v_vColor;		 					\n"
+			"void main()									\n"
+			"{												\n"
+			"  gl_FragColor = v_vColor;						\n"
+			"}												\n";
 	}
 }

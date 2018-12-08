@@ -31,7 +31,6 @@ namespace sb
 
 		glClearColor(1, 1, 1, 1);
 		SDL_GL_SetSwapInterval(0);
-		m_renderer.init();
 	}
 
 	Window::~Window()

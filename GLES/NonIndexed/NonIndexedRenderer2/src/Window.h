@@ -20,7 +20,7 @@ namespace sb
 
 		void display();
 
-		void draw(Drawable& drawable) { m_renderer.render(drawable); }
+		void draw(Drawable& drawable, Shader* shader = NULL) { m_renderer.render(drawable, shader); }
 
 	private:
 		bool m_isOpen;

@@ -8,25 +8,16 @@
 
 namespace sb
 {
-	//struct DrawConfig {
-	//	DrawConfig(Drawable* drawable_, Shader* shader_)
-	//		: drawable(drawable_), shader(shader_)
-	//	{ }
-
-	//	Drawable* drawable;
-	//	Shader* shader;
-	//};
-
 	class Renderer
 	{
 	public:
-		void init();
-
 		void render(Drawable& drawable, Shader* shader = NULL);
 
 		void display();
 
 	protected:
+		Shader& getDefaultShader();
+
 		void display(std::vector<Drawable*>& drawables, Shader* shader);
 
 		void calcVertices(std::vector<Drawable*>& drawables, std::vector<Vertex>& result);
@@ -45,10 +36,7 @@ namespace sb
 
 	private:
 		std::map<Shader*, std::vector<Drawable*>> m_batches;
+
 		typedef std::map<Shader*, std::vector<Drawable*>>::iterator BatchIter;
-
-		// std::vector<Vertex> m_vertices;
-
-		Shader m_defaultShader;
 	};
 }

@@ -10,10 +10,9 @@ namespace sb
 	class Shader
 	{
 	public:
-		Shader()
-		{ }
+		Shader();
 
-		void init();
+		Shader(std::string vertexShaderSource, std::string fragmentShaderSource);
 
 		GLuint getAttributeLocation(std::string attribute);
 
@@ -22,13 +21,13 @@ namespace sb
 		void destroy();
 
 	protected:
-		std::string getDefaultVertexShaderSource();
-
-		std::string getDefaultFragmentShaderSource();
-
 		GLuint compile(std::string shaderCode, GLenum type);
 
 		void link();
+
+		std::string getDefaultVertexShaderSource();
+
+		std::string getDefaultFragmentShaderSource();
 
 	private:
 		GLuint m_shader;

@@ -5,14 +5,9 @@
 
 namespace sb
 {
-	void Renderer::init()
-	{
-		m_defaultShader.init();
-	}
-
 	void Renderer::render(Drawable& drawable, Shader* shader)
 	{
-		Shader* theShader = shader != NULL ? shader : &m_defaultShader;
+		Shader* theShader = shader != NULL ? shader : &getDefaultShader();
 		m_batches[theShader].push_back(&drawable);
 	}
 
@@ -21,7 +16,15 @@ namespace sb
 		for (BatchIter it = m_batches.begin(); it != m_batches.end(); it++)
 			display(it->second, it->first);
 
+		std::cout << "draw calls " << m_batches.size() << std::endl;
+
 		m_batches.clear();
+	}
+
+	Shader& Renderer::getDefaultShader()
+	{
+		static Shader shader;
+		return shader;
 	}
 
 	void Renderer::display(std::vector<Drawable*>& drawables, Shader* shader)
@@ -88,7 +91,7 @@ namespace sb
 
 	void Renderer::cleanupDraw(Shader* shader)
 	{
-		glDisableVertexAttribArray(m_defaultShader.getAttributeLocation("a_vColor"));
-		glDisableVertexAttribArray(m_defaultShader.getAttributeLocation("a_vPosition"));
+		glDisableVertexAttribArray(shader->getAttributeLocation("a_vColor"));
+		glDisableVertexAttribArray(shader->getAttributeLocation("a_vPosition"));
 	}
 }
