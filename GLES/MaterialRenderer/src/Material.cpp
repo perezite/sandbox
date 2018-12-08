@@ -2,8 +2,20 @@
 
 namespace sb
 {
-	bool operator <(const Material& left, const Material& right)
+	Material& Material::getDefault()
 	{
-		return left.shader.GetShaderId() < right.shader.GetShaderId();
+		static Material defaultMaterial(Shader::getDefault());
+		return defaultMaterial;	
 	}
+
+	bool operator <(Material& left, Material& right)
+	{
+		return *left.getShader() < *right.getShader();
+	}
+
+	bool operator ==(Material& left, Material& right)
+	{
+		return *left.getShader() == *right.getShader();
+	}
+
 }

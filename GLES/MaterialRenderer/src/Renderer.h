@@ -9,13 +9,14 @@
 #include "Material.h"
 #include <map>
 
-
 namespace sb
 {
 	class Renderer
 	{
 	public:
 		void add(Drawable* drawable);
+
+		void generateBatch(Drawable* drawable);
 
 		void remove(Drawable* drawable);
 
@@ -28,9 +29,9 @@ namespace sb
 	protected: 
 		void draw(DrawBatch* batch);
 
-		void cleanupMainBatches();
+		void cleanupGeneratedBatches();
 
-		void addBatches();
+		void addNewBatches();
 
 		void setupDraw(DrawBatch* batch);
 
@@ -43,7 +44,7 @@ namespace sb
 		void cleanupDraw(DrawBatch* batch);
 
 	private:
-		std::map<Material, DrawBatch> m_mainBatches;
+		std::vector<DrawBatch> m_generatedBatches;
 
 		std::vector<DrawBatch*> m_batches;
 

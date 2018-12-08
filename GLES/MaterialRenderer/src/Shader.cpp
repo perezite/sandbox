@@ -41,6 +41,12 @@ namespace sb
 		glDeleteProgram(m_shader);
 	}
 
+	Shader& Shader::getDefault()
+	{
+		static Shader defaultShader;
+		return defaultShader;
+	}
+
 	std::string Shader::getVertexShaderSource()
 	{
 		return
@@ -115,5 +121,15 @@ namespace sb
 
 			glDeleteProgram(m_shader);
 		}
+	}
+
+	bool operator<(Shader& left, Shader& right)
+	{
+		return left.getShaderId() < right.getShaderId();
+	}
+
+	bool operator ==(Shader& left, Shader& right)
+	{
+		return left.getShaderId() == right.getShaderId();
 	}
 }

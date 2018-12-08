@@ -9,8 +9,8 @@ namespace sb
 	class DrawBatch
 	{
 	public:
-		DrawBatch() 
-			: m_numVerticesToAdd(0)
+		DrawBatch(Material& material_ = Material::getDefault()) 
+			: m_numVerticesToAdd(0)// , m_material(material_)
 		{ }
 
 		inline const Drawable* operator[](std::size_t index) const { return m_drawables[index]; }
@@ -21,7 +21,7 @@ namespace sb
 
 		inline const std::vector<GLushort>& getIndices() const { return m_indexList.getIndices(); }
 
-		inline Material& getMaterial() { return m_material; }
+		inline Material& getMaterial() { return Material::getDefault(); }
 
 		void add(Drawable* drawable);
 
@@ -45,8 +45,6 @@ namespace sb
 		void reset();
 
 	private:
-		Material m_material;
-
 		std::vector<Drawable*> m_drawables;
 
 		std::vector<Vertex> m_vertices;
@@ -58,5 +56,7 @@ namespace sb
 		std::size_t m_numVerticesToAdd;
 
 		IndexList m_indexList;
+
+		// Material m_material;
 	};
 }

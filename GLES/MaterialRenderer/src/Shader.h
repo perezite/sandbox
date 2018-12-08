@@ -12,13 +12,16 @@ namespace sb
 	public:
 		Shader();
 
-		inline GLuint GetShaderId() const { return m_shader; }
+		inline GLuint getShaderId() const { return m_shader; }
 
 		GLuint getAttributeLocation(std::string attribute);
 
 		void use();
 
 		void destroy();
+
+	public:
+		static Shader& getDefault();
 
 	protected:
 		std::string getVertexShaderSource();
@@ -35,5 +38,7 @@ namespace sb
 		std::map<std::string, GLuint> m_attributeLocations;
 	};
 
+	bool operator <(Shader& left, Shader& right);
 
+	bool operator ==(Shader& left, Shader& right);
 }

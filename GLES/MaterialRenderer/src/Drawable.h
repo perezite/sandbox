@@ -9,11 +9,7 @@ namespace sb
 	class Drawable
 	{
 	public:
-		Drawable(const Mesh& mesh_, Transform& transform_)
-			: mesh(mesh_), transform(transform_)
-		{ }
-
-		Drawable(const Mesh& mesh_, Transform& transform_, Material& material_)
+		Drawable(const Mesh& mesh_, Transform& transform_, Material& material_ = Material::getDefault())
 			: mesh(mesh_), transform(transform_), material(material_)
 		{ }
 

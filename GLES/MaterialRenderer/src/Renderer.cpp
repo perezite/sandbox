@@ -9,37 +9,49 @@ namespace sb
 {
 	void Renderer::add(Drawable* drawable)
 	{
-		m_mainBatches[drawable->material].add(drawable);
+		for (std::size_t i = 0; i < m_generatedBatches.size(); i++)
+			if (m_generatedBatches[i].getMaterial() == drawable->material) {
+				m_generatedBatches[i].add(drawable);
+				return;
+			}
+
+		generateBatch(drawable);
+	}
+
+	void Renderer::add(Drawable* drawable) 
+	{
+
 	}
 
 	void Renderer::remove(Drawable* drawable)
 	{
-		m_mainBatches[drawable->material].remove(drawable);		
+		for (std::size_t i = 0; i < m_generatedBatches.size(); i++)
+			if (m_generatedBatches[i].getMaterial() == drawable->material) 
+				m_generatedBatches[i].remove(drawable);
 	}
-
+	
 	void Renderer::draw()
 	{
-		cleanupMainBatches();
-		for (std::map<Material, DrawBatch>::iterator it = m_mainBatches.begin(); it != m_mainBatches.end(); it++)
-			draw(&it->second);
+		cleanupGeneratedBatches();
+		for (std::size_t i = 0; i < m_generatedBatches.size(); i++)
+			draw(&m_generatedBatches[i]);
 
-		addBatches();
+		addNewBatches();
 		for (std::size_t i = 0; i < m_batches.size(); i++)
 			draw(m_batches[i]);
 
 		reset();
 	}
 
-	void Renderer::cleanupMainBatches()
+	void Renderer::cleanupGeneratedBatches()
 	{
-		std::map<Material, DrawBatch>::iterator it;
-		for (it = m_mainBatches.begin(); it != m_mainBatches.end(); it++) {
-			if (it->second.getDrawableCount() == 0)
-				it = m_mainBatches.erase(it);
-		}
+		for (std::size_t i = 0; i < m_generatedBatches.size(); i++) 
+			if (m_generatedBatches[i].getDrawableCount() == 0) 
+				m_generatedBatches.erase(m_generatedBatches.begin() + i);
 	}
 
-	void Renderer::addBatches()
+	// TODO: Add batch deletion
+	void Renderer::addNewBatches()
 	{
 		m_batches.insert(m_batches.end(), m_batchesToAdd.begin(), m_batchesToAdd.end());
 	}
@@ -58,10 +70,11 @@ namespace sb
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
 		const std::vector<Vertex>& vertices = batch->getVertices();
-		Shader& shader = batch->getMaterial().shader;
-		shader.use();
-		setupVertexAttribPointer(shader.getAttributeLocation("a_vPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)&(vertices[0].position));
-		setupVertexAttribPointer(shader.getAttributeLocation("a_vColor"), 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)&(vertices[0].color));
+		Shader* shader = batch->getMaterial().getShader();
+		shader->use();
+		// TODO: Move to shader
+		setupVertexAttribPointer(shader->getAttributeLocation("a_vPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)&(vertices[0].position));
+		setupVertexAttribPointer(shader->getAttributeLocation("a_vColor"), 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)&(vertices[0].color));
 	}
 
 	void Renderer::setupVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer)
@@ -87,9 +100,9 @@ namespace sb
 
 	void Renderer::cleanupDraw(DrawBatch* batch)
 	{
-		Shader& shader = batch->getMaterial().shader;
-		glDisableVertexAttribArray(shader.getAttributeLocation("a_vColor"));
-		glDisableVertexAttribArray(shader.getAttributeLocation("a_vPosition"));
+		Shader* shader = batch->getMaterial().getShader();
+		glDisableVertexAttribArray(shader->getAttributeLocation("a_vColor"));
+		glDisableVertexAttribArray(shader->getAttributeLocation("a_vPosition"));
 	}
 
 	void Renderer::reset()

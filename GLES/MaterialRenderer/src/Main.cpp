@@ -42,9 +42,9 @@ void run()
 	Triangle triangle(Vector2f(-0.5f, 0.5f), Vector2f(0.3f, 0.3f));
 	sb::Rectangle rectangle(Vector2f(-0.2f, 0.1f), Vector2f(0.2f, 0.2f), 30 * sb::ToRadian);
 
-	window.show(&batch1);
+	/*window.show(&batch1);
 	window.show(&batch2);
-	window.show(&triangle);
+	window.show(&triangle);*/
 	window.show(&rectangle);
 
 	while (window.isOpen()) {
