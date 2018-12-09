@@ -16,6 +16,8 @@ namespace sb
 
 		GLuint getAttributeLocation(std::string attribute);
 
+		inline GLuint getShaderId() const { return m_shader; }
+
 		void use();
 
 		void destroy();
@@ -34,4 +36,6 @@ namespace sb
 
 		std::map<std::string, GLuint> m_attributeLocations;
 	};
+
+	bool operator <(const Shader& left, const Shader& right);
 }

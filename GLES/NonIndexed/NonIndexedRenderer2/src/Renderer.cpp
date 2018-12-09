@@ -8,7 +8,8 @@ namespace sb
 	void Renderer::render(Drawable& drawable, Shader* shader)
 	{
 		Shader* theShader = shader != NULL ? shader : &getDefaultShader();
-		m_batches[theShader].push_back(&drawable);
+		Material material(theShader);
+		m_batches[material].push_back(&drawable);
 	}
 
 	void Renderer::display()
@@ -27,14 +28,14 @@ namespace sb
 		return shader;
 	}
 
-	void Renderer::display(std::vector<Drawable*>& drawables, Shader* shader)
+	void Renderer::display(std::vector<Drawable*>& drawables, const Material& material)
 	{
 		std::vector<Vertex> vertices;
 		calcVertices(drawables, vertices);
 
-		setupDraw(vertices, shader);
+		setupDraw(vertices, material);
 		draw(vertices);
-		cleanupDraw(shader);
+		cleanupDraw(material);
 	}
 
 	void Renderer::calcVertices(std::vector<Drawable*>& drawables, std::vector<Vertex>& result)
@@ -60,13 +61,13 @@ namespace sb
 		return numVertices;
 	}
 
-	void Renderer::setupDraw(std::vector<Vertex>& vertices, Shader* shader)
+	void Renderer::setupDraw(std::vector<Vertex>& vertices, const Material& material)
 	{
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
-		shader->use();
-		setVertexAttribPointer(shader->getAttributeLocation("a_vPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), &(vertices[0].position));
-		setVertexAttribPointer(shader->getAttributeLocation("a_vColor"), 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), &(vertices[0].color));
+		material.shader->use();
+		setVertexAttribPointer(material.shader->getAttributeLocation("a_vPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), &(vertices[0].position));
+		setVertexAttribPointer(material.shader->getAttributeLocation("a_vColor"), 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), &(vertices[0].color));
 	}
 
 	void Renderer::setVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer)
@@ -89,9 +90,9 @@ namespace sb
 		}
 	}
 
-	void Renderer::cleanupDraw(Shader* shader)
+	void Renderer::cleanupDraw(const Material& material)
 	{
-		glDisableVertexAttribArray(shader->getAttributeLocation("a_vColor"));
-		glDisableVertexAttribArray(shader->getAttributeLocation("a_vPosition"));
+		glDisableVertexAttribArray(material.shader->getAttributeLocation("a_vColor"));
+		glDisableVertexAttribArray(material.shader->getAttributeLocation("a_vPosition"));
 	}
 }

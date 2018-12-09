@@ -19,6 +19,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Drawable.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Error.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\GL.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Material.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Mesh.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Rectangle.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Renderer.h" />
@@ -32,6 +33,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Main.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Material.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Rectangle.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Renderer.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Shader.cpp" />

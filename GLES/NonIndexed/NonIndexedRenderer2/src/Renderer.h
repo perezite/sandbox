@@ -3,6 +3,7 @@
 #include "Drawable.h"
 #include "Vertex.h"
 #include "Shader.h"
+#include "Material.h"
 #include <vector>
 #include <map>
 
@@ -18,13 +19,13 @@ namespace sb
 	protected:
 		Shader& getDefaultShader();
 
-		void display(std::vector<Drawable*>& drawables, Shader* shader);
+		void display(std::vector<Drawable*>& drawables, const Material& material);
 
 		void calcVertices(std::vector<Drawable*>& drawables, std::vector<Vertex>& result);
 
 		std::size_t getNumVertices(std::vector<Drawable*>& drawables);
 
-		void setupDraw(std::vector<Vertex>& vertices, Shader* shader);
+		void setupDraw(std::vector<Vertex>& vertices, const Material& material);
 
 		void setVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer);
 
@@ -32,11 +33,11 @@ namespace sb
 
 		void checkGLErrors();
 
-		void cleanupDraw(Shader* shader);
+		void cleanupDraw(const Material& material);
 
 	private:
-		std::map<Shader*, std::vector<Drawable*>> m_batches;
+		std::map<Material, std::vector<Drawable*>> m_batches;
 
-		typedef std::map<Shader*, std::vector<Drawable*>>::iterator BatchIter;
+		typedef std::map<Material, std::vector<Drawable*>>::iterator BatchIter;
 	};
 }

@@ -122,4 +122,10 @@ namespace sb
 			"  gl_FragColor = v_vColor;						\n"
 			"}												\n";
 	}
+
+	bool operator <(const Shader& left, const Shader& right)
+	{
+		return left.getShaderId() < right.getShaderId();
+	}
+
 }

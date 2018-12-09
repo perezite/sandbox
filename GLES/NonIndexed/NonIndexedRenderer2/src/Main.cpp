@@ -19,7 +19,7 @@ std::string getTransparentFragmentShaderSource();
 
 int main(int argc, char* args[])
 {
-	SDL_Log("Simple Renderer: Build %s %s", __DATE__, __TIME__);
+	SDL_Log("Non Indexed Renderer 2: Build %s %s", __DATE__, __TIME__);
 
 	run();
 }
