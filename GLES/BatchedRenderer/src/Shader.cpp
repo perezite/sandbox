@@ -1,10 +1,16 @@
 #include "Shader.h"
-
+#include "File.h"
 #include <iostream>
 
 namespace sb
 {
-	void Shader::init()
+
+	void Shader::loadFromFile(const std::string& vertexShaderPath, const std::string& fragmentShaderPath)
+	{
+		loadFromMemory(File::loadText(vertexShaderPath), File::loadText(fragmentShaderPath));
+	}
+
+	void Shader::loadFromMemory(const std::string& vertexShaderSource, const std::string& fragmentShaderSource)
 	{
 		m_shader = glCreateProgram();
 		if (m_shader == 0) {
@@ -12,8 +18,8 @@ namespace sb
 			std::cin.get();
 		}
 
-		std::string vertexShaderCode = getVertexShaderSource();
-		std::string fragmentShaderCode = getFragmentShaderSource();
+		std::string vertexShaderCode = vertexShaderSource;
+		std::string fragmentShaderCode = fragmentShaderSource;
 		GLuint vertexShader = compile(vertexShaderCode, GL_VERTEX_SHADER);
 		GLuint fragmentShader = compile(fragmentShaderCode, GL_FRAGMENT_SHADER);
 
@@ -24,7 +30,12 @@ namespace sb
 		glDeleteShader(fragmentShader);
 	}
 
-	GLuint Shader::getAttributeLocation(std::string attribute) 
+	void Shader::loadDefault()
+	{
+		loadFromMemory(getDefaultVertexShaderSource(), getDefaultFragmentShaderSource());
+	}
+
+	GLuint Shader::getAttributeLocation(const std::string& attribute)
 	{
 		GLuint location = glGetAttribLocation(m_shader, attribute.c_str());
 		m_attributeLocations[attribute] = location;
@@ -41,32 +52,7 @@ namespace sb
 		glDeleteProgram(m_shader);
 	}
 
-	std::string Shader::getVertexShaderSource()
-	{
-		return
-			"attribute vec2 a_vPosition;										\n"
-			"attribute vec4 a_vColor;											\n"
-			"varying vec4 v_vColor;												\n"
-			"void main()														\n"
-			"{																	\n"
-			"   gl_Position = vec4(a_vPosition.x, a_vPosition.y, 0 , 1 );		\n"
-			"	v_vColor = a_vColor;											\n"
-			"}";
-	}
-
-	std::string Shader::getFragmentShaderSource()
-	{
-		return
-			"#version 100										\n"
-			"precision mediump float;						\n"
-			"varying vec4 v_vColor;		 					\n"
-			"void main()									\n"
-			"{												\n"
-			"  gl_FragColor = v_vColor;						\n"
-			"}												\n";
-	}
-
-	GLuint Shader::compile(std::string shaderCode, GLenum type)
+	GLuint Shader::compile(const std::string& shaderCode, GLenum type)
 	{
 		GLint compiled;
 		GLuint shader = glCreateShader(type);
@@ -116,4 +102,35 @@ namespace sb
 			glDeleteProgram(m_shader);
 		}
 	}
+
+	std::string Shader::getDefaultVertexShaderSource()
+	{
+		return
+			"attribute vec2 a_vPosition;										\n"
+			"attribute vec4 a_vColor;											\n"
+			"varying vec4 v_vColor;												\n"
+			"void main()														\n"
+			"{																	\n"
+			"   gl_Position = vec4(a_vPosition.x, a_vPosition.y, 0 , 1 );		\n"
+			"	v_vColor = a_vColor;											\n"
+			"}";
+	}
+
+	std::string Shader::getDefaultFragmentShaderSource()
+	{
+		return
+			"#version 100									\n"
+			"precision mediump float;						\n"
+			"varying vec4 v_vColor;		 					\n"
+			"void main()									\n"
+			"{												\n"
+			"  gl_FragColor = v_vColor;						\n"
+			"}												\n";
+	}
+
+	bool operator <(const Shader& left, const Shader& right)
+	{
+		return left.getShaderId() < right.getShaderId();
+	}
+
 }

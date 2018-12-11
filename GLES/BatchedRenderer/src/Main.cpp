@@ -7,60 +7,69 @@
 #include "Error.h"
 #include <SDL2/SDL.h>
 #include <vector>
-#include <algorithm>
 using namespace sb;
 
+const unsigned int NumTrianglesHorz = 10; 
+const unsigned int NumTrianglesVert = 10; 
+
 void run();
-void cleanup(DrawBatch& batch);
 void logPerformance();
+std::string getTransparentVertexShaderSource();
+std::string getTransparentFragmentShaderSource();
 
 int main(int argc, char* args[])
 {
-	SDL_Log("Indexed Renderer: Build %s %s", __DATE__, __TIME__);
+	SDL_Log("Non Indexed Renderer 2: Build %s %s", __DATE__, __TIME__);
 
 	run();
 }
 
 void run()
 {
-	Window window(800, 800);
-
-	Triangle triangle(Vector2f(-0.5f, 0.5f), Vector2f (0.3f, 0.3f));
-	sb::Rectangle rectangle(Vector2f(-0.2f, 0.1f), Vector2f(0.2f, 0.2f), 30 * sb::ToRadian);
-	window.show(&triangle);
-	window.show(&rectangle);
-	 
-	DrawBatch batch1;
-	for (std::size_t i = 0; i < 5000; i++) {
-		Vector2f pos(2 * rand() % 100 / 100.0f, 2 * (rand() % 100 / 100.0f) - 1);
-		float alpha = rand() % 100 / 100.0f * 6.28318530718f;
-		batch1.add(new Triangle(pos, Vector2f(0.035f, 0.035f), alpha));
-	}
-
-	DrawBatch batch2;
-	for (std::size_t i = 0; i < 5000; i++) {
-		Vector2f pos(2 * rand() % 100 / 100.0f, 2 * (rand() % 100 / 100.0f) - 1);
-		float alpha = rand() % 100 / 100.0f * 6.28318530718f;
-		batch2.add(rand() % 2 == 0 ? (Drawable*)new Triangle(pos, Vector2f(0.02f, 0.02f), alpha) : (Drawable*)new sb::Rectangle(pos, Vector2f(0.02f, 0.02f), alpha));
-	}
-
-	window.show(&batch1);
-	window.show(&batch2);
+	Window window;
+	Triangle triangle(Vector2f(-0.5f, -0.3f), Vector2f(0.2f, 0.2f), 0.785398f);
+	sb::Rectangle rectangle(Vector2f(0.5f, 0.3f), Vector2f(0.1f, 0.1f), 0);
+	sb::Triangle triangle2(Vector2f(0.5f, -0.3f), Vector2f(0.3f, 0.3f), 0.3f);
+	sb::Triangle triangle3(Vector2f(-0.3f, 0.3f), Vector2f(0.3f, 0.3f), 0.3f);
+	Shader transparentShader; 
+	Shader redTintShader;
+	transparentShader.loadFromMemory(getTransparentVertexShaderSource(), getTransparentFragmentShaderSource());
+	redTintShader.loadFromFile("Shaders/RedTint.vert", "Shaders/RedTint.frag");
 
 	while (window.isOpen()) {
 		window.update();
-		window.draw();
+		window.draw(triangle);
+		window.draw(rectangle);
+		window.draw(triangle2, &transparentShader);
+		window.draw(triangle3, &redTintShader);
+		window.display();
 		logPerformance();
 	}
-
-	cleanup(batch1);
-	cleanup(batch2);
 }
 
-void cleanup(DrawBatch& batch)
+std::string getTransparentVertexShaderSource()
 {
-	for (std::size_t i = 0; i < batch.getDrawableCount(); i++)
-		delete batch[i];
+	return
+		"attribute vec2 a_vPosition;										\n"
+		"attribute vec4 a_vColor;											\n"
+		"varying vec4 v_vColor;												\n"
+		"void main()														\n"
+		"{																	\n"
+		"   gl_Position = vec4(a_vPosition.x, a_vPosition.y, 0 , 1 );		\n"
+		"	v_vColor = a_vColor;											\n"
+		"}";
+}
+
+std::string getTransparentFragmentShaderSource()
+{
+	return
+		"#version 100									\n"
+		"precision mediump float;						\n"
+		"varying vec4 v_vColor;		 					\n"
+		"void main()									\n"
+		"{												\n"
+		"  gl_FragColor = vec4(v_vColor.xyz, 0.1);		\n"
+		"}												\n";
 }
 
 void logPerformance()

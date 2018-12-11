@@ -4,35 +4,39 @@
 #include <map>
 #include <string>
 
-
 namespace sb
 {
 	class Shader
 	{
 	public:
-		Shader()
-		{ }
+		void loadFromFile(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
 
-		void init();
+		void loadFromMemory(const std::string& vertexShaderSource, const std::string& fragmentShaderSource);
+		
+		void loadDefault();
 
-		GLuint getAttributeLocation(std::string attribute);
+		GLuint getAttributeLocation(const std::string& attribute);
+
+		inline GLuint getShaderId() const { return m_shader; }
 
 		void use();
 
 		void destroy();
 
 	protected:
-		std::string getVertexShaderSource();
-
-		std::string getFragmentShaderSource();
-
-		GLuint compile(std::string shaderCode, GLenum type);
+		GLuint compile(const std::string& shaderCode, GLenum type);
 
 		void link();
+
+		std::string getDefaultVertexShaderSource();
+
+		std::string getDefaultFragmentShaderSource();
 
 	private:
 		GLuint m_shader;
 
 		std::map<std::string, GLuint> m_attributeLocations;
 	};
+
+	bool operator <(const Shader& left, const Shader& right);
 }

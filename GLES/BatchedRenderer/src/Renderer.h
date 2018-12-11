@@ -1,51 +1,45 @@
 #pragma once
 
-#include "GL.h"
 #include "Drawable.h"
 #include "Vertex.h"
 #include "Shader.h"
-#include "IndexList.h" 
-#include "DrawBatch.h"
+#include "Material.h"
+#include <vector>
+#include <map>
 
 namespace sb
 {
 	class Renderer
 	{
 	public:
-		void init();
+		Renderer();
 
-		void add(Drawable* drawable) { m_mainBatch.add(drawable); }
+		void render(Drawable& drawable, Shader* shader = NULL);
 
-		void remove(Drawable* drawable) { m_mainBatch.remove(drawable); }
+		void display();
 
-		void add(DrawBatch* batch) { m_batchesToAdd.push_back(batch); }
+	protected:
+		void display(std::vector<Drawable*>& drawables, const Material& material);
 
-		void render();
+		void calcVertices(std::vector<Drawable*>& drawables, std::vector<Vertex>& result);
 
-		void reset();
+		std::size_t getNumVertices(std::vector<Drawable*>& drawables);
 
-	protected: 
-		void render(DrawBatch* batch);
+		void setupDraw(std::vector<Vertex>& vertices, const Material& material);
 
-		void addBatches();
+		void setVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer);
 
-		void setupDraw(DrawBatch* batch);
-
-		void setupVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer);
-
-		void draw(DrawBatch* batch);
+		void draw(std::vector<Vertex>& vertices);
 
 		void checkGLErrors();
 
-		void cleanupDraw();
+		void cleanupDraw(const Material& material);
 
 	private:
-		DrawBatch m_mainBatch;
+		std::map<Material, std::vector<Drawable*>> m_batches;
 
-		std::vector<DrawBatch*> m_batches;
+		typedef std::map<Material, std::vector<Drawable*>>::iterator BatchIter;
 
-		std::vector<DrawBatch*> m_batchesToAdd;
-
-		Shader m_shader;
+		Shader m_defaultShader;
 	};
 }

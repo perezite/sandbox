@@ -1,82 +1,97 @@
 #include "Renderer.h"
 #include "Error.h"
 #include <algorithm>
-#include <numeric>
 #include <iostream>
-#include <functional>
 
 namespace sb
 {
-	void Renderer::init()
+	Renderer::Renderer()
 	{
-		m_shader.init();
+		m_defaultShader.loadDefault();
 	}
 
-	void Renderer::render()
+	void Renderer::render(Drawable& drawable, Shader* shader)
 	{
-		addBatches();
-
-		render(&m_mainBatch);
-
-		for (std::size_t i = 0; i < m_batches.size(); i++)
-			render(m_batches[i]);
+		Shader* theShader = shader != NULL ? shader : &m_defaultShader;
+		Material material(theShader);
+		m_batches[material].push_back(&drawable);
 	}
 
-	void Renderer::addBatches()
+	void Renderer::display()
 	{
-		m_batches.insert(m_batches.end(), m_batchesToAdd.begin(), m_batchesToAdd.end());
+		for (BatchIter it = m_batches.begin(); it != m_batches.end(); it++)
+			display(it->second, it->first);
+
+		std::cout << "draw calls " << m_batches.size() << std::endl;
+
+		m_batches.clear();
 	}
 
-	void Renderer::render(DrawBatch* batch)
+	void Renderer::display(std::vector<Drawable*>& drawables, const Material& material)
 	{
-		batch->calculate();
+		std::vector<Vertex> vertices;
+		calcVertices(drawables, vertices);
 
-		setupDraw(batch);
-		draw(batch);
-		cleanupDraw();
-
-		reset();
+		setupDraw(vertices, material);
+		draw(vertices);
+		cleanupDraw(material);
 	}
 
-	void Renderer::setupDraw(DrawBatch* batch)
+	void Renderer::calcVertices(std::vector<Drawable*>& drawables, std::vector<Vertex>& result)
+	{
+		result.resize(getNumVertices(drawables));
+		
+		unsigned int counter = 0;
+		for (std::size_t i = 0; i < drawables.size(); i++) {
+			for (std::size_t j = 0; j < drawables[i]->mesh.getVertexCount(); j++) {
+				result[counter].position = drawables[i]->transform * drawables[i]->mesh[j].position;
+				result[counter].color = drawables[i]->mesh[j].color;
+				counter++;
+			}
+		}
+	}
+
+	std::size_t Renderer::getNumVertices(std::vector<Drawable*>& drawables)
+	{
+		std::size_t numVertices = 0;
+		for (std::size_t i = 0; i < drawables.size(); i++)
+			numVertices += drawables[i]->mesh.getVertexCount();
+
+		return numVertices;
+	}
+
+	void Renderer::setupDraw(std::vector<Vertex>& vertices, const Material& material)
 	{
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
-		m_shader.use();
-		const std::vector<Vertex>& vertices = batch->getVertices();
-		setupVertexAttribPointer(m_shader.getAttributeLocation("a_vPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)&(vertices[0].position));
-		setupVertexAttribPointer(m_shader.getAttributeLocation("a_vColor"), 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)&(vertices[0].color));
+		material.shader->use();
+		setVertexAttribPointer(material.shader->getAttributeLocation("a_vPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), &(vertices[0].position));
+		setVertexAttribPointer(material.shader->getAttributeLocation("a_vColor"), 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), &(vertices[0].color));
 	}
 
-	void Renderer::setupVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer)
+	void Renderer::setVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer)
 	{
 		glEnableVertexAttribArray(index);
 		glVertexAttribPointer(index, size, type, normalized, stride, pointer);
 	}
 
-	void Renderer::draw(DrawBatch* batch)
+	void Renderer::draw(std::vector<Vertex>& vertices)
 	{
-		glDrawElements(GL_TRIANGLES, batch->getIndices().size(), GL_UNSIGNED_SHORT, batch->getIndices().data());
-		#ifdef _DEBUG
-			checkGLErrors();
-		#endif
+		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+		checkGLErrors();
 	}
 
 	void Renderer::checkGLErrors()
 	{
 		GLuint error = glGetError();
-		if (error != 0) 
+		if (error != 0) {
 			Error().die() << "GL error: " << error << std::endl;
+		}
 	}
 
-	void Renderer::cleanupDraw()
+	void Renderer::cleanupDraw(const Material& material)
 	{
-		glDisableVertexAttribArray(m_shader.getAttributeLocation("a_vColor"));
-		glDisableVertexAttribArray(m_shader.getAttributeLocation("a_vPosition"));
-	}
-
-	void Renderer::reset()
-	{
-		m_batchesToAdd.clear();
+		glDisableVertexAttribArray(material.shader->getAttributeLocation("a_vColor"));
+		glDisableVertexAttribArray(material.shader->getAttributeLocation("a_vPosition"));
 	}
 }
