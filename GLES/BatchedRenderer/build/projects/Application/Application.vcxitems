@@ -17,6 +17,7 @@
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Color.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Drawable.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawBatch.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Error.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\File.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\GL.h" />
@@ -33,6 +34,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawBatch.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\File.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Main.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Material.cpp" />
