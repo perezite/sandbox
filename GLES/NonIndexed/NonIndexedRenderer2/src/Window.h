@@ -20,7 +20,7 @@ namespace sb
 
 		void display();
 
-		void draw(Drawable& drawable, Shader* shader = NULL) { m_renderer.render(drawable, shader); }
+		void draw(Drawable& drawable, Shader* shader = NULL) { m_renderer->render(drawable, shader); }
 
 	private:
 		bool m_isOpen;
@@ -29,6 +29,6 @@ namespace sb
 
 		SDL_GLContext m_glContext;
 
-		Renderer m_renderer;
+		Renderer* m_renderer;
 	};
 }

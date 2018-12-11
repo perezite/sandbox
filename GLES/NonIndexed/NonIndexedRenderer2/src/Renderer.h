@@ -12,13 +12,13 @@ namespace sb
 	class Renderer
 	{
 	public:
+		Renderer();
+
 		void render(Drawable& drawable, Shader* shader = NULL);
 
 		void display();
 
 	protected:
-		Shader& getDefaultShader();
-
 		void display(std::vector<Drawable*>& drawables, const Material& material);
 
 		void calcVertices(std::vector<Drawable*>& drawables, std::vector<Vertex>& result);
@@ -39,5 +39,7 @@ namespace sb
 		std::map<Material, std::vector<Drawable*>> m_batches;
 
 		typedef std::map<Material, std::vector<Drawable*>>::iterator BatchIter;
+
+		Shader m_defaultShader;
 	};
 }

@@ -10,9 +10,9 @@ namespace sb
 	class Shader
 	{
 	public:
-		Shader();
-
-		Shader(std::string vertexShaderSource, std::string fragmentShaderSource);
+		void loadFromMemory(std::string vertexShaderSource, std::string fragmentShaderSource);
+		
+		void loadDefault();
 
 		GLuint getAttributeLocation(std::string attribute);
 

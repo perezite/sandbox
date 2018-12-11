@@ -4,13 +4,12 @@
 
 namespace sb
 {
-	Shader::Shader() 
-		: Shader(getDefaultVertexShaderSource(), getDefaultFragmentShaderSource())
+	/*void Shader::loadFromFile(std::string vertexShaderPath, std::string fragmentShaderPath)
 	{
 
-	}
+	}*/
 
-	Shader::Shader(std::string vertexShaderSource, std::string fragmentShaderSource)
+	void Shader::loadFromMemory(std::string vertexShaderSource, std::string fragmentShaderSource)
 	{
 		m_shader = glCreateProgram();
 		if (m_shader == 0) {
@@ -28,6 +27,11 @@ namespace sb
 		link();
 		glDeleteShader(vertexShader);
 		glDeleteShader(fragmentShader);
+	}
+
+	void Shader::loadDefault()
+	{
+		loadFromMemory(getDefaultVertexShaderSource(), getDefaultFragmentShaderSource());
 	}
 
 	GLuint Shader::getAttributeLocation(std::string attribute) 

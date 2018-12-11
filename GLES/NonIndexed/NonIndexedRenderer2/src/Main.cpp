@@ -30,7 +30,8 @@ void run()
 	Triangle triangle(Vector2f(-0.5f, -0.3f), Vector2f(0.2f, 0.2f), 0.785398f);
 	sb::Rectangle rectangle(Vector2f(0.5f, 0.3f), Vector2f(0.1f, 0.1f), 0);
 	sb::Triangle triangle2(Vector2f(0.5f, -0.3f), Vector2f(0.3f, 0.3f), 0.3f);
-	Shader transparentShader(getTransparentVertexShaderSource(), getTransparentFragmentShaderSource());
+	Shader transparentShader; 
+	transparentShader.loadFromMemory(getTransparentVertexShaderSource(), getTransparentFragmentShaderSource());
 
 	while (window.isOpen()) {
 		window.update();

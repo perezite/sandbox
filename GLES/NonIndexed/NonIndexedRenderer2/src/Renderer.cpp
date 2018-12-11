@@ -5,9 +5,14 @@
 
 namespace sb
 {
+	Renderer::Renderer()
+	{
+		m_defaultShader.loadDefault();
+	}
+
 	void Renderer::render(Drawable& drawable, Shader* shader)
 	{
-		Shader* theShader = shader != NULL ? shader : &getDefaultShader();
+		Shader* theShader = shader != NULL ? shader : &m_defaultShader;
 		Material material(theShader);
 		m_batches[material].push_back(&drawable);
 	}
@@ -20,12 +25,6 @@ namespace sb
 		std::cout << "draw calls " << m_batches.size() << std::endl;
 
 		m_batches.clear();
-	}
-
-	Shader& Renderer::getDefaultShader()
-	{
-		static Shader shader;
-		return shader;
 	}
 
 	void Renderer::display(std::vector<Drawable*>& drawables, const Material& material)
