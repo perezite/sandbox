@@ -13,8 +13,6 @@ namespace sb
 
 		void loadFromMemory(const std::string& vertexShaderSource, const std::string& fragmentShaderSource);
 		
-		void loadDefault();
-
 		GLuint getAttributeLocation(const std::string& attribute);
 
 		inline GLuint getShaderId() const { return m_shader; }
@@ -23,14 +21,17 @@ namespace sb
 
 		void destroy();
 
+	public: 
+		static Shader& getDefault();
+
 	protected:
 		GLuint compile(const std::string& shaderCode, GLenum type);
 
 		void link();
 
-		std::string getDefaultVertexShaderSource();
+		static std::string getDefaultVertexShaderSource();
 
-		std::string getDefaultFragmentShaderSource();
+		static std::string getDefaultFragmentShaderSource();
 
 	private:
 		GLuint m_shader;

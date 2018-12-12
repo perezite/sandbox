@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Drawable.h"
+#include "DrawBatch.h"
 #include "Vertex.h"
 #include "Shader.h"
 #include "Material.h"
@@ -12,9 +13,9 @@ namespace sb
 	class Renderer
 	{
 	public:
-		Renderer();
+		void render(Drawable& drawable);
 
-		void render(Drawable& drawable, Shader* shader = NULL);
+		void render(DrawBatch& batch);
 
 		void display();
 
@@ -36,10 +37,10 @@ namespace sb
 		void cleanupDraw(const Material& material);
 
 	private:
-		std::map<Material, std::vector<Drawable*>> m_batches;
+		std::map<Material, std::vector<Drawable*>> m_dynamicBatches;
 
 		typedef std::map<Material, std::vector<Drawable*>>::iterator BatchIter;
 
-		Shader m_defaultShader;
+		std::vector<DrawBatch*> m_batches;
 	};
 }

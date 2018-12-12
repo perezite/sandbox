@@ -5,26 +5,28 @@
 
 namespace sb
 {
-	Renderer::Renderer()
+	void Renderer::render(Drawable& drawable)
 	{
-		m_defaultShader.loadDefault();
+		m_dynamicBatches[drawable.material].push_back(&drawable);
 	}
 
-	void Renderer::render(Drawable& drawable, Shader* shader)
+	void Renderer::render(DrawBatch& batch)
 	{
-		Shader* theShader = shader != NULL ? shader : &m_defaultShader;
-		Material material(theShader);
-		m_batches[material].push_back(&drawable);
+		m_batches.push_back(&batch);
 	}
 
 	void Renderer::display()
 	{
-		for (BatchIter it = m_batches.begin(); it != m_batches.end(); it++)
+		for (BatchIter it = m_dynamicBatches.begin(); it != m_dynamicBatches.end(); it++)
 			display(it->second, it->first);
 
-		std::cout << "draw calls " << m_batches.size() << std::endl;
+		for (std::size_t i = 0; i < m_batches.size(); i++)
+			display(m_batches[i]->getDrawables(), m_batches[i]->getMaterial());
+
+		std::cout << "draw calls " << m_dynamicBatches.size() + m_batches.size() << std::endl;
 
 		m_batches.clear();
+		m_dynamicBatches.clear();
 	}
 
 	void Renderer::display(std::vector<Drawable*>& drawables, const Material& material)

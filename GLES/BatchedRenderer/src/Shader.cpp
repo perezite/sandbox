@@ -30,11 +30,6 @@ namespace sb
 		glDeleteShader(fragmentShader);
 	}
 
-	void Shader::loadDefault()
-	{
-		loadFromMemory(getDefaultVertexShaderSource(), getDefaultFragmentShaderSource());
-	}
-
 	GLuint Shader::getAttributeLocation(const std::string& attribute)
 	{
 		GLuint location = glGetAttribLocation(m_shader, attribute.c_str());
@@ -50,6 +45,19 @@ namespace sb
 	void Shader::destroy()
 	{
 		glDeleteProgram(m_shader);
+	}
+
+	Shader& Shader::getDefault()
+	{
+		static Shader defaultShader;
+		static bool init = false;
+
+		if (!init) {
+			defaultShader.loadFromMemory(getDefaultVertexShaderSource(), getDefaultFragmentShaderSource());
+			init = true;
+		}
+
+		return defaultShader;
 	}
 
 	GLuint Shader::compile(const std::string& shaderCode, GLenum type)

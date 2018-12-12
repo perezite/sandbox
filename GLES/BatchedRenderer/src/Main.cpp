@@ -23,17 +23,29 @@ void run()
 {
 	Window window;
 
+	Shader halfTransparent; 
+	Shader redTint;
+	halfTransparent.loadFromFile("Shaders/HalfTransparent.vert", "Shaders/HalfTransparent.frag");
+	redTint.loadFromFile("Shaders/RedTint.vert", "Shaders/RedTint.frag");
+
 	Triangle triangle(Vector2f(-0.5f, -0.3f), Vector2f(0.2f, 0.2f),  0.785398f);
+	Triangle triangle2(Vector2f(0.5f, 0.3f), Vector2f(0.2f, 0.2f), 0.785398f);
+	triangle2.material.shader = &halfTransparent;
 
 	DrawBatch batch;
-	auto triangle1 = batch.create<Triangle>(Vector2f(0.5f, 0.3f), Vector2f(0.2f, 0.2f), -0.4f);
-	auto triangle2 = batch.create<Triangle>(Vector2f(-0.5f, 0.3f), Vector2f(0.2f, 0.2f), -0.4f);
+	batch.create<Triangle>(Vector2f(-0.5f, 0.3f), Vector2f(0.2f, 0.2f), -0.4f);
+	batch.create<Triangle>(Vector2f(0.5f, -0.3f), Vector2f(0.2f, 0.2f), -0.4f);
+
+	DrawBatch batch2(redTint);
+	batch2.create<sb::Rectangle>(Vector2f(-0.1f, 0.2f), Vector2f(0.1f, 0.1f), -0.4f);
+	batch2.create<Triangle>(Vector2f( 0.2f, -0.1f), Vector2f(0.1f, 0.1f), -0.4f);
 
 	while (window.isOpen()) {
 		window.update();
 		window.draw(triangle);
-		window.draw(*triangle1);
-		window.draw(*triangle2);
+		window.draw(batch);
+		window.draw(triangle2);
+		window.draw(batch2);
 		window.display();
 		logPerformance();
 	}

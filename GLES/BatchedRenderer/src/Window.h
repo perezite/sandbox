@@ -2,6 +2,7 @@
 
 #include "GL.h"
 #include "Drawable.h"
+#include "DrawBatch.h"
 #include "Renderer.h"
 #include <SDL2/SDL.h>
 
@@ -20,7 +21,9 @@ namespace sb
 
 		void display();
 
-		void draw(Drawable& drawable, Shader* shader = NULL) { m_renderer->render(drawable, shader); }
+		void draw(Drawable& drawable) { m_renderer->render(drawable); }
+
+		void draw(DrawBatch& batch) { m_renderer->render(batch); }
 
 	private:
 		bool m_isOpen;
