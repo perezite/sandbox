@@ -9,6 +9,11 @@ namespace sb
 	class Shader
 	{
 	public:
+		Shader()
+		{ }
+
+		Shader(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
+
 		void loadFromFile(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
 
 		void loadFromMemory(const std::string& vertexShaderSource, const std::string& fragmentShaderSource);
@@ -22,7 +27,7 @@ namespace sb
 		void destroy();
 
 	public: 
-		static Shader& getDefault();
+		static Shader* getDefault();
 
 	protected:
 		GLuint compile(const std::string& shaderCode, GLenum type);

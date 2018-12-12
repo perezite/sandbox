@@ -23,8 +23,6 @@ namespace sb
 		for (std::size_t i = 0; i < m_batches.size(); i++)
 			display(m_batches[i]->getDrawables(), m_batches[i]->getMaterial());
 
-		std::cout << "draw calls " << m_dynamicBatches.size() + m_batches.size() << std::endl;
-
 		m_batches.clear();
 		m_dynamicBatches.clear();
 	}

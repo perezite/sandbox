@@ -9,12 +9,8 @@ namespace sb
 	class DrawBatch
 	{
 	public:
-		DrawBatch(Shader& shader)
-			: m_material(Material(&shader))
-		{ }
-
-		DrawBatch()
-			: m_material(Material())
+		DrawBatch(Shader* shader = Shader::getDefault())
+			: m_material(Material(shader))
 		{ }
 
 		virtual ~DrawBatch();

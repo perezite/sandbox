@@ -4,6 +4,11 @@
 
 namespace sb
 {
+	Shader::Shader(const std::string& vertexShaderPath, const std::string& fragmentShaderPath) 
+	{
+		loadFromFile(vertexShaderPath, fragmentShaderPath);
+	}
+
 
 	void Shader::loadFromFile(const std::string& vertexShaderPath, const std::string& fragmentShaderPath)
 	{
@@ -47,7 +52,7 @@ namespace sb
 		glDeleteProgram(m_shader);
 	}
 
-	Shader& Shader::getDefault()
+	Shader* Shader::getDefault()
 	{
 		static Shader defaultShader;
 		static bool init = false;
@@ -57,7 +62,7 @@ namespace sb
 			init = true;
 		}
 
-		return defaultShader;
+		return &defaultShader;
 	}
 
 	GLuint Shader::compile(const std::string& shaderCode, GLenum type)
