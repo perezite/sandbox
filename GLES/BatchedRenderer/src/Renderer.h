@@ -26,11 +26,15 @@ namespace sb
 
 		std::size_t getNumVertices(std::vector<Drawable*>& drawables);
 
+		void calcIndices(std::vector<Drawable*>& drawables, std::vector<GLushort>& result);
+
+		std::size_t getNumIndices(std::vector<Drawable*>& drawables);
+
 		void setupDraw(std::vector<Vertex>& vertices, const Material& material);
 
 		void setVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer);
 
-		void draw(std::vector<Vertex>& vertices);
+		void draw(std::vector<GLushort>& indices);
 
 		void checkGLErrors();
 
