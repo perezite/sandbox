@@ -11,7 +11,7 @@ namespace sb
 	{
 	public:
 		DrawBatch(Shader* shader = Shader::getDefault())
-			: m_material(Material(shader)), m_indexOffset(0), m_vertexCount(0)
+			: m_material(Material(shader)), m_vertexCount(0)
 		{ }
 
 		virtual ~DrawBatch();
@@ -47,8 +47,6 @@ namespace sb
 
 		std::vector<GLushort> m_indices;
 
-		GLushort m_indexOffset;
-
-		std::size_t m_vertexCount;
+		GLushort m_vertexCount;
 	};
 }

@@ -1,4 +1,5 @@
 #include "DrawBatch.h"
+#include <algorithm>
 
 namespace sb
 {
@@ -15,10 +16,9 @@ namespace sb
 		m_indices.resize(m_indices.size() + indices.size());
 		
 		for (std::size_t i = 0; i < indices.size(); i++)
-			m_indices[count + i] = indices[i] + m_indexOffset;
+			m_indices[count + i] = indices[i] + m_vertexCount;
 
-		m_indexOffset += (GLushort)drawable->getMesh().getVertexCount();	
-		m_vertexCount += drawable->getMesh().getVertexCount();
+		m_vertexCount += (GLushort)drawable->getMesh().getVertexCount();
 	}
 
 	void DrawBatch::calcVertices(std::vector<Vertex>& result)
@@ -27,13 +27,10 @@ namespace sb
 		result.resize(m_vertexCount);
 
 		for (std::size_t i = 0; i < m_drawables.size(); i++) {
-			const std::vector<Vertex>& vertices = m_drawables[i]->getMesh().getVertices();
-			for (std::size_t j = 0; j < vertices.size(); j++) {
-				result[count + j].position = m_drawables[i]->getTransform() * vertices[j].position;
-				result[count + j].color = vertices[j].color;
-			}
-
-			count += m_drawables[i]->getMesh().getVertexCount();
+			const Mesh& mesh = m_drawables[i]->getTransformedMesh();
+			const std::vector<Vertex>& vertices = mesh.getVertices();
+			std::copy(vertices.begin(), vertices.end(), result.begin() + count);
+			count += vertices.size();
 		}
 	}
 }

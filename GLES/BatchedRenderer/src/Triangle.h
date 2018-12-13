@@ -9,13 +9,12 @@ namespace sb
 	{
 	public:
 		Triangle(Vector2f position = Vector2f(0, 0), Vector2f scale = Vector2f(1, 1), float rotation = 0, Shader* shader = Shader::getDefault())
-			 : Drawable(TriangleMesh, m_transform, shader), m_transform(position, scale, rotation)
+			 : Drawable(TriangleMesh, Transform(position, scale, rotation), shader)
 		{ }
 		
-		inline void setRotation(float omega) { m_transform.rotation = omega; }
+		inline void setRotation(float omega) { getTransform().rotation = omega; }
+
 	private:
 		static const Mesh TriangleMesh;
-
-		Transform m_transform;
 	};
 }

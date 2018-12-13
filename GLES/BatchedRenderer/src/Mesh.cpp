@@ -13,4 +13,11 @@ namespace sb
 			m_indices.push_back((GLushort)m_vertices.size() - 1);
 		}
 	}
+
+	void Mesh::setPositions(const std::vector<Vector2f>& positions)
+	{
+		for (std::size_t i = 0; i < m_vertices.size(); i++) {
+			m_vertices[i].position = positions[i];
+		}
+	}
 }

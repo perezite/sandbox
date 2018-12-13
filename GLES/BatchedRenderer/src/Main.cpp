@@ -54,8 +54,8 @@ void run()
 
 void run2()
 {
-	const std::size_t numHorz = 100;
-	const std::size_t numVert = 100;
+	const std::size_t numHorz = 86;
+	const std::size_t numVert = 86;
 	float stepHorz = 2.0f / numHorz;
 	float stepVert = 2.0f / numVert;
 
@@ -67,11 +67,10 @@ void run2()
 			Vector2f position = Vector2f(-1 + (i + 0.5f) * stepHorz, -1 + (j + 0.5f) * stepVert);
 			Vector2f scale = Vector2f(0.8f * stepHorz, 0.8f * stepVert);
 			float alpha = (float(rand() % RAND_MAX) / float(RAND_MAX)) * 6.28318530718f;
-			batch.create<Triangle>(position, scale, alpha);
-			/*if ((i % 2 + j) % 2 == 0) 
+			if ((i % 2 + j) % 2 == 0) 
 				batch.create<Triangle>(position, scale, alpha);
 			else 
-				batch.create<sb::Rectangle>(position, scale, alpha);*/
+				batch.create<sb::Rectangle>(position, scale, alpha);
 		}
 	}
 

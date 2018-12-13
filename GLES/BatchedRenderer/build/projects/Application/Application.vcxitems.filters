@@ -71,5 +71,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\File.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawBatch.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Mesh.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Drawable.cpp" />
   </ItemGroup>
 </Project>
