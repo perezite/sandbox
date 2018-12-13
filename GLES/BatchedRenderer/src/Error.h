@@ -17,8 +17,8 @@ namespace sb
 			if (m_condition)
 			{
 				SDL_Log("%s", m_stream.str().c_str());
-					#ifdef WIN32
-				__debugbreak();
+				#if defined(WIN32) && defined(DEBUG)
+					__debugbreak();
 				#else	
 					exit(0);
 				#endif		

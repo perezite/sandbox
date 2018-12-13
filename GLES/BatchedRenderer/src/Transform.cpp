@@ -13,7 +13,5 @@ namespace sb
 		return Vector2f(
 			(ca * sx - sa * sy) + transform.position.x,
 			(sa * sx + ca * sy) + transform.position.y);
-
-		// return Vector2f(transform.scale.x * right.x + transform.position.x, transform.scale.y * right.y + transform.position.y);
 	}
 }

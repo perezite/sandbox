@@ -20,10 +20,7 @@ namespace sb
 		float getElapsedSeconds();
 
 	private:
-		#ifdef WIN32
-			LONGLONG m_start;
-			double m_secondsPerCycle;
-		#endif		
+
 
 		unsigned long m_startTicks;
 	};
