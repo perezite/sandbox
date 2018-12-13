@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Drawable.h"
+#include "Vertex.h"
 #include <vector>
 #include <utility> 
 
@@ -22,7 +23,7 @@ namespace sb
 			T* drawable = new T(args ...);
 			drawable->material = m_material;
 			m_drawables.push_back(drawable);
-
+			insert(drawable);
 			return drawable;
 		}
 
@@ -30,9 +31,22 @@ namespace sb
 
 		inline std::vector<Drawable*>& getDrawables() { return m_drawables; }
 
+		inline std::vector<GLushort>& getIndices() { return m_indices; }
+
+		inline void setShader(Shader* shader) { m_material.shader = shader; }
+
+		void calcVertices(std::vector<Vertex>& result);
+
+	protected:
+		void insert(Drawable* drawable);
+
 	private:
 		Material m_material;
 
 		std::vector<Drawable*> m_drawables;
+
+		std::vector<GLushort> m_indices;
+
+		GLushort m_indexOffset;
 	};
 }

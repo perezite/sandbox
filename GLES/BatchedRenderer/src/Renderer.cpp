@@ -20,11 +20,19 @@ namespace sb
 		for (BatchIter it = m_dynamicBatches.begin(); it != m_dynamicBatches.end(); it++)
 			display(it->second, it->first);
 
-		//for (std::size_t i = 0; i < m_batches.size(); i++)
-		//	display(m_batches[i]->getDrawables(), m_batches[i]->getMaterial());
+		for (std::size_t i = 0; i < m_batches.size(); i++)
+			display(m_batches[i]->getDrawables(), m_batches[i]->getMaterial());
 
 		m_batches.clear();
 		m_dynamicBatches.clear();
+	}
+
+	void Renderer::display(DrawBatch& batch)
+	{
+		std::vector<Vertex> vertices;
+		batch.calcVertices(vertices);
+
+		display(vertices, batch.getIndices(), batch.getMaterial());
 	}
 
 	void Renderer::display(std::vector<Drawable*>& drawables, const Material& material)
@@ -35,6 +43,11 @@ namespace sb
 		std::vector<GLushort> indices;
 		calcIndices(drawables, indices);
 
+		display(vertices, indices, material);
+	}
+
+	void Renderer::display(std::vector<Vertex>& vertices, std::vector<GLushort>& indices, const Material& material)
+	{
 		setupDraw(vertices, material);
 		draw(indices);
 		cleanupDraw(material);

@@ -19,6 +19,8 @@ namespace sb
 
 		inline const Vertex& operator[](std::size_t index) const { return m_vertices[index]; }
 
+		inline const std::vector<Vertex>& getVertices() const { return m_vertices; }
+
 		inline std::size_t getIndexCount() const { return m_indices.size(); }
 
 		inline const std::vector<GLushort>& getIndices() const { return m_indices; }

@@ -22,6 +22,10 @@ namespace sb
 	protected:
 		void display(std::vector<Drawable*>& drawables, const Material& material);
 
+		void display(DrawBatch& batch);
+
+		void display(std::vector<Vertex>& vertices, std::vector<GLushort>& indices, const Material& material);
+
 		void calcVertices(std::vector<Drawable*>& drawables, std::vector<Vertex>& result);
 
 		std::size_t getNumVertices(std::vector<Drawable*>& drawables);
