@@ -7,7 +7,7 @@ namespace sb
 {
 	void Renderer::render(Drawable& drawable)
 	{
-		m_dynamicBatches[drawable.material].push_back(&drawable);
+		m_dynamicBatches[drawable.getMaterial()].push_back(&drawable);
 	}
 
 	void Renderer::render(DrawBatch& batch)
@@ -21,18 +21,18 @@ namespace sb
 			display(it->second, it->first);
 
 		for (std::size_t i = 0; i < m_batches.size(); i++)
-			display(m_batches[i]->getDrawables(), m_batches[i]->getMaterial());
+			display(m_batches[i]);
 
 		m_batches.clear();
 		m_dynamicBatches.clear();
 	}
 
-	void Renderer::display(DrawBatch& batch)
+	void Renderer::display(DrawBatch* batch)
 	{
 		std::vector<Vertex> vertices;
-		batch.calcVertices(vertices);
+		batch->calcVertices(vertices);
 
-		display(vertices, batch.getIndices(), batch.getMaterial());
+		display(vertices, batch->getIndices(), batch->getMaterial());
 	}
 
 	void Renderer::display(std::vector<Drawable*>& drawables, const Material& material)
@@ -59,9 +59,9 @@ namespace sb
 		
 		unsigned int count = 0;
 		for (std::size_t i = 0; i < drawables.size(); i++) {
-			for (std::size_t j = 0; j < drawables[i]->mesh.getVertexCount(); j++) {
-				result[count].position = drawables[i]->transform * drawables[i]->mesh[j].position;
-				result[count].color = drawables[i]->mesh[j].color;
+			for (std::size_t j = 0; j < drawables[i]->getMesh().getVertexCount(); j++) {
+				result[count].position = drawables[i]->getTransform() * drawables[i]->getMesh()[j].position;
+				result[count].color = drawables[i]->getMesh()[j].color;
 				count++;
 			}
 		}
@@ -71,7 +71,7 @@ namespace sb
 	{
 		std::size_t count = 0;
 		for (std::size_t i = 0; i < drawables.size(); i++)
-			count += drawables[i]->mesh.getVertexCount();
+			count += drawables[i]->getMesh().getVertexCount();
 
 		return count;
 	}
@@ -83,13 +83,13 @@ namespace sb
 		std::size_t position = 0;
 		GLushort offset = 0;
 		for (std::size_t i = 0; i < drawables.size(); i++) {
-			const std::vector<GLushort>& indices = drawables[i]->mesh.getIndices();
+			const std::vector<GLushort>& indices = drawables[i]->getMesh().getIndices();
 			result.insert(result.end(), indices.begin(), indices.end());
 			for (std::size_t j = 0; j < indices.size(); j++)
 				result[position + j] = indices[j] + offset;
 
 			position += indices.size();
-			offset += (GLushort)drawables[i]->mesh.getVertexCount();
+			offset += (GLushort)drawables[i]->getMesh().getVertexCount();
 		}
 	}
 
@@ -98,7 +98,7 @@ namespace sb
 		std::size_t count = 0;
 
 		for (std::size_t i = 0; i < drawables.size(); i++)
-			count += drawables[i]->mesh.getIndexCount();
+			count += drawables[i]->getMesh().getIndexCount();
 
 		return count;
 	}

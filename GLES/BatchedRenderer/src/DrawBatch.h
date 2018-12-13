@@ -11,7 +11,7 @@ namespace sb
 	{
 	public:
 		DrawBatch(Shader* shader = Shader::getDefault())
-			: m_material(Material(shader))
+			: m_material(Material(shader)), m_indexOffset(0), m_vertexCount(0)
 		{ }
 
 		virtual ~DrawBatch();
@@ -21,7 +21,7 @@ namespace sb
 		inline T* create(Args&&... args)
 		{
 			T* drawable = new T(args ...);
-			drawable->material = m_material;
+			drawable->setMaterial(m_material);
 			m_drawables.push_back(drawable);
 			insert(drawable);
 			return drawable;
@@ -48,5 +48,7 @@ namespace sb
 		std::vector<GLushort> m_indices;
 
 		GLushort m_indexOffset;
+
+		std::size_t m_vertexCount;
 	};
 }

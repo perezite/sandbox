@@ -91,6 +91,7 @@ namespace sb
 
 		#ifdef __ANDROID__
 			Error().die() << "This functionality is not supported on Android";
+			return std::string();
 		#endif
 	}
 }

@@ -22,7 +22,7 @@ namespace sb
 	protected:
 		void display(std::vector<Drawable*>& drawables, const Material& material);
 
-		void display(DrawBatch& batch);
+		void display(DrawBatch* batch);
 
 		void display(std::vector<Vertex>& vertices, std::vector<GLushort>& indices, const Material& material);
 
