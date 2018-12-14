@@ -13,6 +13,7 @@ using namespace sb;
 
 void run();
 void run2();
+void update2(DrawBatch& batch);
 void logPerformance();
 
 int main(int argc, char* args[])
@@ -54,8 +55,8 @@ void run()
 
 void run2()
 {
-	const std::size_t numHorz = 86;
-	const std::size_t numVert = 86;
+	const std::size_t numHorz = 10;
+	const std::size_t numVert = 10;
 	float stepHorz = 2.0f / numHorz;
 	float stepVert = 2.0f / numVert;
 
@@ -76,10 +77,17 @@ void run2()
 
 	while (window.isOpen()) {
 		window.update();
+		update2(batch);
 		window.draw(batch);
 		window.display();
 		logPerformance();
 	}
+}
+
+void update2(DrawBatch& batch)
+{
+	static Stopwatch sw;
+	batch[0]->setRotation(sw.getElapsedSeconds());
 }
 
 void logPerformance()

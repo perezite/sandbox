@@ -26,7 +26,12 @@ namespace sb
 
 		void setTransform(const Transform& transform);
 
+		inline void setRotation(float alpha) { m_transform.rotation = alpha; refreshTransform(); }
+
 		inline void setMaterial(const Material& material) { m_material = material; }
+
+	protected: 
+		void refreshTransform();
 
 	private:
 		const Mesh& m_mesh;

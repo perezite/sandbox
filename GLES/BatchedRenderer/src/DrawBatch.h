@@ -27,6 +27,8 @@ namespace sb
 			return drawable;
 		}
 
+		inline Drawable* operator[](std::size_t index) { return m_drawables[index]; }
+
 		inline Material& getMaterial() { return m_material; }
 
 		inline std::vector<Drawable*>& getDrawables() { return m_drawables; }

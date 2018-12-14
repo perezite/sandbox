@@ -4,6 +4,12 @@ namespace sb
 {
 	void Drawable::setTransform(const Transform& transform)
 	{
+		m_transform = transform;
+		refreshTransform();
+	}
+
+	void Drawable::refreshTransform()
+	{
 		const std::vector<Vertex>& vertices = m_mesh.getVertices();
 		std::vector<Vector2f> positions(vertices.size());
 
