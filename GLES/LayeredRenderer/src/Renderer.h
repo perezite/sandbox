@@ -9,20 +9,33 @@
 #include <map>
 
 namespace sb
-{
+{	
+	struct Layer 
+	{
+		typedef std::map<Material, std::vector<Drawable*>> DynamicBatchMap;
+
+		DynamicBatchMap dynamicBatches;
+
+		std::vector<DrawBatch*> drawBatches;
+	};
+
 	class Renderer
 	{
 	public:
 		void render(Drawable& drawable);
 
-		void render(DrawBatch& batch);
+		void render(DrawBatch& drawBatch);
 
 		void display();
 
 	protected:
-		void display(std::vector<Drawable*>& drawables, const Material& material);
+		typedef std::map<Material, std::vector<Drawable*>> DynamicBatchMap;
 
-		void display(DrawBatch* batch);
+		void display(DynamicBatchMap& dynamicBatches, std::vector<DrawBatch*> drawBatches);
+
+		void display(DrawBatch* drawBatch);
+
+		void display(std::vector<Drawable*>& drawables, const Material& material);
 
 		void display(std::vector<Vertex>& vertices, std::vector<GLushort>& indices, const Material& material);
 
@@ -45,10 +58,6 @@ namespace sb
 		void cleanupDraw(const Material& material);
 
 	private:
-		std::map<Material, std::vector<Drawable*>> m_dynamicBatches;
-
-		typedef std::map<Material, std::vector<Drawable*>>::iterator BatchIter;
-
-		std::vector<DrawBatch*> m_batches;
+		std::map<int, Layer> m_layers;
 	};
 }

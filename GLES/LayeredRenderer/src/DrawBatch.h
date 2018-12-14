@@ -11,7 +11,7 @@ namespace sb
 	{
 	public:
 		DrawBatch(Shader* shader = Shader::getDefault())
-			: m_material(Material(shader)), m_vertexCount(0)
+			: m_material(Material(shader)), m_layer(0), m_vertexCount(0)
 		{ }
 
 		virtual ~DrawBatch();
@@ -35,15 +35,22 @@ namespace sb
 
 		inline std::vector<GLushort>& getIndices() { return m_indices; }
 
+		inline const int getLayer() const { return m_layer; }
+
 		inline void setShader(Shader* shader) { m_material.shader = shader; }
+		
+		inline void setLayer(int layer) { m_layer = layer; }
 
 		void calcVertices(std::vector<Vertex>& result);
+
 
 	protected:
 		void insert(Drawable* drawable);
 
 	private:
 		Material m_material;
+
+		int m_layer;
 
 		std::vector<Drawable*> m_drawables;
 

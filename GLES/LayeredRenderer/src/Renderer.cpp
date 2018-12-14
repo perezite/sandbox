@@ -7,32 +7,38 @@ namespace sb
 {
 	void Renderer::render(Drawable& drawable)
 	{
-		m_dynamicBatches[drawable.getMaterial()].push_back(&drawable);
+		m_layers[drawable.getLayer()].dynamicBatches[drawable.getMaterial()].push_back(&drawable);
 	}
 
-	void Renderer::render(DrawBatch& batch)
+	void Renderer::render(DrawBatch& drawBatch)
 	{
-		m_batches.push_back(&batch);
+		m_layers[drawBatch.getLayer()].drawBatches.push_back(&drawBatch);
 	}
 
-	void Renderer::display()
+	void Renderer::display() 
 	{
-		for (BatchIter it = m_dynamicBatches.begin(); it != m_dynamicBatches.end(); it++)
+		for (std::map<int, Layer>::iterator it = m_layers.begin(); it != m_layers.end(); it++) {
+			display(it->second.dynamicBatches, it->second.drawBatches);
+		}
+
+		m_layers.clear();
+	}
+
+	void Renderer::display(DynamicBatchMap& dynamicBatches, std::vector<DrawBatch*> drawBatches)
+	{
+		for (std::size_t i = 0; i < drawBatches.size(); i++)
+			display(drawBatches[i]);
+
+		for (DynamicBatchMap::iterator it = dynamicBatches.begin(); it != dynamicBatches.end(); it++)
 			display(it->second, it->first);
-
-		for (std::size_t i = 0; i < m_batches.size(); i++)
-			display(m_batches[i]);
-
-		m_batches.clear();
-		m_dynamicBatches.clear();
 	}
 
-	void Renderer::display(DrawBatch* batch)
+	void Renderer::display(DrawBatch* drawBatch)
 	{
 		std::vector<Vertex> vertices;
-		batch->calcVertices(vertices);
+		drawBatch->calcVertices(vertices);
 
-		display(vertices, batch->getIndices(), batch->getMaterial());
+		display(vertices, drawBatch->getIndices(), drawBatch->getMaterial());
 	}
 
 	void Renderer::display(std::vector<Drawable*>& drawables, const Material& material)

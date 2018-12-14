@@ -45,4 +45,5 @@ namespace sb
 	};
 
 	bool operator <(const Shader& left, const Shader& right);
+	bool operator ==(const Shader& left, const Shader& right);
 }

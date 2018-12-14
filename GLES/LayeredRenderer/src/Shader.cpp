@@ -146,4 +146,8 @@ namespace sb
 		return left.getShaderId() < right.getShaderId();
 	}
 
+	bool operator ==(const Shader& left, const Shader& right)
+	{
+		return left.getShaderId() == right.getShaderId();
+	}
 }
