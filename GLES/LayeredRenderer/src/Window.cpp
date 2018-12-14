@@ -29,6 +29,7 @@ namespace sb
 			m_glContext = SDL_GL_CreateContext(m_sdlWindow);
 		#endif
 
+		glDisable(GL_DEPTH_TEST);
 		glClearColor(1, 1, 1, 1);
 		SDL_GL_SetSwapInterval(0);
 

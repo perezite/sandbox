@@ -79,16 +79,16 @@ namespace sb
 	void Renderer::calcIndices(std::vector<Drawable*>& drawables, std::vector<GLushort>& result)
 	{
 		result.resize(getNumIndices(drawables));
-
-		std::size_t position = 0;
+		std::size_t count = 0;
 		GLushort offset = 0;
+
 		for (std::size_t i = 0; i < drawables.size(); i++) {
 			const std::vector<GLushort>& indices = drawables[i]->getMesh().getIndices();
-			result.insert(result.end(), indices.begin(), indices.end());
+			std::copy(indices.begin(), indices.end(), result.begin() + count);
 			for (std::size_t j = 0; j < indices.size(); j++)
-				result[position + j] = indices[j] + offset;
+				result[count + j] = indices[j] + offset;
 
-			position += indices.size();
+			count += indices.size();
 			offset += (GLushort)drawables[i]->getMesh().getVertexCount();
 		}
 	}
@@ -120,7 +120,6 @@ namespace sb
 
 	void Renderer::draw(std::vector<GLushort>& indices)
 	{
-		// glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT, indices.data());
 		checkGLErrors();
 	}
