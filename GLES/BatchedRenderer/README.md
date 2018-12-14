@@ -1,6 +1,8 @@
 # Content
-A gl/gles renderer without indexing. Should be good enough for 2D rendering...
+A gl/gles renderer with indexed batching
 It can do the following:
 	- Supports rendering with multiple shaders
-	- Draw an arbitrary number of drawables
-	- Support batched drawing
+	- Renders up to USHORT_MAX indices per draw batch
+	- Applies auto-batching to drawables outside of a draw batch
+	- Supports shaders
+	- Supports dirty transforms (Transforms are only computed, if it actually changed)

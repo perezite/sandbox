@@ -13,3 +13,6 @@ These are some sandboxes for cross-platform GL/GLES renderers. They come in a su
 # Roadmap
 * Layers
 * Hierarchical transforms
+* Colors
+* Textures
+* Atlasses
