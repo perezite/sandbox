@@ -11,7 +11,7 @@ namespace sb
 	{
 	public:
 		MeshList(Shader* shader = Shader::getDefault())
-			: m_material(Material(shader)), m_newVertexCount(0), m_newIndexCount(0), m_needsUpdate(false)
+			: m_material(Material(shader)), m_newVertexCount(0), m_newIndexCount(0), m_indexOffset(0), m_needsUpdate(false)
 		{ }
 
 		inline Material& getMaterial() { return m_material; }

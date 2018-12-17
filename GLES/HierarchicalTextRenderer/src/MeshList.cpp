@@ -64,7 +64,7 @@ namespace sb
 
 		for (std::size_t i = 0; i < m_newMeshes.size(); i++) {
 			const std::vector<GLushort>& indices = m_newMeshes[i].getIndices();
-			for (std::size_t j = 0; j < indices.size(); i++)
+			for (std::size_t j = 0; j < indices.size(); j++)
 				m_indices[position + j] = indices[j] + m_indexOffset;
 
 			position += indices.size();

@@ -28,7 +28,7 @@ void run()
 
 	MeshList meshList;
 	meshList.add(Triangle::TriangleMesh);
-	meshList.add(Rectangle::RectangleMesh);
+	// meshList.add(Rectangle::RectangleMesh);
 
 	while (window.isOpen()) {
 		window.update();
