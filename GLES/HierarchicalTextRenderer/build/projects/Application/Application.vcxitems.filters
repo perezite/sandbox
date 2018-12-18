@@ -55,5 +55,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Renderer.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Mesh.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Shader.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Drawable.cpp" />
   </ItemGroup>
 </Project>

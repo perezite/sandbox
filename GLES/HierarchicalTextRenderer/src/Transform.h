@@ -1,8 +1,6 @@
 #pragma once
 
 #include "Vector2f.h"
-#define _USE_MATH_DEFINES
-#include <math.h>
 
 namespace sb
 {
@@ -11,16 +9,15 @@ namespace sb
 	class Transform
 	{
 	public:
-		Transform(Vector2f position_ = Vector2f(0, 0), Vector2f scale_ = Vector2f(1, 1), float rotation_ = 0) 
-			: position(position_), scale(scale_), rotation(rotation_)
-		{ }
+		Transform();
 
-		Vector2f position;
+		Transform(Vector2f position, Vector2f scale, float rotation);
 
-		Vector2f scale;
+		Vector2f transformPoint(const Vector2f& point) const;
 
-		float rotation;
+	private: 
+		float m_matrix[9];
 	};
 
-	Vector2f operator *(const Transform& transform, Vector2f position);
+	Vector2f operator *(const Transform& transform, const Vector2f& point);
 }

@@ -23,6 +23,7 @@ void run()
 	Window window;
 
 	Triangle triangle;
+	triangle.setPosition(0.5f, 0.5f);
 
 	while (window.isOpen()) {
 		window.update();

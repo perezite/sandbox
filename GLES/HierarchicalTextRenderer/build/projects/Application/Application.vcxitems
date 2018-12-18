@@ -30,6 +30,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Drawable.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Main.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Mesh.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Renderer.cpp" />

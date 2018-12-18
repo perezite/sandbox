@@ -8,15 +8,10 @@ namespace sb
 	{
 	public:
 		Triangle()
-			: m_mesh(TriangleMesh)
+			: Drawable(TriangleMesh)
 		{ }
-
-		virtual void draw(Window& window) override;
 
 	public:
 		static const Mesh TriangleMesh;
-
-	private:
-		Mesh m_mesh;
 	};
 }
