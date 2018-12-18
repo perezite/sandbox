@@ -1,12 +1,12 @@
 #pragma once
 
 #include "GL.h"
-#include "Drawable.h"
 #include "Renderer.h"
+#include "Mesh.h"
 #include <SDL2/SDL.h>
 
 namespace sb
-{
+{	
 	class Window
 	{
 	public:
@@ -20,9 +20,7 @@ namespace sb
 
 		void display();
 
-		void draw(Drawable* drawable) { m_renderer->render(drawable); }
-
-		void draw(Drawable& drawable) { draw(&drawable); }
+		void draw(Mesh& mesh) { m_renderer->render(mesh); }
 
 	private:
 		bool m_isOpen;

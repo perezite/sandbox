@@ -7,10 +7,16 @@ namespace sb
 	class Triangle : public Drawable
 	{
 	public:
-		Triangle(Vector2f position = Vector2f(0, 0), Vector2f scale = Vector2f(1, 1), float rotation = 0)
-			 : Drawable(TriangleMesh, Transform(position, scale, rotation))
+		Triangle()
+			: m_mesh(TriangleMesh)
 		{ }
 
+		virtual void draw(Window& window) override;
+
+	public:
 		static const Mesh TriangleMesh;
+
+	private:
+		Mesh m_mesh;
 	};
 }

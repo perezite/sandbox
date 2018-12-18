@@ -5,9 +5,9 @@
 
 namespace sb
 {
-	void Renderer::render(Drawable* drawable)
+	void Renderer::render(Mesh& mesh)
 	{
-		m_batch.push_back(drawable);
+		m_batch.push_back(&mesh);
 	}
 
 	void Renderer::display()
@@ -28,52 +28,53 @@ namespace sb
 		cleanupDraw();
 	}
 
-	void Renderer::calcVertices(std::vector<Drawable*>& drawables, std::vector<Vertex>& result)
+	void Renderer::calcVertices(std::vector<Mesh*>& meshes, std::vector<Vertex>& result)
 	{
-		result.resize(getNumVertices(drawables));
+		result.resize(getNumVertices(meshes));
 		
 		unsigned int count = 0;
-		for (std::size_t i = 0; i < drawables.size(); i++) {
-			for (std::size_t j = 0; j < drawables[i]->getMesh().getVertexCount(); j++) {
-				result[count].position = drawables[i]->getTransform() * drawables[i]->getMesh()[j].position;
-				result[count].color = drawables[i]->getMesh()[j].color;
+		for (std::size_t i = 0; i < meshes.size(); i++) {
+			const std::vector<Vertex>& vertices = meshes[i]->getVertices();
+			for (std::size_t j = 0; j < vertices.size(); j++) {
+				result[count].position = vertices[j].position;
+				result[count].color = vertices[j].color;
 				count++;
 			}
 		}
 	}
 
-	std::size_t Renderer::getNumVertices(std::vector<Drawable*>& drawables)
+	std::size_t Renderer::getNumVertices(std::vector<Mesh*>& meshes)
 	{
 		std::size_t count = 0;
-		for (std::size_t i = 0; i < drawables.size(); i++)
-			count += drawables[i]->getMesh().getVertexCount();
+		for (std::size_t i = 0; i < meshes.size(); i++)
+			count += meshes[i]->getVertexCount();
 
 		return count;
 	}
 
-	void Renderer::calcIndices(std::vector<Drawable*>& drawables, std::vector<GLushort>& result)
+	void Renderer::calcIndices(std::vector<Mesh*>& meshes, std::vector<GLushort>& result)
 	{
-		result.resize(getNumIndices(drawables));
+		result.resize(getNumIndices(meshes));
 		std::size_t count = 0;
 		GLushort offset = 0;
 
-		for (std::size_t i = 0; i < drawables.size(); i++) {
-			const std::vector<GLushort>& indices = drawables[i]->getMesh().getIndices();
+		for (std::size_t i = 0; i < meshes.size(); i++) {
+			const std::vector<GLushort>& indices = meshes[i]->getIndices();
 			std::copy(indices.begin(), indices.end(), result.begin() + count);
 			for (std::size_t j = 0; j < indices.size(); j++)
 				result[count + j] = indices[j] + offset;
 
 			count += indices.size();
-			offset += (GLushort)drawables[i]->getMesh().getVertexCount();
+			offset += (GLushort)meshes[i]->getVertexCount();
 		}
 	}
 
-	std::size_t Renderer::getNumIndices(std::vector<Drawable*>& drawables)
+	std::size_t Renderer::getNumIndices(std::vector<Mesh*>& meshes)
 	{
 		std::size_t count = 0;
 
-		for (std::size_t i = 0; i < drawables.size(); i++)
-			count += drawables[i]->getMesh().getIndexCount();
+		for (std::size_t i = 0; i < meshes.size(); i++)
+			count += meshes[i]->getIndexCount();
 
 		return count;
 	}

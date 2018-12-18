@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Drawable.h"
+#include "Mesh.h"
 #include "Vertex.h"
 #include "Shader.h"
 #include <vector>
@@ -11,22 +11,21 @@ namespace sb
 	class Renderer
 	{
 	public:
-		void render(Drawable* drawable);
+		void render(Mesh& mesh);
 
 		void display();
 
 	protected:
-		void display(std::vector<Drawable*>& drawables);
 
 		void display(std::vector<Vertex>& vertices, std::vector<GLushort>& indices);
 
-		void calcVertices(std::vector<Drawable*>& drawables, std::vector<Vertex>& result);
+		void calcVertices(std::vector<Mesh*>& meshes, std::vector<Vertex>& result);
 
-		std::size_t getNumVertices(std::vector<Drawable*>& drawables);
+		std::size_t getNumVertices(std::vector<Mesh*>& meshes);
 
-		void calcIndices(std::vector<Drawable*>& drawables, std::vector<GLushort>& result);
+		void calcIndices(std::vector<Mesh*>& meshes, std::vector<GLushort>& result);
 
-		std::size_t getNumIndices(std::vector<Drawable*>& drawables);
+		std::size_t getNumIndices(std::vector<Mesh*>& meshes);
 
 		void setupDraw(std::vector<Vertex>& vertices);
 
@@ -39,6 +38,6 @@ namespace sb
 		void cleanupDraw();
 
 	private:
-		std::vector<Drawable*> m_batch;
+		std::vector<Mesh*> m_batch;
 	};
 }
