@@ -7,8 +7,8 @@ namespace sb
 	class Material
 	{
 	public:
-		Material(Shader* shader_)
-			: shader(shader_), layer(0)
+		Material()
+
 		{ }
 
 		Shader* shader;

@@ -1,10 +1,7 @@
 #include "Window.h"
 #include "Triangle.h"
-#include "Rectangle.h"
-#include "MeshList.h"
 #include "Stopwatch.h"
 #include "Error.h"
-#include "DrawBatch.h"
 #include <iostream>
 #include <vector>
 #define _USE_MATH_DEFINES
@@ -12,7 +9,6 @@
 using namespace sb;
 
 void run();
-
 void logPerformance();
 
 int main(int argc, char* args[])
@@ -26,13 +22,11 @@ void run()
 {
 	Window window;
 
-	MeshList meshList;
-	meshList.add(Triangle::TriangleMesh);
-	// meshList.add(Rectangle::RectangleMesh);
+	Triangle triangle;
 
 	while (window.isOpen()) {
 		window.update();
-		window.draw(meshList);
+		triangle.draw(window);
 		window.display();
 	}
 }

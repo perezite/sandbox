@@ -1,20 +1,8 @@
 #include "Shader.h"
-#include "File.h"
 #include <iostream>
 
 namespace sb
 {
-	Shader::Shader(const std::string& vertexShaderPath, const std::string& fragmentShaderPath) 
-	{
-		loadFromFile(vertexShaderPath, fragmentShaderPath);
-	}
-
-
-	void Shader::loadFromFile(const std::string& vertexShaderPath, const std::string& fragmentShaderPath)
-	{
-		loadFromMemory(File::loadText(vertexShaderPath), File::loadText(fragmentShaderPath));
-	}
-
 	void Shader::loadFromMemory(const std::string& vertexShaderSource, const std::string& fragmentShaderSource)
 	{
 		m_shader = glCreateProgram();

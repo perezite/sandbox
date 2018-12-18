@@ -7,69 +7,25 @@ namespace sb
 {
 	void Renderer::render(Drawable* drawable)
 	{
-		m_layers[drawable->getLayer()].dynamicBatches[drawable->getMaterial()].push_back(drawable);
+		m_batch.push_back(drawable);
 	}
 
-	void Renderer::render(DrawBatch& drawBatch)
-	{
-		m_layers[drawBatch.getLayer()].drawBatches.push_back(&drawBatch);
-	}
-
-	void Renderer::render(MeshList& meshList)
-	{
-		m_layers[0].meshLists.push_back(&meshList);
-	}
-
-	void Renderer::display() 
-	{
-		for (std::map<int, Layer>::iterator it = m_layers.begin(); it != m_layers.end(); it++) {
-			display(it->second.dynamicBatches, it->second.drawBatches, it->second.meshLists);
-		}
-
-		m_layers.clear();
-	}
-
-	void Renderer::display(DynamicBatchMap& dynamicBatches, std::vector<DrawBatch*>& drawBatches, std::vector<MeshList*>& meshLists)
-	{
-		for (std::size_t i = 0; i < meshLists.size(); i++)
-			display(meshLists[i]);
-
-		for (std::size_t i = 0; i < drawBatches.size(); i++)
-			display(drawBatches[i]);
-
-		for (DynamicBatchMap::iterator it = dynamicBatches.begin(); it != dynamicBatches.end(); it++)
-			display(it->second, it->first);
-	}
-
-	void Renderer::display(MeshList* meshList)
-	{
-		display(meshList->getVertices(), meshList->getIndices(), meshList->getMaterial());
-	}
-
-	void Renderer::display(DrawBatch* drawBatch)
+	void Renderer::display()
 	{
 		std::vector<Vertex> vertices;
-		drawBatch->calcVertices(vertices);
-
-		display(vertices, drawBatch->getIndices(), drawBatch->getMaterial());
-	}
-
-	void Renderer::display(std::vector<Drawable*>& drawables, const Material& material)
-	{
-		std::vector<Vertex> vertices;
-		calcVertices(drawables, vertices);
+		calcVertices(m_batch, vertices);
 
 		std::vector<GLushort> indices;
-		calcIndices(drawables, indices);
+		calcIndices(m_batch, indices);
 
-		display(vertices, indices, material);
+		display(vertices, indices);
 	}
 
-	void Renderer::display(std::vector<Vertex>& vertices, std::vector<GLushort>& indices, const Material& material)
+	void Renderer::display(std::vector<Vertex>& vertices, std::vector<GLushort>& indices)
 	{
-		setupDraw(vertices, material);
+		setupDraw(vertices);
 		draw(indices);
-		cleanupDraw(material);
+		cleanupDraw();
 	}
 
 	void Renderer::calcVertices(std::vector<Drawable*>& drawables, std::vector<Vertex>& result)
@@ -122,13 +78,14 @@ namespace sb
 		return count;
 	}
 
-	void Renderer::setupDraw(std::vector<Vertex>& vertices, const Material& material)
+	void Renderer::setupDraw(std::vector<Vertex>& vertices)
 	{
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
-		material.shader->use();
-		setVertexAttribPointer(material.shader->getAttributeLocation("a_vPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), &(vertices[0].position));
-		setVertexAttribPointer(material.shader->getAttributeLocation("a_vColor"), 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), &(vertices[0].color));
+		Shader* defaultShader = Shader::getDefault();
+		defaultShader->use();
+		setVertexAttribPointer(defaultShader->getAttributeLocation("a_vPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), &(vertices[0].position));
+		setVertexAttribPointer(defaultShader->getAttributeLocation("a_vColor"), 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), &(vertices[0].color));
 	}
 
 	void Renderer::setVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer)
@@ -151,9 +108,10 @@ namespace sb
 		}
 	}
 
-	void Renderer::cleanupDraw(const Material& material)
+	void Renderer::cleanupDraw()
 	{
-		glDisableVertexAttribArray(material.shader->getAttributeLocation("a_vColor"));
-		glDisableVertexAttribArray(material.shader->getAttributeLocation("a_vPosition"));
+		Shader* defaultShader = Shader::getDefault();
+		glDisableVertexAttribArray(defaultShader->getAttributeLocation("a_vColor"));
+		glDisableVertexAttribArray(defaultShader->getAttributeLocation("a_vPosition"));
 	}
 }

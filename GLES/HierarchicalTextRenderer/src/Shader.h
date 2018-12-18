@@ -12,10 +12,6 @@ namespace sb
 		Shader()
 		{ }
 
-		Shader(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
-
-		void loadFromFile(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
-
 		void loadFromMemory(const std::string& vertexShaderSource, const std::string& fragmentShaderSource);
 		
 		GLuint getAttributeLocation(const std::string& attribute);
@@ -43,7 +39,4 @@ namespace sb
 
 		std::map<std::string, GLuint> m_attributeLocations;
 	};
-
-	bool operator <(const Shader& left, const Shader& right);
-	bool operator ==(const Shader& left, const Shader& right);
 }

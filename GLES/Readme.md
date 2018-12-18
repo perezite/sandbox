@@ -7,13 +7,18 @@ These are some sandboxes for cross-platform GL/GLES renderers. They come in a su
 * IndexedRenderer
 * BatchRenderer
 * MaterialRenderer
+* LayeredRenderer
+* HierarchicalRenderer
+	* HierarchicalTextRenderer
+
 
 * NonIndexed/*
 
 # Roadmap
 
-* Layers
 * Hierarchical transforms
+* Custom transforms
+* Camera
 * Colors
 * Textures
 * Atlasses
