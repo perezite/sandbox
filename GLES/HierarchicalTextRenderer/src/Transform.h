@@ -14,32 +14,31 @@ namespace sb
 
 		Transform(Vector2f position, Vector2f scale, float rotation);
 
-		void setPosition(const Vector2f& position);
+		Transform(float a00, float a01, float a02,
+				  float a10, float a11, float a12,
+				  float a20, float a21, float a22);
 
-		void setScale(const Vector2f& scale);
+		const Vector2f getTransformed(const Vector2f& point) const;
 
-		void setRotation(const float rotation);
+		const Mesh getTransformed(const Mesh& mesh) const;
 
-		Vector2f getTransformedPoint(const Vector2f& point) const;
+		const float* getMatrix() const;
 
-		Mesh getTransformedMesh(const Mesh& mesh) const;
+		const Transform& translate(const Vector2f& position);
 
-	protected:
-		void refresh() const;
+		const Transform& scale(const Vector2f& scale);
+
+		const Transform& rotate(const float angle);
+
+		const Transform& apply(const Transform& transform);
 
 	private: 
-		mutable float m_matrix[9];
-
-		mutable bool m_needsRefresh;
-
-		Vector2f m_position;
-
-		Vector2f m_scale;
-
-		float m_rotation;
+		float m_matrix[9];
 	};
 
-	Vector2f operator *(const Transform& transform, const Vector2f& point);
+	const Transform operator*(const Transform& left, const Transform& right);
 
-	Mesh operator *(const Transform& transform, const Mesh& mesh);
+	const Vector2f operator*(const Transform& transform, const Vector2f& point);
+
+	const Mesh operator*(const Transform& transform, const Mesh& mesh);
 }

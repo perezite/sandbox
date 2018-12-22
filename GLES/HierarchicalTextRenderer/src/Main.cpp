@@ -22,15 +22,22 @@ void run()
 {
 	Window window;
 	Stopwatch sw;
-	Triangle triangle;
 
-	triangle.setScale(0.1f, 0.1f);
-	triangle.setPosition(0.5f, 0.5f);
+	Triangle parent;
+	parent.setScale(0.2f, 0.2f);
+	parent.setPosition(0.5f, 0.5f);
+
+	Triangle child;
+	child.setScale(0.5f, 0.5f);
+	child.setPosition(0.7f, -0.7f);
+	child.setParent(parent);
 
 	while (window.isOpen()) {
 		window.update();
-		triangle.setRotation(sw.getElapsedSeconds());
-		triangle.draw(window);
+		parent.setRotation(sw.getElapsedSeconds());
+		child.setRotation(-0.5f * sw.getElapsedSeconds());
+		parent.draw(window);
+		child.draw(window);
 		window.display();
 	}
 }

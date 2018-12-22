@@ -11,6 +11,8 @@ namespace sb
 			: Drawable(TriangleMesh)
 		{ }
 
+		void draw(Window& window) override;
+
 	public:
 		static const Mesh TriangleMesh;
 	};

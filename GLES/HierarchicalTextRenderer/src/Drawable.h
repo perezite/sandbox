@@ -11,10 +11,14 @@ namespace sb
 	{
 	public:
 		Drawable(const Mesh& mesh)
-			: m_mesh(mesh), m_transformedMesh(mesh)
+			: m_transformNeedsUpdate(true), m_position(0, 0), m_scale(1, 1), m_rotation(0), m_mesh(mesh), m_transformedMesh(mesh), m_parent(NULL)
 		{ }
 
-		virtual void draw(Window& window);
+		virtual void draw(Window& window) = 0;
+
+		inline const Transform& getTransform() const { return m_transform; }
+
+		void setParent(Drawable& parent) { m_parent = &parent; }
 
 		void setPosition(const Vector2f& position);
 
@@ -24,20 +28,30 @@ namespace sb
 
 		inline void setScale(float x, float y) { setScale(Vector2f(x, y)); }
 
-		void setRotation(const float rotation);
+		void setRotation(const float angle);
 
 	protected:
-		void computeTransformedMesh();
+		Mesh& getTransformedMesh();
+
+		void updateTransform();
+
+		void transformMesh();
 
 	private:
+		Transform m_transform;
+
+		bool m_transformNeedsUpdate;
+
+		Vector2f m_position;
+
+		Vector2f m_scale;
+
+		float m_rotation;
+
 		Mesh m_mesh;
 
 		Mesh m_transformedMesh;
 
-		Transform m_transform;
-
-		bool m_meshNeedsUpdate;
-
-		bool m_transformNeedsUpdate;
+		Drawable* m_parent;
 	};
 }

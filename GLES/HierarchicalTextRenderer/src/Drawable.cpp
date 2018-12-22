@@ -3,35 +3,44 @@
 
 namespace sb
 {
-	void Drawable::draw(Window& window)
-	{
-		computeTransformedMesh();
-		window.draw(m_transformedMesh);
-	}
-
 	void Drawable::setPosition(const Vector2f& position)
 	{ 
-		m_transform.setPosition(position); 
-		m_meshNeedsUpdate = true;
+		m_position = position;
+		m_transformNeedsUpdate = true;
 	}
 
 	void Drawable::setScale(const Vector2f& scale)
 	{
-		m_transform.setScale(scale);
-		m_meshNeedsUpdate = true;
+		m_scale = scale;
+		m_transformNeedsUpdate = true;
 	}
 
-	void Drawable::setRotation(const float rotation)
+	void Drawable::setRotation(const float angle)
 	{
-		m_transform.setRotation(rotation);
-		m_meshNeedsUpdate = true;
+		m_rotation = angle;
+		m_transformNeedsUpdate = true;
 	}
 
-	void Drawable::computeTransformedMesh()
+	Mesh& Drawable::getTransformedMesh() 
 	{
-		if (m_meshNeedsUpdate)
-			m_transformedMesh = m_transform * m_mesh;
+		if (m_transformNeedsUpdate)
+			updateTransform();
 
-		m_meshNeedsUpdate = false;
+		transformMesh();
+		return m_transformedMesh;
 	}
+
+	void Drawable::updateTransform()
+	{
+		m_transform = Transform(m_position, m_scale, m_rotation);
+		m_transformNeedsUpdate = false;
+	}
+
+	void Drawable::transformMesh()
+	{
+		Transform fullTransform = m_parent ? m_parent->getTransform() * m_transform : m_transform;
+
+		m_transformedMesh = fullTransform * m_mesh;
+	}
+
 }
