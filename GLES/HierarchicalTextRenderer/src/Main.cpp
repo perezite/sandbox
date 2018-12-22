@@ -21,12 +21,15 @@ int main(int argc, char* args[])
 void run()
 {
 	Window window;
-
+	Stopwatch sw;
 	Triangle triangle;
+
+	triangle.setScale(0.1f, 0.1f);
 	triangle.setPosition(0.5f, 0.5f);
 
 	while (window.isOpen()) {
 		window.update();
+		triangle.setRotation(sw.getElapsedSeconds());
 		triangle.draw(window);
 		window.display();
 	}

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vector2f.h"
+#include "Mesh.h"
 
 namespace sb
 {
@@ -13,11 +14,32 @@ namespace sb
 
 		Transform(Vector2f position, Vector2f scale, float rotation);
 
-		Vector2f transformPoint(const Vector2f& point) const;
+		void setPosition(const Vector2f& position);
+
+		void setScale(const Vector2f& scale);
+
+		void setRotation(const float rotation);
+
+		Vector2f getTransformedPoint(const Vector2f& point) const;
+
+		Mesh getTransformedMesh(const Mesh& mesh) const;
+
+	protected:
+		void refresh() const;
 
 	private: 
-		float m_matrix[9];
+		mutable float m_matrix[9];
+
+		mutable bool m_needsRefresh;
+
+		Vector2f m_position;
+
+		Vector2f m_scale;
+
+		float m_rotation;
 	};
 
 	Vector2f operator *(const Transform& transform, const Vector2f& point);
+
+	Mesh operator *(const Transform& transform, const Mesh& mesh);
 }

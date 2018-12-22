@@ -20,10 +20,14 @@ namespace sb
 
 		inline void setPosition(float x, float y) { setPosition(Vector2f(x, y)); }
 
+		void setScale(const Vector2f& scale);
+
+		inline void setScale(float x, float y) { setScale(Vector2f(x, y)); }
+
+		void setRotation(const float rotation);
+
 	protected:
 		void computeTransformedMesh();
-
-		const Transform& getTransform();
 
 	private:
 		Mesh m_mesh;
@@ -31,8 +35,6 @@ namespace sb
 		Mesh m_transformedMesh;
 
 		Transform m_transform;
-
-		Vector2f m_position;
 
 		bool m_meshNeedsUpdate;
 
