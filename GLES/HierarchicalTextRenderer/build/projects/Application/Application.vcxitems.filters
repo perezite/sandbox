@@ -45,6 +45,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Shader.h">
       <Filter>headers</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Rectangle.h">
+      <Filter>headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Main.cpp" />
@@ -56,5 +59,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Mesh.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Shader.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Drawable.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Rectangle.cpp" />
   </ItemGroup>
 </Project>

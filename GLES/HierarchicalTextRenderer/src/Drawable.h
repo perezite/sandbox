@@ -18,6 +18,8 @@ namespace sb
 
 		inline const Transform& getTransform() const { return m_transform; }
 
+		const Vector2f& getPosition() const { return m_position; };
+
 		void setParent(Drawable& parent) { m_parent = &parent; }
 
 		void setPosition(const Vector2f& position);
