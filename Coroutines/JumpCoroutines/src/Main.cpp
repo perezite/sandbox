@@ -20,6 +20,12 @@
 		return -1;								\
 	}											\
 	return -1;					
+#define CO_AWAIT(i, func)						\
+while (true) {									\
+	if (func() < 0)								\
+		break;									\
+	CO_YIELD(i);								\
+}
 
 void error(const char* message)
 {
@@ -52,6 +58,32 @@ int coro2()
 	CO_FINISH;
 }
 
+int coro3_child()
+{
+	CO_BEGIN;
+
+	SDL_Log("Hello Child 1");
+	CO_YIELD(0);
+
+	SDL_Log("Hello Child 2");
+	CO_YIELD(1);
+
+	CO_FINISH;
+}
+
+int coro3()
+{
+	CO_BEGIN;
+
+	SDL_Log("Hello Parent 1");
+	CO_YIELD(0);
+
+	CO_AWAIT(1, coro3_child);
+
+	SDL_Log("Hello Parent 2");
+	CO_FINISH;
+}
+
 void run_coro()
 {
 	int val = 0;
@@ -65,14 +97,23 @@ void run_coro2()
 {
 	int val = 0;
 	while (val > -1) {
-		val = coro2();
 		SDL_Log("Main: %d", val);
+		val = coro2();
+	}
+}
+
+void run_coro3()
+{
+	int val = 0;
+	while (val > -1) {
+		SDL_Log("Main: %d", val);
+		val = coro3();
 	}
 }
 
 int main(int argc, char* args[])
 {
-	run_coro2();
+	run_coro3();
 
 	std::cin.get();
 
