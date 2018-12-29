@@ -44,24 +44,26 @@ while (true) {									\
 		ctx.variables = new CoVariables();			\
 	CoVariables* co = (CoVariables*)ctx.variables;	
 #define CO_START								\
-	static int state = -1;						\
-												\
-	switch (state) {							\
+	switch (ctx.state) {							\
 		default:								\
 			error("coro state not defined");	\
 			break;								\
 		case -1:								
 #define CO_YIELD(index)							\
 	do {										\
-		state = index;							\
-		return;								\
+		ctx.state = index;						\
+		return;									\
 	case index:;								\
 	} while (0)			
-#define CO_AWAIT(i, func)						\
-while (true) {									\
-		if (func() < 0)							\
-			break;								\
-		CO_YIELD(i);							\
+#define CO_AWAIT(func, index)					\
+	{											\
+		ctx.childContext = new CoContext();		\
+		while (ctx.childContext->running) {		\
+			func(*ctx.childContext);			\
+			CO_YIELD(index);					\
+		}										\
+												\
+		delete ctx.childContext;				\
 	}
 #define CO_FINISH								\
 		delete ctx.variables;					\
@@ -84,6 +86,7 @@ struct CoContext
 {
 	void* variables = NULL;
 	CoContext* childContext;
+	int state = -1;
 	bool running = true;
 };
 
@@ -104,15 +107,11 @@ void coro5(CO_CONTEXT)
 {
 	CO_START;
 
-	{
-		ctx.childContext = new CoContext();
-		while (ctx.childContext->running) {
-			SDL_Log("Coro5");
-			coro5_child(*ctx.childContext);
-			CO_YIELD(0);
-		}
-		delete ctx.childContext;
-	}
+	CO_AWAIT(coro5_child, 0);
+
+	SDL_Log("Once again...");
+
+	CO_AWAIT(coro5_child, 1);
 
 	CO_FINISH;
 }
