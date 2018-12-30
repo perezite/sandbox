@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <iostream>
+#include <map>
 #include <SDL2/SDL.h>
 
 #define CO_CONTEXT CoContext& ctx
@@ -12,37 +13,38 @@
 	if (ctx.variables == NULL)						\
 		ctx.variables = new CoVariables();			\
 	CoVariables* co = (CoVariables*)ctx.variables;	
-#define CO_START								\
-	switch (ctx.state) {						\
-		default:								\
-			error("coro state not defined");	\
-			break;								\
-		case -1:								
-#define CO_YIELD(index)							\
-	do {										\
+#define CO_BEGIN									\
+	ctx.running = false;							\
+	switch (ctx.state) {							\
+		default:									\
+			error("coro state not defined");		\
+			break;									\
+		case -1:									
+#define CO_YIELD(index)								\
+	do {											\
 		ctx.running = true;						\
-		ctx.state = index;						\
-		return;									\
-	case index:;								\
+		ctx.state = index;							\
+		return ctx;									\
+	case index:;									\
 	} while (0)			
-#define CO_AWAIT(func, index)					\
-	{											\
+#define CO_AWAIT(func, index)						\
+	{												\
 		ctx.childContext = new CoContext();		\
-		do {									\
-			func(*ctx.childContext);			\
-			CO_YIELD(index);					\
+		do {										\
+			func(*ctx.childContext);				\
+			CO_YIELD(index);						\
 		} while(ctx.childContext->running);		\
-												\
-		delete ctx.childContext;				\
+													\
+		delete ctx.childContext;					\
 	}
-#define CO_FINISH								\
-		delete ctx.variables;					\
-		ctx.running = false;					\
-		return;									\
-	}											\
-	delete ctx.variables;						\
-	ctx.running = false;						\
-	return;														
+#define CO_END										\
+		delete ctx.variables;						\
+		ctx.running = false;						\
+		return ctx;									\
+	}												\
+	delete ctx.variables;							\
+	ctx.running = false;							\
+	return ctx;									
 
 void error(const char* message)
 {
@@ -56,111 +58,94 @@ struct CoContext
 	void* variables = NULL;
 	CoContext* childContext;
 	int state = -1;
-	bool running = false;
+	bool running = true;
 };
 
-void coro6_child(CO_CONTEXT)
+CoContext& coro_b(CO_CONTEXT)
+{
+	CO_BEGIN; 
+	
+	SDL_Log("Hello B 1");
+	CO_YIELD(0);
+	SDL_Log("Hello B 2");
+
+	CO_END;
+}
+
+CoContext& coro_a(CO_CONTEXT)
+{
+	CO_DECLARE_BEGIN;
+	CoContext b;
+	CoContext b2;
+	CO_DECLARE_END;
+
+	CO_BEGIN;
+	SDL_Log("Hello A 1");
+	coro_b(co->b);
+	CO_YIELD(1);
+
+	SDL_Log("Hello A 2");
+	coro_b(co->b);
+	CO_YIELD(2);
+
+	while (coro_b(co->b2).running) {
+		SDL_Log("Hello A3");
+		CO_YIELD(3);
+	}
+	CO_END;
+}
+
+void run_coro()
+{
+	CoContext ctx;
+	while (coro_a(ctx).running) {
+		SDL_Log("Main: %d", ctx.running);
+	}
+}
+
+/*
+void coro_child(CO_CONTEXT)
 {
 	CO_DECLARE_BEGIN;
 		int i = 0;
 	CO_DECLARE_END;
 
-	CO_START;
+	CO_BEGIN;
 	while (co->i < 3) {
 		SDL_Log("Coro6 Child: i=%d", co->i);
 		co->i++;
 		CO_YIELD(0);
 	}
-	CO_FINISH;
+	CO_END;
 }
 
-void coro6(CO_CONTEXT)
+void coro(CO_CONTEXT)
 {
 	CO_DECLARE_BEGIN;
 	int i = 42;
 	CO_DECLARE_END;
 
-	CO_START;
+	CO_BEGIN;
 	for (co->i = 0; co->i < 3; co->i++) {
 		SDL_Log("Coro6: i=%d", co->i);
-		CO_AWAIT(coro6_child, 0);
+		CO_AWAIT(coro_child, 0);
 	}
 
-	CO_FINISH;
+	CO_END;
 }
 
-void run_coro6()
+void run_coro()
 {
 	CoContext ctx;
 	do {
 		SDL_Log("Main: %d", ctx.running);
-		coro6(ctx);
+		coro(ctx);
 	} while (ctx.running);
-}
-
-void coro5_child(CO_CONTEXT)
-{
-	CO_START;
-	
-	SDL_Log("Coro Child: 1");
-	CO_YIELD(0);
-
-	SDL_Log("Coro Child: 2");
-	CO_YIELD(1);
-
-	CO_FINISH;
-}
-
-void coro5(CO_CONTEXT)
-{
-	CO_START;
-
-	CO_AWAIT(coro5_child, 0);
-
-	SDL_Log("Once again...");
-
-	CO_AWAIT(coro5_child, 1);
-
-	CO_FINISH;
-}
-
-void run_coro5()
-{
-	CoContext ctx;
-	do {
-		SDL_Log("Main: %d", ctx.running);
-		coro5(ctx);
-	} while (ctx.running);
-}
-
-void coro4(CO_CONTEXT)
-{
-	CO_DECLARE_BEGIN;
-		int foo = 42;
-	CO_DECLARE_END;
-
-	CO_START;
-
-	SDL_Log("Coro4: %d", co->foo);
-	co->foo = 43;
-	CO_YIELD(0);
-
-	SDL_Log("Coro4: %d", co->foo);
-	CO_FINISH;
-}
-
-void run_coro4()
-{
-	CoContext ctx;
-	do {
-		SDL_Log("Main: %d", ctx.running);
-		coro4(ctx);
-	} while (ctx.running);
-}
+}*/
 
 int main(int argc, char* args[])
 {
-	run_coro6();
+	run_coro();
 
 	std::cin.get();
 
