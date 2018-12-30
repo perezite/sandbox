@@ -133,7 +133,6 @@ CoContext& coro_a(CO_CONTEXT)
 	int i;
 	CO_DECLARE_END;
 
-	// Execute coro_b step-by-step
 	CO_BEGIN;
 	SDL_Log("Execute coro_b step-by-step...");
 	SDL_Log("Hello A 1");
@@ -141,25 +140,21 @@ CoContext& coro_a(CO_CONTEXT)
 	SDL_Log("Hello A 2");
 	CO_STEP(coro_b, co->b, 2);
 
-	// Execute coro_b step-by-step in a loop
 	SDL_Log("Execute coro_b step-by-step in a loop...");
 	while (co->b2.running) {
 		SDL_Log("Hello A 3");
 		CO_STEP(coro_b, co->b2, 3);
 	}
 
-	// Await coro_b
 	SDL_Log("Await coro_b...");
 	CO_AWAIT(coro_b, 4);
 
-	// Execute coro_c step-by-step in a loop
 	SDL_Log("Execute coro_c step-by-step in a loop");
 	while (co->c.running) {
 		SDL_Log("Hello A 4");
 		CO_STEP(coro_c, co->c, 5);
 	}
 
-	// Await coro_c twice
 	SDL_Log("Await coro_c twice");
 	for (co->i = 0; co->i < 2; co->i++) {
 		SDL_Log("Hello A 5");
