@@ -61,12 +61,13 @@ struct Coroutine {
 };
 
 static std::vector<Coroutine> Coroutines;
+static std::vector<Coroutine> ScheduledCoroutines;
 
 void startCoroutine(CoContext& (*routine)(CO_CONTEXT))
 {
 	Coroutine co;
 	co.routine = routine;
-	Coroutines.push_back(co);
+	ScheduledCoroutines.push_back(co);
 }
 
 bool coroutineFinished(Coroutine& co)
@@ -76,15 +77,16 @@ bool coroutineFinished(Coroutine& co)
 
 void runCoroutines()
 {
+	Coroutines.insert(Coroutines.end(), ScheduledCoroutines.begin(), ScheduledCoroutines.end());
+	ScheduledCoroutines.clear();
+
 	std::vector<Coroutine>::iterator iter = std::remove_if(Coroutines.begin(), Coroutines.end(), coroutineFinished);
 	if (iter != Coroutines.end())
-		Coroutines.erase(iter);
+		Coroutines.erase(iter, Coroutines.end());
 
-	for (std::size_t i = 0; i < Coroutines.size(); i++) {
-		SDL_Log("Hello Scheduler");
+	SDL_Log("Hello Scheduler");
+	for (std::size_t i = 0; i < Coroutines.size(); i++) 
 		Coroutines[i].routine(Coroutines[i].context);
-
-	}
 }
 
 CoContext& coro_d(CO_CONTEXT)
@@ -164,17 +166,52 @@ CoContext& coro_a(CO_CONTEXT)
 	CO_END;
 }
 
+bool activeCoroutines()
+{
+	return !Coroutines.empty() || !ScheduledCoroutines.empty();
+}
+
 void run_coro_a_and_d()
 {
 	startCoroutine(&coro_d);
 	startCoroutine(&coro_a);
-	while (!Coroutines.empty())
+	while (activeCoroutines())
+		runCoroutines();
+}
+
+CoContext& coro_f(CO_CONTEXT)
+{
+	CO_BEGIN;
+	SDL_Log("F 1");
+	CO_YIELD(0);
+	SDL_Log("F 2");
+	CO_END;
+}
+
+CoContext& coro_e(CO_CONTEXT) 
+{
+	CO_BEGIN;
+	SDL_Log("E 1");
+	startCoroutine(&coro_f);
+	CO_YIELD(0);
+	SDL_Log("E 2");
+	CO_YIELD(1);
+	SDL_Log("E 3");
+	CO_END;
+}
+
+void run_coro_e()
+{
+	startCoroutine(&coro_e);
+
+	while (activeCoroutines())
 		runCoroutines();
 }
 
 int main(int argc, char* args[])
 {
-	run_coro_a_and_d();
+	// run_coro_a_and_d();
+	run_coro_e();
 
 	std::cin.get();
 
