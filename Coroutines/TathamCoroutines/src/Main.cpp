@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <iostream>
 #include <map>
+#include <vector>
+#include <algorithm>
 #include <SDL2/SDL.h>
 
 #define CO_CONTEXT CoContext& ctx
@@ -16,9 +18,6 @@
 #define CO_BEGIN									\
 	ctx.running = false;							\
 	switch (ctx.state) {							\
-		default:									\
-			error("coro state not defined");		\
-			break;									\
 		case -1:									
 #define CO_YIELD(index)								\
 	do {											\
@@ -48,13 +47,6 @@
 	ctx.running = false;							\
 	return ctx;	
 
-void error(const char* message)
-{
-	SDL_Log("%s", message);
-	std::cin.get();
-	exit(0);
-}
-
 struct CoContext
 {
 	void* variables = NULL;
@@ -62,6 +54,49 @@ struct CoContext
 	int state = -1;
 	bool running = true;
 };
+
+struct Coroutine {
+	CoContext context;
+	CoContext& (*routine)(CO_CONTEXT);
+};
+
+static std::vector<Coroutine> Coroutines;
+
+void startCoroutine(CoContext& (*routine)(CO_CONTEXT))
+{
+	Coroutine co;
+	co.routine = routine;
+	Coroutines.push_back(co);
+}
+
+bool coroutineFinished(Coroutine& co)
+{
+	return !co.context.running;
+}
+
+void runCoroutines()
+{
+	std::vector<Coroutine>::iterator iter = std::remove_if(Coroutines.begin(), Coroutines.end(), coroutineFinished);
+	if (iter != Coroutines.end())
+		Coroutines.erase(iter);
+
+	for (std::size_t i = 0; i < Coroutines.size(); i++) {
+		SDL_Log("Hello Scheduler");
+		Coroutines[i].routine(Coroutines[i].context);
+
+	}
+}
+
+CoContext& coro_d(CO_CONTEXT)
+{
+	CO_BEGIN;
+
+	SDL_Log("Hello D 1");
+	CO_YIELD(0);
+	SDL_Log("Hello D 2");
+
+	CO_END;
+}
 
 CoContext& coro_c(CO_CONTEXT) 
 {
@@ -134,17 +169,17 @@ CoContext& coro_a(CO_CONTEXT)
 	CO_END;
 }
 
-void run_coro()
+void run_coro_a_and_d()
 {
-	CoContext ctx;
-	while (coro_a(ctx).running) {
-		SDL_Log("Main: %d", ctx.running);
-	}
+	startCoroutine(&coro_d);
+	startCoroutine(&coro_a);
+	while (!Coroutines.empty())
+		runCoroutines();
 }
 
 int main(int argc, char* args[])
 {
-	run_coro();
+	run_coro_a_and_d();
 
 	std::cin.get();
 
