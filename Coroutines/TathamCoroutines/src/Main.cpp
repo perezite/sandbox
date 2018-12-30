@@ -22,21 +22,23 @@
 		case -1:									
 #define CO_YIELD(index)								\
 	do {											\
-		ctx.running = true;						\
+		ctx.running = true;							\
 		ctx.state = index;							\
 		return ctx;									\
 	case index:;									\
 	} while (0)			
 #define CO_AWAIT(func, index)						\
 	{												\
-		ctx.childContext = new CoContext();		\
+		ctx.childContext = new CoContext();			\
 		do {										\
 			func(*ctx.childContext);				\
 			CO_YIELD(index);						\
-		} while(ctx.childContext->running);		\
+		} while(ctx.childContext->running);			\
 													\
 		delete ctx.childContext;					\
 	}
+#define CO_STEP(func, context, index)				\
+	func(context); CO_YIELD(index);
 #define CO_END										\
 		delete ctx.variables;						\
 		ctx.running = false;						\
@@ -44,7 +46,7 @@
 	}												\
 	delete ctx.variables;							\
 	ctx.running = false;							\
-	return ctx;									
+	return ctx;	
 
 void error(const char* message)
 {
@@ -60,6 +62,21 @@ struct CoContext
 	int state = -1;
 	bool running = true;
 };
+
+CoContext& coro_c(CO_CONTEXT) 
+{
+	CO_DECLARE_BEGIN;
+	int i = 0;
+	CO_DECLARE_END;
+
+	CO_BEGIN;
+	for (co->i = 0; co->i < 3; co->i++) {
+		SDL_Log("Hello C %d", co->i);
+		CO_YIELD(0);
+	}
+
+	CO_END;
+}
 
 CoContext& coro_b(CO_CONTEXT)
 {
@@ -77,21 +94,43 @@ CoContext& coro_a(CO_CONTEXT)
 	CO_DECLARE_BEGIN;
 	CoContext b;
 	CoContext b2;
+	CoContext c;
+	int i;
 	CO_DECLARE_END;
 
+	// Execute coro_b step-by-step
 	CO_BEGIN;
+	SDL_Log("Execute coro_b step-by-step...");
 	SDL_Log("Hello A 1");
-	coro_b(co->b);
-	CO_YIELD(1);
-
+	CO_STEP(coro_b, co->b, 1);
 	SDL_Log("Hello A 2");
-	coro_b(co->b);
-	CO_YIELD(2);
+	CO_STEP(coro_b, co->b, 2);
 
-	while (coro_b(co->b2).running) {
-		SDL_Log("Hello A3");
-		CO_YIELD(3);
+	// Execute coro_b step-by-step in a loop
+	SDL_Log("Execute coro_b step-by-step in a loop...");
+	while (co->b2.running) {
+		SDL_Log("Hello A 3");
+		CO_STEP(coro_b, co->b2, 3);
 	}
+
+	// Await coro_b
+	SDL_Log("Await coro_b...");
+	CO_AWAIT(coro_b, 4);
+
+	// Execute coro_c step-by-step in a loop
+	SDL_Log("Execute coro_c step-by-step in a loop");
+	while (co->c.running) {
+		SDL_Log("Hello A 4");
+		CO_STEP(coro_c, co->c, 5);
+	}
+
+	// Await coro_c twice
+	SDL_Log("Await coro_c twice");
+	for (co->i = 0; co->i < 2; co->i++) {
+		SDL_Log("Hello A 5");
+		CO_AWAIT(coro_c, 6);
+	}
+
 	CO_END;
 }
 
@@ -102,46 +141,6 @@ void run_coro()
 		SDL_Log("Main: %d", ctx.running);
 	}
 }
-
-/*
-void coro_child(CO_CONTEXT)
-{
-	CO_DECLARE_BEGIN;
-		int i = 0;
-	CO_DECLARE_END;
-
-	CO_BEGIN;
-	while (co->i < 3) {
-		SDL_Log("Coro6 Child: i=%d", co->i);
-		co->i++;
-		CO_YIELD(0);
-	}
-	CO_END;
-}
-
-void coro(CO_CONTEXT)
-{
-	CO_DECLARE_BEGIN;
-	int i = 42;
-	CO_DECLARE_END;
-
-	CO_BEGIN;
-	for (co->i = 0; co->i < 3; co->i++) {
-		SDL_Log("Coro6: i=%d", co->i);
-		CO_AWAIT(coro_child, 0);
-	}
-
-	CO_END;
-}
-
-void run_coro()
-{
-	CoContext ctx;
-	do {
-		SDL_Log("Main: %d", ctx.running);
-		coro(ctx);
-	} while (ctx.running);
-}*/
 
 int main(int argc, char* args[])
 {
