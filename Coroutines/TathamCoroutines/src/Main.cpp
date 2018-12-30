@@ -2,37 +2,6 @@
 #include <iostream>
 #include <SDL2/SDL.h>
 
-//#define VER_1
-#define VER_2
-
-#ifdef VER_1
-#define CO_START								\
-	static int state = -1;						\
-												\
-	switch (state) {							\
-		default:								\
-			error("coro state not defined");	\
-			break;								\
-		case -1:								
-#define CO_YIELD(index)							\
-	do {										\
-		state = index;							\
-		return 0;								\
-	case index:;								\
-	} while (0)			
-#define CO_FINISH								\
-		return -1;								\
-	}											\
-	return -1;					
-#define CO_AWAIT(i, func)						\
-while (true) {									\
-	if (func() < 0)								\
-		break;									\
-	CO_YIELD(i);								\
-}
-#endif
-
-#ifdef VER_2
 #define CO_CONTEXT CoContext& ctx
 #define CO_DECLARE_BEGIN							\
 	struct CoVariables								\
@@ -44,13 +13,14 @@ while (true) {									\
 		ctx.variables = new CoVariables();			\
 	CoVariables* co = (CoVariables*)ctx.variables;	
 #define CO_START								\
-	switch (ctx.state) {							\
+	switch (ctx.state) {						\
 		default:								\
 			error("coro state not defined");	\
 			break;								\
 		case -1:								
 #define CO_YIELD(index)							\
 	do {										\
+		ctx.running = true;						\
 		ctx.state = index;						\
 		return;									\
 	case index:;								\
@@ -58,10 +28,10 @@ while (true) {									\
 #define CO_AWAIT(func, index)					\
 	{											\
 		ctx.childContext = new CoContext();		\
-		while (ctx.childContext->running) {		\
+		do {									\
 			func(*ctx.childContext);			\
 			CO_YIELD(index);					\
-		}										\
+		} while(ctx.childContext->running);		\
 												\
 		delete ctx.childContext;				\
 	}
@@ -73,7 +43,6 @@ while (true) {									\
 	delete ctx.variables;						\
 	ctx.running = false;						\
 	return;														
-#endif
 
 void error(const char* message)
 {
@@ -87,8 +56,47 @@ struct CoContext
 	void* variables = NULL;
 	CoContext* childContext;
 	int state = -1;
-	bool running = true;
+	bool running = false;
 };
+
+void coro6_child(CO_CONTEXT)
+{
+	CO_DECLARE_BEGIN;
+		int i = 0;
+	CO_DECLARE_END;
+
+	CO_START;
+	while (co->i < 3) {
+		SDL_Log("Coro6 Child: i=%d", co->i);
+		co->i++;
+		CO_YIELD(0);
+	}
+	CO_FINISH;
+}
+
+void coro6(CO_CONTEXT)
+{
+	CO_DECLARE_BEGIN;
+	int i = 42;
+	CO_DECLARE_END;
+
+	CO_START;
+	for (co->i = 0; co->i < 3; co->i++) {
+		SDL_Log("Coro6: i=%d", co->i);
+		CO_AWAIT(coro6_child, 0);
+	}
+
+	CO_FINISH;
+}
+
+void run_coro6()
+{
+	CoContext ctx;
+	do {
+		SDL_Log("Main: %d", ctx.running);
+		coro6(ctx);
+	} while (ctx.running);
+}
 
 void coro5_child(CO_CONTEXT)
 {
@@ -119,10 +127,10 @@ void coro5(CO_CONTEXT)
 void run_coro5()
 {
 	CoContext ctx;
-	while (ctx.running) {
+	do {
 		SDL_Log("Main: %d", ctx.running);
 		coro5(ctx);
-	}
+	} while (ctx.running);
 }
 
 void coro4(CO_CONTEXT)
@@ -144,95 +152,15 @@ void coro4(CO_CONTEXT)
 void run_coro4()
 {
 	CoContext ctx;
-	while (ctx.running) {
+	do {
 		SDL_Log("Main: %d", ctx.running);
 		coro4(ctx);
-	}
+	} while (ctx.running);
 }
-
-/*
-int coro3_child()
-{
-	CO_START;
-
-	SDL_Log("Hello Child 1");
-	CO_YIELD(0);
-
-	SDL_Log("Hello Child 2");
-	CO_YIELD(1);
-
-	CO_FINISH;
-}
-
-int coro3()
-{
-	CO_START;
-
-	SDL_Log("Hello Parent 1");
-	CO_YIELD(0);
-
-	CO_AWAIT(1, coro3_child);
-
-	SDL_Log("Hello Parent 2");
-
-	CO_FINISH;
-}
-
-void run_coro3()
-{
-	int val = 0;
-	while (val > -1) {
-		SDL_Log("Main: %d", val);
-		val = coro3();
-	}
-}
-
-int coro2()
-{
-	CO_START;
-
-	SDL_Log("Hello 1");
-	CO_YIELD(0);
-
-	SDL_Log("Hello 2");
-	CO_FINISH;
-}
-
-void run_coro2()
-{
-	int val = 0;
-	while (val > -1) {
-		SDL_Log("Main: %d", val);
-		val = coro2();
-	}
-}
-
-int coro(void) 
-{
-	static int i;
-	CO_START;
-
-	for (i = 0; i < 10; i++) {
-		SDL_Log("%d", i);
-		CO_YIELD(0);
-	}
-
-	CO_FINISH;
-}
-
-void run_coro()
-{
-	int val = 0;
-	while (val > -1) {
-		val = coro();
-		SDL_Log("Main: %d", val);
-	}
-}
-*/
 
 int main(int argc, char* args[])
 {
-	run_coro5();
+	run_coro6();
 
 	std::cin.get();
 
