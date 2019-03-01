@@ -14,6 +14,8 @@ namespace sb
 
 		GLuint getAttributeLocation(std::string attribute);
 
+		void setUniformMatrix3(std::string uniformName, const float* matrix3);
+
 		void use();
 
 		void destroy();
@@ -23,6 +25,8 @@ namespace sb
 
 		std::string getFragmentShaderSource();
 
+		GLuint getUniformLocation(std::string uniform);
+
 		GLuint compile(std::string shaderCode, GLenum type);
 
 		void link();
@@ -31,5 +35,7 @@ namespace sb
 		GLuint m_shader;
 
 		std::map<std::string, GLuint> m_attributeLocations;
+
+		std::map<std::string, GLuint> m_uniformLocations;
 	};
 }

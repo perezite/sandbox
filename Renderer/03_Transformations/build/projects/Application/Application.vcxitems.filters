@@ -61,5 +61,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Triangle.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Renderer.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Quad.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Drawable.cpp" />
   </ItemGroup>
 </Project>

@@ -21,7 +21,7 @@ namespace sb
 
 		void clear();
 
-		void draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType = PrimitiveType::Triangles);
+		void draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType = PrimitiveType::Triangles, const Transform& transform = Transform());
 
 		void draw(Drawable& drawable);
 

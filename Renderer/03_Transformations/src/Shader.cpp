@@ -26,9 +26,20 @@ namespace sb
 
 	GLuint Shader::getAttributeLocation(std::string attribute) 
 	{
-		GLuint location = glGetAttribLocation(m_shader, attribute.c_str());
-		m_attributeLocations[attribute] = location;
-		return location;
+		if (m_attributeLocations.find(attribute) == m_attributeLocations.end()) {
+			GLuint location = glGetAttribLocation(m_shader, attribute.c_str());
+			m_attributeLocations[attribute] = location;
+			return location;
+		}
+
+		return m_attributeLocations[attribute];
+	}
+
+	void Shader::setUniformMatrix3(std::string uniformName, const float* matrix3)
+	{
+		GLuint uniformLocation = getUniformLocation(uniformName);
+
+		glUniformMatrix3fv(uniformLocation, 1, GL_FALSE, matrix3);
 	}
 
 	void Shader::use()
@@ -44,26 +55,41 @@ namespace sb
 	std::string Shader::getVertexShaderSource()
 	{
 		return
-			"attribute vec2 a_vPosition;										\n"
-			"attribute vec4 a_vColor;											\n"
-			"varying vec4 v_vColor;												\n"
-			"void main()														\n"
-			"{																	\n"
-			"   gl_Position = vec4(a_vPosition.x, a_vPosition.y, 0 , 1 );		\n"
-			"	v_vColor = a_vColor;											\n"
+			"attribute vec2 position;																\n"
+			"attribute vec4 color;																	\n"
+			"uniform mat3 transform;																		\n"
+			"varying vec4 v_color;																	\n"
+			"vec3 transformedPosition;																\n"
+			"void main()																			\n"
+			"{																						\n"
+			// "   transform = mat3(1, 0, 0, 0, 1, 0, 0.5, 0.5, 1);									\n"
+			"   transformedPosition = transform * vec3(position.x, position.y, 1);					\n"
+			"   gl_Position = vec4(transformedPosition.x, transformedPosition.y, 0, 1 );			\n"
+			"	v_color = color;																	\n"
 			"}";
 	}
 
 	std::string Shader::getFragmentShaderSource()
 	{
 		return
-			"#version 100										\n"
+			"#version 100									\n"
 			"precision mediump float;						\n"
-			"varying vec4 v_vColor;		 					\n"
+			"varying vec4 v_color;		 					\n"
 			"void main()									\n"
 			"{												\n"
-			"  gl_FragColor = v_vColor;						\n"
+			"  gl_FragColor = v_color;						\n"
 			"}												\n";
+	}
+
+	GLuint Shader::getUniformLocation(std::string uniform)
+	{
+		if (m_uniformLocations.find(uniform) == m_uniformLocations.end()) {
+			GLuint location = glGetUniformLocation(m_shader, uniform.c_str());
+			m_uniformLocations[uniform] = location;
+			return location;
+		}
+
+		return m_uniformLocations[uniform];
 	}
 
 	GLuint Shader::compile(std::string shaderCode, GLenum type)

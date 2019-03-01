@@ -55,14 +55,14 @@ namespace sb
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
-	void Window::draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType)
+	void Window::draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const Transform& transform)
 	{
-		m_renderer->render(vertices, primitiveType);
+		m_renderer->render(vertices, primitiveType, transform);
 	}
 
 	void Window::draw(Drawable& drawable)
 	{
-		draw(drawable.getVertices());
+		draw(drawable.getVertices(), drawable.getPrimitiveType(), drawable.getTransform());
 	}
 
 	void Window::display()

@@ -11,16 +11,30 @@ namespace sb
 	class Transform
 	{
 	public:
-		Transform(Vector2f position_ = Vector2f(0, 0), Vector2f scale_ = Vector2f(1, 1), float rotation_ = 0) 
-			: position(position_), scale(scale_), rotation(rotation_)
-		{ }
+		static float ToRadians;
 
-		Vector2f position;
+	public:
+		Transform();
 
-		Vector2f scale;
+		Transform(Vector2f position_, Vector2f scale_, float rotation_);
 
-		float rotation;
+		Transform(float a00, float a01, float a02,
+			float a10, float a11, float a12,
+			float a20, float a21, float a22);
+
+		inline const float* getMatrix() const { return m_matrix; }
+
+		Transform getTransposed() const;
+
+		const Transform& translate(const Vector2f& position);
+
+		const Transform& scale(const Vector2f& scale);
+
+		const Transform& rotate(const float angle);
+
+		const Transform& Transform::apply(const Transform& transform);
+
+	private: 
+		float m_matrix[9];
 	};
-
-	Vector2f operator *(const Transform& transform, Vector2f position);
 }
