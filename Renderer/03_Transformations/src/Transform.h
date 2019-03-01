@@ -11,6 +11,8 @@ namespace sb
 	class Transform
 	{
 	public:
+		static Transform Identity;
+
 		static float ToRadians;
 
 	public:
@@ -37,4 +39,6 @@ namespace sb
 	private: 
 		float m_matrix[9];
 	};
+
+	Transform& operator *=(Transform& left, const Transform& right);
 }

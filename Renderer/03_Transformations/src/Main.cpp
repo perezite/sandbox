@@ -9,16 +9,57 @@
 #include <stdlib.h>
 #include <math.h>
 
+class SubIlluminatus : public sb::Drawable {
+public:
+	virtual void draw(sb::Window& window, sb::Transform transform) {
+		auto blub = getTransform();
+		transform *= getTransform();
+
+		m_triangle.draw(window, transform);
+	}
+
+private:
+	sb::Triangle m_triangle;
+};
+
+class Illuminatus : public sb::Drawable
+{
+public:
+	Illuminatus()
+	{
+		m_subIlluminati[0].setPosition(-0.5f, -0.5f);
+		m_subIlluminati[0].setScale(0.1f, 0.1f);
+		m_subIlluminati[1].setPosition(0.5f, -0.5f);
+		m_subIlluminati[1].setScale(0.1f, 0.1f);
+		m_subIlluminati[2].setPosition(0, 0.5f);
+		m_subIlluminati[2].setScale(0.1f, 0.1f);
+	}
+
+	virtual void draw(sb::Window& window, sb::Transform transform) {
+		transform *= getTransform();
+
+		m_triangle.draw(window, transform);
+
+		for (std::size_t i = 0; i < 3; i++)
+			m_subIlluminati[i].draw(window, transform);
+	}
+
+private:
+	sb::Triangle m_triangle;
+
+	SubIlluminatus m_subIlluminati[3];
+};
+
 void demo3()
 {
 	sb::Window window;
 
-	sb::Triangle triangle;
+	Illuminatus illuminatus;
 
 	while (window.isOpen()) {
 		window.update();
 		window.clear();
-		window.draw(triangle);
+		window.draw(illuminatus);
 		window.display();
 	}
 }

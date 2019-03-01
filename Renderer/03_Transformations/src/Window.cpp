@@ -60,9 +60,9 @@ namespace sb
 		m_renderer->render(vertices, primitiveType, transform);
 	}
 
-	void Window::draw(Drawable& drawable)
+	void Window::draw(Drawable& drawable, const Transform& transform)
 	{
-		drawable.draw(*this);
+		drawable.draw(*this, transform);
 	}
 
 	void Window::display()

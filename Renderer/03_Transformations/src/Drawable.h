@@ -27,7 +27,7 @@ namespace sb
 
 		void setRotation(float radians);
 
-		virtual void draw(Window& window) = 0;
+		virtual void draw(Window& window, Transform transform) = 0;
 
 	protected:
 		void updateTransform();

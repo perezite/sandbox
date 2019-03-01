@@ -3,6 +3,8 @@
 
 namespace sb
 {
+	Transform Transform::Identity = Transform();
+
 	float Transform::ToRadians = 0.01745329251f;		// (2 * PI) / 360
 
 	Transform::Transform()
@@ -87,5 +89,11 @@ namespace sb
 			a[6] * b[2] + a[7] * b[5] + a[8] * b[8]);
 
 		return *this;
+	}
+
+	Transform& operator *=(Transform& left, const Transform& right)
+	{
+		left.apply(right);
+		return left;
 	}
 }
