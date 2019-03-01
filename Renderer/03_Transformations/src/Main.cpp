@@ -3,38 +3,58 @@
 #include "PrimitiveType.h"
 #include "Triangle.h"
 #include "Quad.h"
+#include "Stopwatch.h"
 #include <SDL2/SDL.h>
 #include <vector>
 #include <stdlib.h>
+#include <math.h>
 
-//class Illuminatus : sb::Drawable 
-//{
-//public:
-//	Illuminatus() : sb::Drawable(IlluminatusMesh) { }
-//
-//private:
-//	static const sb::Mesh IlluminatusMesh;
-//};
-//
-//const sb::Mesh Illuminatus::IlluminatusMesh = sb::Mesh({
-//	sb::Vertex(sb::Vector2f(-0.5f, -0.5f), sb::Color(1, 0, 0, 1)),
-//	sb::Vertex(sb::Vector2f(0.5f, -0.5f), sb::Color(0, 1, 0, 1)),
-//	sb::Vertex(sb::Vector2f(0.0f,  0.5f), sb::Color(0, 0, 1, 1))
-//}, sb::PrimitiveType::Triangles);
-
-class Illuminatus : sb::Drawable
+void demo3()
 {
-	Illuminatus()
-	{
-		// m_mainTriangle
+	sb::Window window;
+
+	sb::Triangle triangle;
+
+	while (window.isOpen()) {
+		window.update();
+		window.clear();
+		window.draw(triangle);
+		window.display();
 	}
+}
 
-private:
-	sb::Triangle m_mainTriangle;
+float oscillate(float t, float length)
+{
+	double intpart;
+	float remainder = (float)modf(t, &intpart);
+	bool even = (int)intpart % 2 == 0;
 
-	sb::Triangle m_subTriangles[3];
+	return even ? remainder : length - remainder;
+}
 
-};
+void update2(sb::Triangle& triangle)
+{
+	static sb::Stopwatch sw;
+	float t = sw.getElapsedSeconds();
+	triangle.setRotation(t);
+	triangle.setPosition(2 * oscillate(t / 2, 1) - 1, 2 * oscillate(t / 3, 1) - 1);
+	triangle.setScale(oscillate(t / 5, 1), 0.5f * oscillate(t / 4, 1));
+}
+
+void demo2()
+{
+	sb::Window window;
+
+	sb::Triangle triangle;
+
+	while (window.isOpen()) {
+		window.update();
+		update2(triangle);
+		window.clear();
+		window.draw(triangle);
+		window.display();
+	}
+}
 
 void demo1() 
 {
@@ -62,6 +82,10 @@ void demo1()
 int main(int argc, char* args[])
 {
 	SDL_Log("Simple Renderer: Build %s %s", __DATE__, __TIME__);
+	
+	demo3();
+	
+	// demo2();
 
-	demo1();
+	// demo1();
 }
