@@ -7,7 +7,7 @@ namespace sb
 	class Triangle : public Drawable
 	{
 	public:
-		Triangle() : Drawable(TriangleMesh) { } 
+		virtual void draw(Window& window);
 
 	private:
 		static const Mesh TriangleMesh;

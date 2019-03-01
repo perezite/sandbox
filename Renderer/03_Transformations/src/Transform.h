@@ -32,7 +32,7 @@ namespace sb
 
 		const Transform& rotate(const float angle);
 
-		const Transform& Transform::apply(const Transform& transform);
+		const Transform& apply(const Transform& transform);
 
 	private: 
 		float m_matrix[9];

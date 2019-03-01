@@ -7,7 +7,7 @@ namespace sb
 	class Quad : public Drawable
 	{
 	public:
-		Quad() : Drawable(QuadMesh) { }
+		virtual void draw(Window& window);
 
 	private:
 		static const Mesh QuadMesh;

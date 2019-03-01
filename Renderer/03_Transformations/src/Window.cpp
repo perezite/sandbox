@@ -62,7 +62,7 @@ namespace sb
 
 	void Window::draw(Drawable& drawable)
 	{
-		draw(drawable.getVertices(), drawable.getPrimitiveType(), drawable.getTransform());
+		drawable.draw(*this);
 	}
 
 	void Window::display()

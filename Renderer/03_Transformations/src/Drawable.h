@@ -5,16 +5,15 @@
 
 namespace sb
 {
+	class Window;
+
 	class Drawable
 	{
+
 	public:
-		Drawable(const Mesh& mesh) : 
-			m_mesh(mesh), m_transformNeedsUpdate(true), m_position(0, 0), m_scale(1, 1), m_rotation(0)
+		Drawable() : 
+			m_transformNeedsUpdate(true), m_position(0, 0), m_scale(1, 1), m_rotation(0)
 		{ }
-
-		const std::vector<Vertex>& getVertices() { return m_mesh.getVertices(); }
-
-		const PrimitiveType getPrimitiveType() { return m_mesh.getPrimitiveType(); }
 
 		const Transform& getTransform();
 
@@ -27,6 +26,8 @@ namespace sb
 		void setScale(const sb::Vector2f& scale);
 
 		void setRotation(float radians);
+
+		virtual void draw(Window& window) = 0;
 
 	protected:
 		void updateTransform();

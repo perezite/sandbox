@@ -22,9 +22,9 @@ namespace sb
 
 		std::size_t getVertexCount() const { return m_vertices.size(); }
 
-		const std::vector<Vertex>& getVertices() { return m_vertices; }
+		inline const std::vector<Vertex>& getVertices() const { return m_vertices; }
 
-		const PrimitiveType& getPrimitiveType() { return m_primitiveType; }
+		inline const PrimitiveType& getPrimitiveType() const { return m_primitiveType; }
 
 		const Vertex& operator[](std::size_t index) const { return m_vertices[index]; }
 
