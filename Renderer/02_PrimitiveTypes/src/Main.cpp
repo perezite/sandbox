@@ -1,9 +1,29 @@
 #include "Window.h"
 #include "Vertex.h"
 #include "PrimitiveType.h"
+#include "Triangle.h"
+#include "Quad.h"
 #include <SDL2/SDL.h>
 #include <vector>
 #include <stdlib.h>
+
+
+void demo5() 
+{
+	sb::Window window;
+
+	sb::Triangle triangle;
+	sb::Quad quad;
+
+	while (window.isOpen()) {
+		window.update();
+		window.clear();
+		window.draw(quad);
+		window.draw(triangle);
+		window.display();
+	}
+}
+
 
 float randomValue()
 {
@@ -122,10 +142,6 @@ void addDrawables(std::vector<sb::Vertex>& drawables, std::size_t amount, bool s
 	}
 }
 
-void addDrawables()
-{
-}
-
 void demo4()
 {
 	sb::Window window;
@@ -210,7 +226,9 @@ int main(int argc, char* args[])
 {
 	SDL_Log("Simple Renderer: Build %s %s", __DATE__, __TIME__);
 
-	demo4();
+	demo5();
+
+	// demo4();
 
 	// demo3();
 

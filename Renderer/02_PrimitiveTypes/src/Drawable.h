@@ -22,6 +22,8 @@ namespace sb
 
 		const std::vector<Vertex>& getVertices() { return m_mesh.getVertices(); }
 
+		const PrimitiveType getPrimitiveType() { return m_mesh.getPrimitiveType(); }
+
 	private:
 		Mesh m_mesh;
 
