@@ -96,4 +96,9 @@ namespace sb
 		left.apply(right);
 		return left;
 	}
+
+	Transform operator*(const Transform & left, const Transform & right)
+	{
+		return Transform(left).apply(right);
+	}
 }

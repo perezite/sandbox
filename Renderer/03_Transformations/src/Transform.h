@@ -41,4 +41,6 @@ namespace sb
 	};
 
 	Transform& operator *=(Transform& left, const Transform& right);
+
+	Transform operator *(const Transform& left, const Transform& right);
 }

@@ -17,6 +17,12 @@ namespace sb
 
 		const Transform& getTransform();
 
+		inline const Vector2f& getPosition() const { return m_position; }
+
+		inline float getRotation() const { return m_rotation; }
+
+		inline const Vector2f& getScale() const { return m_scale; }
+
 		inline void setPosition(float x, float y) { setPosition(sb::Vector2f(x, y)); }
 
 		void setPosition(const sb::Vector2f& position);

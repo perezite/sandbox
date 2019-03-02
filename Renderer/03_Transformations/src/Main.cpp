@@ -8,11 +8,28 @@
 #include <vector>
 #include <stdlib.h>
 #include <math.h>
+#include <iostream>
+
+float oscillate(float t, float length)
+{
+	double intpart;
+	float remainder = (float)modf(t / length, &intpart);
+	bool even = (int)intpart % 2 == 0;
+
+	return even ? remainder * length : (1 - remainder) * length;
+}
 
 class SubIlluminatus : public sb::Drawable {
 public:
+	void update() {
+		static sb::Stopwatch sw;
+		float t = sw.getElapsedSeconds();
+		setRotation(-5 * t);
+		float vertical = 1 - 2 * oscillate(t, 1);
+		setPosition(getPosition().x, vertical);
+	}
+
 	virtual void draw(sb::Window& window, sb::Transform transform) {
-		auto blub = getTransform();
 		transform *= getTransform();
 
 		m_triangle.draw(window, transform);
@@ -25,14 +42,13 @@ private:
 class Illuminatus : public sb::Drawable
 {
 public:
-	Illuminatus()
-	{
-		m_subIlluminati[0].setPosition(-0.5f, -0.5f);
-		m_subIlluminati[0].setScale(0.1f, 0.1f);
-		m_subIlluminati[1].setPosition(0.5f, -0.5f);
-		m_subIlluminati[1].setScale(0.1f, 0.1f);
-		m_subIlluminati[2].setPosition(0, 0.5f);
-		m_subIlluminati[2].setScale(0.1f, 0.1f);
+	void update() {
+		static sb::Stopwatch sw;
+		float t = oscillate(sw.getElapsedSeconds(), 2);
+		setScale(t, 1);
+
+		for (std::size_t i = 0; i < 3; i++)
+			m_subIlluminati[i].update();
 	}
 
 	virtual void draw(sb::Window& window, sb::Transform transform) {
@@ -40,8 +56,10 @@ public:
 
 		m_triangle.draw(window, transform);
 
-		for (std::size_t i = 0; i < 3; i++)
-			m_subIlluminati[i].draw(window, transform);
+
+		m_subIlluminati[0].draw(window, transform * sb::Transform(sb::Vector2f(-0.5f, -0.5f), sb::Vector2f(0.1f, 0.1f), 0));
+		m_subIlluminati[1].draw(window, transform * sb::Transform(sb::Vector2f(0.5f, -0.5f), sb::Vector2f(0.1f, 0.1f), 0));
+		m_subIlluminati[2].draw(window, transform * sb::Transform(sb::Vector2f(0.0f, 0.5f), sb::Vector2f(0.1f, 0.1f), 0));
 	}
 
 private:
@@ -49,6 +67,15 @@ private:
 
 	SubIlluminatus m_subIlluminati[3];
 };
+
+void update3(Illuminatus& illuminatus) {
+	static sb::Stopwatch sw;
+	float t = sw.getElapsedSeconds();
+	float angle = oscillate(t, 5);
+	sb::Vector2f position(0.5f * cosf(angle), 0.5f * sinf(angle));
+	illuminatus.setPosition(position);
+	illuminatus.setRotation(t * 0.1f);
+}
 
 void demo3()
 {
@@ -58,19 +85,12 @@ void demo3()
 
 	while (window.isOpen()) {
 		window.update();
+		update3(illuminatus);
+		illuminatus.update();
 		window.clear();
 		window.draw(illuminatus);
 		window.display();
 	}
-}
-
-float oscillate(float t, float length)
-{
-	double intpart;
-	float remainder = (float)modf(t, &intpart);
-	bool even = (int)intpart % 2 == 0;
-
-	return even ? remainder : length - remainder;
 }
 
 void update2(sb::Triangle& triangle)
