@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vector2f.h"
+#include "Mesh.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
 
@@ -36,11 +37,19 @@ namespace sb
 
 		const Transform& apply(const Transform& transform);
 
+		const Vector2f& transform(Vector2f& vector) const;
+
+		const Mesh& transform(Mesh& mesh) const;
+
 	private: 
 		float m_matrix[9];
 	};
 
 	Transform& operator *=(Transform& left, const Transform& right);
-
+	
 	Transform operator *(const Transform& left, const Transform& right);
+
+	const Vector2f& operator*=(Vector2f& vector, const Transform& transform);
+
+	Mesh operator *(const Transform& transform, const Mesh& mesh);
 }

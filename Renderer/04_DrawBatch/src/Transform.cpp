@@ -44,7 +44,8 @@ namespace sb
 
 	const Transform& Transform::translate(const Vector2f& position)
 	{
-		Transform translation(0, 0, position.x,
+		Transform translation(
+			0, 0, position.x,
 			0, 0, position.y,
 			0, 0, 1);
 
@@ -53,7 +54,8 @@ namespace sb
 
 	const Transform& Transform::scale(const Vector2f& scale)
 	{
-		Transform scaling(scale.x, 0, 0,
+		Transform scaling(
+			scale.x, 0, 0,
 			0, scale.y, 0,
 			0, 0, 1);
 
@@ -65,9 +67,10 @@ namespace sb
 		float c = cosf(angle);
 		float s = sinf(angle);
 
-		Transform rotation(c, -s, 0,
-			s, c, 0,
-			0, 0, 1);
+		Transform rotation(
+			c, -s, 0,
+			s,  c, 0,
+			0,  0, 1);
 
 		return apply(rotation);
 	}
@@ -91,14 +94,45 @@ namespace sb
 		return *this;
 	}
 
+	const Vector2f& Transform::transform(Vector2f& vector) const
+	{
+		vector = Vector2f(
+			m_matrix[0] * vector.x + m_matrix[1] * vector.y + m_matrix[2],
+			m_matrix[3] * vector.x + m_matrix[4] * vector.y + m_matrix[5]);
+
+		return vector;
+	}
+
+	const Mesh& Transform::transform(Mesh& mesh) const
+	{
+		for (std::size_t i = 0; i < mesh.getVertexCount(); i++) {
+			Vector2f& pos = mesh[i].position;
+			pos *= *this;
+		}
+
+		return mesh;
+	}
+
 	Transform& operator *=(Transform& left, const Transform& right)
 	{
 		left.apply(right);
 		return left;
 	}
 
-	Transform operator*(const Transform & left, const Transform & right)
+	Transform operator*(const Transform& left, const Transform& right)
 	{
 		return Transform(left).apply(right);
 	}
+
+	const Vector2f& operator*=(Vector2f& vector, const Transform& transform)
+	{
+		return transform.transform(vector);
+	}
+
+	Mesh operator*(Transform& transform, const Mesh& mesh)
+	{
+		Mesh result(mesh);
+		return transform.transform(result);
+	}
 }
+

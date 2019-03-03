@@ -24,9 +24,9 @@ namespace sb
 
 		inline const std::vector<Vertex>& getVertices() const { return m_vertices; }
 
-		inline const PrimitiveType& getPrimitiveType() const { return m_primitiveType; }
+		inline const PrimitiveType getPrimitiveType() const { return m_primitiveType; }
 
-		const Vertex& operator[](std::size_t index) const { return m_vertices[index]; }
+		Vertex& operator[](std::size_t index) { return m_vertices[index]; }
 
 	private:
 		std::vector<Vertex> m_vertices;
@@ -34,3 +34,4 @@ namespace sb
 		PrimitiveType m_primitiveType;
 	};
 }
+
