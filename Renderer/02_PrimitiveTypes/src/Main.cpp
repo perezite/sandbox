@@ -24,7 +24,6 @@ void demo5()
 	}
 }
 
-
 float randomValue()
 {
 	float rnd = float(rand()) / float(RAND_MAX);

@@ -19,11 +19,11 @@ namespace sb
 		void draw(Shape& shape);
 
 	protected:
-		void drawShapes(const std::vector<Shape*>& shapes, const Substance& substance, Window& window, const Transform& transform);
+		void drawShapes(std::vector<Shape*>& shapes, const Substance& substance, Window& window, const Transform& transform);
 
-		void drawTriangleShapes(const std::vector<Shape*>& shapes, Window& window, const Transform& transform);
+		void drawTriangleShapes(std::vector<Shape*>& shapes, Window& window, const Transform& transform);
 
-		void bufferTriangleShape(const Shape* shape, const Transform& transform);
+		void bufferTriangleShape(Shape* shape);
 
 	private: 
 		typedef std::map<Substance, std::vector<Shape*>> DrawCallMap;

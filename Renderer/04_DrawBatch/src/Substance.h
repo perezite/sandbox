@@ -15,7 +15,7 @@ namespace sb
 		PrimitiveType primitiveType;
 	};
 
-	bool operator <(const Substance& left, const Substance& right) {
+	inline bool operator <(const Substance& left, const Substance& right) {
 		return std::tie(left.primitiveType) < std::tie(right.primitiveType);
 	}
 }

@@ -129,7 +129,7 @@ namespace sb
 		return transform.transform(vector);
 	}
 
-	Mesh operator*(Transform& transform, const Mesh& mesh)
+	Mesh operator*(const Transform& transform, const Mesh& mesh)
 	{
 		Mesh result(mesh);
 		return transform.transform(result);

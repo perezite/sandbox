@@ -14,13 +14,15 @@ namespace sb
 	public:
 		void render(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const Transform& transform);
 
+		static void resetStatistics();
+
+		static std::size_t getNumDrawCalls();
+
 	protected:
 		void setup(const std::vector<Vertex>& vertices, const Transform& transform);
 
 
 		void setVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer);
-		
-		void transposeMatrix3(float* matrix);
 
 		void draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType);
 
@@ -30,5 +32,7 @@ namespace sb
 
 	private:
 		Shader m_shader;
+
+		static std::size_t m_numDrawCalls;
 	};
 }

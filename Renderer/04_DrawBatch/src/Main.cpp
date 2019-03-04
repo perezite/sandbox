@@ -1,9 +1,12 @@
 #include "Window.h"
 #include "Triangle.h"
 #include "Quad.h"
+#include "DrawBatch.h"
+#include "Renderer.h"
 #include <SDL2/SDL.h>
 #include <vector>
 #include <math.h>
+#include <iostream>
 
 float randomValue()
 {
@@ -29,18 +32,22 @@ void demo1()
 {
 	sb::Window window;
 	
-	// sb::DrawBatch batch;
+	sb::DrawBatch batch;
 	
 	std::vector<sb::Triangle> triangles;
-	init(triangles, 50);
+	init(triangles, 10);
 
 	while (window.isOpen()) {
 		window.update();
 		window.clear();
 		
-		// for (std::size_t i = 0; i < triangles.size(); i++)
-		//	batch.draw(triangle[i]);	
-		// window.draw(batch);
+		sb::Renderer::resetStatistics();
+		
+		for (std::size_t i = 0; i < triangles.size(); i++)
+			batch.draw(triangles[i]);	
+		window.draw(batch);
+
+		std::cout << "Num draw calls: " << sb::Renderer::getNumDrawCalls() << std::endl;
 
 		window.display();
 	}

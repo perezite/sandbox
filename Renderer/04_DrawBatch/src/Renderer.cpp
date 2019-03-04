@@ -5,14 +5,28 @@
 
 namespace sb
 {
+	std::size_t Renderer::m_numDrawCalls = 0;
+
 	void Renderer::render(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const Transform& transform)
 	{
+		m_numDrawCalls = 0;
+
 		if (vertices.empty())
 			return;
 
 		setup(vertices, transform);
 		draw(vertices, primitiveType);
 		cleanup();
+	}
+
+	void Renderer::resetStatistics() 
+	{
+		m_numDrawCalls = 0;
+	}
+
+	std::size_t Renderer::getNumDrawCalls()
+	{
+		return m_numDrawCalls;
 	}
 
 	void Renderer::setup(const std::vector<Vertex>& vertices, const Transform& transform)
@@ -35,11 +49,12 @@ namespace sb
 		glVertexAttribPointer(index, size, type, normalized, stride, pointer);
 	}
 
-
 	void Renderer::draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType)
 	{
 		glDrawArrays((GLenum)primitiveType, 0, vertices.size());
 		checkGLErrors();
+
+		m_numDrawCalls++;
 	}
 
 	void Renderer::checkGLErrors()
