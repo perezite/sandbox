@@ -9,8 +9,6 @@ namespace sb
 
 	void Renderer::render(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const Transform& transform)
 	{
-		m_numDrawCalls = 0;
-
 		if (vertices.empty())
 			return;
 

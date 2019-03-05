@@ -21,30 +21,56 @@ namespace sb
 
 	void DrawBatch::drawShapes(std::vector<Shape*>& shapes, const Substance& substance, Window& window, const Transform& transform)
 	{
+		PrimitiveType primitiveType = substance.primitiveType;
 		m_buffer.clear();
 
-		PrimitiveType primitiveType = substance.primitiveType;
-		if (primitiveType == PrimitiveType::Triangles)
-			drawTriangleShapes(shapes, window, transform);
-		else
-			SB_ERROR() << "The PrimitiveType " << (int)primitiveType << " is not eligible for batching" << std::endl;
-
-		window.draw(m_buffer, primitiveType, transform);
-	}
-
-	void DrawBatch::drawTriangleShapes(std::vector<Shape*>& shapes, Window& window, const Transform& transform)
-	{
 		for (std::size_t i = 0; i < shapes.size(); i++) {
-			SB_ERROR_IF(shapes[i]->getMesh().getVertexCount() > m_buffer.capacity()) 
-				<< "The vertex count of the given shape exceeds the draw batch capacity" << std::endl;
-			bufferTriangleShape(shapes[i]);
+			if (!bufferHasCapacity(shapes[i]))
+				flush(window, primitiveType, transform);
+
+			insertShape(shapes[i], primitiveType);
 		}
 
+		if (m_buffer.size() > 0)
+			flush(window, primitiveType, transform);
 	}
 
-	void DrawBatch::bufferTriangleShape(Shape* shape) {
+	inline void DrawBatch::insertShape(Shape* shape, PrimitiveType primitiveType) 
+	{
+		if (primitiveType == PrimitiveType::Triangles)
+			insertTriangles(shape);
+		else if (primitiveType == PrimitiveType::TriangleStrip)
+			insertTriangleStrip(shape);
+		else
+			SB_ERROR() << "The primitive type " << (int)primitiveType << "is not eligible for batching" << std::endl;
+	}
+
+	void DrawBatch::insertTriangles(Shape* shape) {
 		Mesh transformedMesh = shape->getTransform() * shape->getMesh();
-		std::vector<Vertex> vertices = transformedMesh.getVertices();
+		const std::vector<Vertex>& vertices = transformedMesh.getVertices();
 		m_buffer.insert(m_buffer.end(), vertices.begin(), vertices.end());
 	}
+
+	void DrawBatch::insertTriangleStrip(Shape* shape) {
+		Mesh transformedMesh = shape->getTransform() * shape->getMesh();
+		const std::vector<Vertex>& vertices = transformedMesh.getVertices();
+		m_buffer.push_back(vertices[0]);
+		m_buffer.insert(m_buffer.end(), vertices.begin(), vertices.end());
+		m_buffer.push_back(vertices[vertices.size() - 1]);
+	}
+
+	inline void DrawBatch::flush(Window& window, const PrimitiveType primitiveType, const Transform& transform)
+	{
+		window.draw(m_buffer, primitiveType, transform);
+		m_buffer.clear();
+	}
+
+	inline bool DrawBatch::bufferHasCapacity(Shape* shape)
+	{
+		SB_ERROR_IF(shape->getMesh().getVertexCount() > m_buffer.capacity())
+			<< "The vertex count of the given shape exceeds the draw batch capacity" << std::endl;
+
+		return m_buffer.size() + shape->getMesh().getVertexCount() < m_buffer.capacity();
+	}
+
 }

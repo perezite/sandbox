@@ -17,13 +17,14 @@ float randomValue()
 void init(sb::Drawable& drawable) {
 	drawable.setPosition(2 * randomValue() - 1, 2 * randomValue() - 1);
 	drawable.setRotation(2 * 3.1415f * randomValue());
-	drawable.setScale(randomValue(), randomValue());
+	drawable.setScale(randomValue() * 0.2f, randomValue() * 0.2f);
 }
 
-void init(std::vector<sb::Triangle>& triangles, std::size_t numTriangles)
+template <class T>
+void init(std::vector<T>& triangles, std::size_t numTriangles)
 {
 	for (std::size_t i = 0; i < numTriangles; i++) {
-		triangles.push_back(sb::Triangle());
+		triangles.push_back(T());
 		init(triangles[i]);
 	}
 }
@@ -37,6 +38,9 @@ void demo1()
 	std::vector<sb::Triangle> triangles;
 	init(triangles, 10);
 
+	std::vector<sb::Quad> quads;
+	init(quads, 10);
+
 	while (window.isOpen()) {
 		window.update();
 		window.clear();
@@ -44,7 +48,9 @@ void demo1()
 		sb::Renderer::resetStatistics();
 		
 		for (std::size_t i = 0; i < triangles.size(); i++)
-			batch.draw(triangles[i]);	
+			batch.draw(triangles[i]);
+		for (std::size_t i = 0; i < quads.size(); i++)
+			batch.draw(quads[i]); 
 		window.draw(batch);
 
 		std::cout << "Num draw calls: " << sb::Renderer::getNumDrawCalls() << std::endl;
