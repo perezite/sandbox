@@ -7,39 +7,45 @@
 #include <vector>
 #include <math.h>
 #include <iostream>
+#include <algorithm>
 
-float randomValue()
-{
+float randomValue() {
 	float rnd = float(rand()) / float(RAND_MAX);
 	return rnd;
 }
 
-void init(sb::Drawable& drawable) {
-	drawable.setPosition(2 * randomValue() - 1, 2 * randomValue() - 1);
-	drawable.setRotation(2 * 3.1415f * randomValue());
-	drawable.setScale(randomValue() * 0.2f, randomValue() * 0.2f);
+void init(sb::Shape* shape) {
+	shape->setPosition(2 * randomValue() - 1, 2 * randomValue() - 1);
+	shape->setRotation(2 * 3.1415f * randomValue());
+	shape->setScale(randomValue() * 0.2f, randomValue() * 0.2f);
 }
 
-template <class T>
-void init(std::vector<T>& triangles, std::size_t numTriangles)
-{
-	for (std::size_t i = 0; i < numTriangles; i++) {
-		triangles.push_back(T());
-		init(triangles[i]);
+void init(std::vector<sb::Shape*>& shapes, std::size_t numShapes) {
+	for (std::size_t i = 0; i < numShapes; i++) {
+			sb::Shape* shape = i % 2 == 0 ? 
+			(sb::Shape*)new sb::Triangle() : (sb::Shape*)new sb::Quad();
+		init(shape);
+		shapes.push_back(shape);
 	}
+}
+
+void cleanup(std::vector<sb::Shape*> shapes) {
+	for (std::size_t i = 0; i < shapes.size(); i++)
+		delete shapes[i];
+
+	shapes.clear();
 }
 
 void demo1() 
 {
+	srand(42);
+
 	sb::Window window;
 	
-	sb::DrawBatch batch;
-	
-	std::vector<sb::Triangle> triangles;
-	init(triangles, 10);
+	sb::DrawBatch batch(16384);
 
-	std::vector<sb::Quad> quads;
-	init(quads, 10);
+	std::vector<sb::Shape*> shapes;
+	init(shapes, 5000);
 
 	while (window.isOpen()) {
 		window.update();
@@ -47,16 +53,17 @@ void demo1()
 		
 		sb::Renderer::resetStatistics();
 		
-		for (std::size_t i = 0; i < triangles.size(); i++)
-			batch.draw(triangles[i]);
-		for (std::size_t i = 0; i < quads.size(); i++)
-			batch.draw(quads[i]); 
+		for (std::size_t i = 0; i < shapes.size(); i++)
+			batch.draw(shapes[i]);
+
 		window.draw(batch);
 
 		std::cout << "Num draw calls: " << sb::Renderer::getNumDrawCalls() << std::endl;
 
 		window.display();
 	}
+
+	cleanup(shapes);
 }
 
 int main(int argc, char* args[])

@@ -9,7 +9,11 @@ namespace sb
 	struct Substance
 	{
 		Substance(const Shape& shape)
-			: primitiveType(shape.getPrimitiveType())
+			: Substance(&shape)
+		{ }
+
+		Substance(const Shape* shape)
+			: primitiveType(shape->getPrimitiveType())
 		{ }
 
 		PrimitiveType primitiveType;

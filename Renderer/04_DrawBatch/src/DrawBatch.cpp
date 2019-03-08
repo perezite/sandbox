@@ -5,9 +5,14 @@
 
 namespace sb
 {
-	void DrawBatch::draw(Shape& shape)
+	inline void DrawBatch::draw(Shape& shape)
 	{
-		m_drawCalls[Substance(shape)].push_back(&shape);
+		draw(&shape);
+	}
+
+	void DrawBatch::draw(Shape* shape)
+	{
+		m_drawCalls[Substance(shape)].push_back(shape);
 	}
 
 	void DrawBatch::draw(Window& window, Transform transform)
@@ -70,7 +75,7 @@ namespace sb
 		SB_ERROR_IF(shape->getMesh().getVertexCount() > m_buffer.capacity())
 			<< "The vertex count of the given shape exceeds the draw batch capacity" << std::endl;
 
-		return m_buffer.size() + shape->getMesh().getVertexCount() < m_buffer.capacity();
+		return m_buffer.size() + shape->getMesh().getVertexCount() <= m_buffer.capacity();
 	}
 
 }

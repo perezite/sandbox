@@ -18,6 +18,8 @@ namespace sb
 
 		void draw(Shape& shape);
 
+		void draw(Shape* shape);
+
 	protected:
 		void drawShapes(std::vector<Shape*>& shapes, const Substance& substance, Window& window, const Transform& transform);
 
