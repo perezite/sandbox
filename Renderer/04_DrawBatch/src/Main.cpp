@@ -3,6 +3,7 @@
 #include "Quad.h"
 #include "DrawBatch.h"
 #include "Renderer.h"
+#include "Stopwatch.h"
 #include <SDL2/SDL.h>
 #include <vector>
 #include <math.h>
@@ -38,29 +39,33 @@ void cleanup(std::vector<sb::Shape*> shapes) {
 
 void demo1() 
 {
-	srand(42);
-
 	sb::Window window;
-	
+	sb::Stopwatch sw;
+
 	sb::DrawBatch batch(16384);
 
 	std::vector<sb::Shape*> shapes;
 	init(shapes, 5000);
 
 	while (window.isOpen()) {
+		sw.reset();
+
 		window.update();
 		window.clear();
-		
-		sb::Renderer::resetStatistics();
-		
+	
+		sb::Renderer::resetStatistics();		
 		for (std::size_t i = 0; i < shapes.size(); i++)
 			batch.draw(shapes[i]);
 
 		window.draw(batch);
-
-		SDL_Log("Num draw calls: %d", sb::Renderer::getNumDrawCalls());
-
 		window.display();
+
+		static std::size_t counter = 0;
+		counter++;
+		if (counter % 60 == 0) {
+			SDL_Log("Num draw calls: %d", sb::Renderer::getNumDrawCalls());
+			SDL_Log("Elapsed: %f, FPS: %f", sw.getElapsedMs(), 1000 / sw.getElapsedMs());
+		}
 	}
 
 	cleanup(shapes);

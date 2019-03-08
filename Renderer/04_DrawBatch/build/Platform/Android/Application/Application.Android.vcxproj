@@ -198,6 +198,8 @@
       <DataLevelLinking>true</DataLevelLinking>
       <ForcedIncludeFiles>Precompiled.h</ForcedIncludeFiles>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <EnableNeonCodegen>false</EnableNeonCodegen>
     </ClCompile>
     <Link>
       <LibraryDependencies>m;log;GLESv2;SDL2;SDL2_image;%(LibraryDependencies)</LibraryDependencies>

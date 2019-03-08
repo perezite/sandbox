@@ -23,15 +23,15 @@ namespace sb
 	protected:
 		void drawShapes(std::vector<Shape*>& shapes, const Substance& substance, Window& window, const Transform& transform);
 
-		void insertShape(Shape* shape, PrimitiveType primitiveType);
+		inline void insertShape(Shape* shape, PrimitiveType primitiveType);
 
-		void insertTriangles(Shape* shape);
+		inline void insertTriangles(const std::vector<Vertex>& vertices);
 
-		void insertTriangleStrip(Shape* shape);
+		inline void insertTriangleStrip(const std::vector<Vertex>& vertices);
 
-		void flush(Window& window, const PrimitiveType primitiveType, const Transform& transform);
+		inline void flush(Window& window, const PrimitiveType primitiveType, const Transform& transform);
 
-		bool bufferHasCapacity(Shape* shape);
+		inline bool bufferHasCapacity(Shape* shape);
 
 	private: 
 		typedef std::map<Substance, std::vector<Shape*>> DrawCallMap;
