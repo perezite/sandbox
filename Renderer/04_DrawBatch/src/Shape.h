@@ -10,6 +10,8 @@ namespace sb
 		Shape(const Mesh& mesh) 
 			: m_mesh(mesh)
 		{ }
+		
+		virtual ~Shape() {};
 
 		inline const Mesh& getMesh() const { return m_mesh; }
 

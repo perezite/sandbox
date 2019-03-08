@@ -58,7 +58,7 @@ void demo1()
 
 		window.draw(batch);
 
-		std::cout << "Num draw calls: " << sb::Renderer::getNumDrawCalls() << std::endl;
+		SDL_Log("Num draw calls: %d", sb::Renderer::getNumDrawCalls());
 
 		window.display();
 	}
