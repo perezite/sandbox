@@ -54,10 +54,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawBatch.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Shape.h">
-      <Filter>headers</Filter>
-    </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Substance.h">
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawTarget.h">
       <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>

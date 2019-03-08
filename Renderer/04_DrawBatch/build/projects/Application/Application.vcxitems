@@ -18,6 +18,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Color.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Drawable.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawBatch.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawTarget.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Logger.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\GL.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Mesh.h" />
@@ -25,9 +26,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Quad.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Renderer.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Shader.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Shape.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Stopwatch.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Substance.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Transform.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Triangle.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Vector2f.h" />

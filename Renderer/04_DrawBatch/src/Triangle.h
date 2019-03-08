@@ -1,17 +1,16 @@
 #pragma once
 
-#include "Shape.h"
+#include "Drawable.h"
 
 namespace sb
 {
-	class Triangle : public Shape
+	class Triangle : public Drawable
 	{
 	public:
 		Triangle() 
-			: Shape(TriangleMesh)
 		{ }
 
-		virtual void draw(Window& window, Transform transform);
+		virtual void draw(DrawTarget& window, Transform transform);
 
 	private:
 		static const Mesh TriangleMesh;

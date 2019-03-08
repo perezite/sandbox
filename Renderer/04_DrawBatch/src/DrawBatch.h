@@ -1,42 +1,50 @@
 #pragma once
+#include "DrawTarget.h"
 #include "Drawable.h"
-#include "Shape.h"
-#include "Substance.h"
+#include "Window.h"
 #include <map>
 #include <tuple>
 
 namespace sb
 {
-	class DrawBatch : public Drawable 
+	class DrawBatch : public DrawTarget
 	{
 	public:
-		DrawBatch(std::size_t maxNumBufferedVertices = 512)
-			: m_buffer(maxNumBufferedVertices)
-		{ }
+		DrawBatch(std::size_t bufferCapacity = 512)
+			: m_target(NULL)
+		{
+			m_buffer.reserve(bufferCapacity);
+		}
 
-		virtual void draw(Window& window, Transform transform);
+		void begin(DrawTarget& target);
 
-		void draw(Shape& shape);
+		void draw(Drawable& drawable, const Transform& transform = Transform::Identity);
 
-		void draw(Shape* shape);
+		virtual void draw(const std::vector<Vertex>& vertices,
+			const PrimitiveType& primitiveType = PrimitiveType::Triangles, const Transform& transform = Transform::Identity);
 
-	protected:
-		void drawShapes(std::vector<Shape*>& shapes, const Substance& substance, Window& window, const Transform& transform);
+		void end();
 
-		inline void insertShape(Shape* shape, PrimitiveType primitiveType);
+	private:
+		inline void assertBufferSize(const std::vector<Vertex>& vertices);
 
-		inline void insertTriangles(const std::vector<Vertex>& vertices);
+		inline bool mustFlush(const std::vector<Vertex>& vertices, PrimitiveType primitiveType);
 
-		inline void insertTriangleStrip(const std::vector<Vertex>& vertices);
+		inline void flush();
 
-		inline void flush(Window& window, const PrimitiveType primitiveType, const Transform& transform);
+		inline void bufferVertices(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const Transform& transform);
 
-		inline bool bufferHasCapacity(Shape* shape);
+		inline void transformVertices(std::vector<Vertex>& vertices, const Transform& transform);
 
-	private: 
-		typedef std::map<Substance, std::vector<Shape*>> DrawCallMap;
-		DrawCallMap m_drawCalls;
+		inline void bufferTriangles(const std::vector<Vertex>& vertices);
+
+		inline void bufferTriangleStrip(const std::vector<Vertex>& vertices);
+
+	private:
+		DrawTarget* m_target;
 
 		std::vector<Vertex> m_buffer;
+
+		PrimitiveType m_currentPrimitiveType;
 	};
 }

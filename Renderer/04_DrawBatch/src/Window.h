@@ -3,12 +3,12 @@
 #include "GL.h"
 #include "Drawable.h"
 #include "Renderer.h"
-#include "PrimitiveType.h"
+#include "DrawTarget.h"
 #include <SDL2/SDL.h>
 
 namespace sb
 {
-	class Window
+	class Window : public DrawTarget
 	{
 	public:
 		Window(int width = 400, int height = 400);
@@ -21,9 +21,9 @@ namespace sb
 
 		void clear();
 
-		void draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType = PrimitiveType::Triangles, const Transform& transform = Transform::Identity);
-
 		void draw(Drawable& drawable, const Transform& transform = Transform::Identity);
+
+		virtual void draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType = PrimitiveType::Triangles, const Transform& transform = Transform::Identity);
 
 		void display();
 

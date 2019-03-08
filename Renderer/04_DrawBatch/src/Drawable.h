@@ -5,7 +5,7 @@
 
 namespace sb
 {
-	class Window;
+	class DrawTarget;
 
 	class Drawable
 	{
@@ -33,7 +33,7 @@ namespace sb
 
 		void setRotation(float radians);
 
-		virtual void draw(Window& window, Transform transform) = 0;
+		virtual void draw(DrawTarget& target, Transform transform) = 0;
 
 	protected:
 		void updateTransform();

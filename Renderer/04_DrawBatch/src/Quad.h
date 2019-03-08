@@ -1,17 +1,16 @@
 #pragma once
 
-#include "Shape.h"
+#include "Drawable.h"
 
 namespace sb
 {
-	class Quad : public Shape
+	class Quad : public Drawable
 	{
 	public:
 		Quad() 
-			: Shape(QuadMesh)
 		{ }
-
-		virtual void draw(Window& window, Transform transform);
+		
+		virtual void draw(DrawTarget& window, Transform transform);
 
 	private:
 		static const Mesh QuadMesh;
