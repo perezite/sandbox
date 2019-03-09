@@ -1,7 +1,7 @@
 #pragma once
 #include "Vertex.h"
 #include "PrimitiveType.h"
-#include "Transform.h"
+#include "RenderStates.h"
 #include <vector>
 
 namespace sb
@@ -10,6 +10,6 @@ namespace sb
 	{
 	public:
 		virtual void draw(const std::vector<Vertex>& vertices,
-			const PrimitiveType& primitiveType, const Transform& transform = Transform::Identity) = 0;		
+			const PrimitiveType primitiveType, const RenderStates& states = RenderStates::Default) = 0;		
 	};
 }

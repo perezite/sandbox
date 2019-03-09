@@ -2,6 +2,7 @@
 #include "DrawTarget.h"
 #include "Drawable.h"
 #include "Window.h"
+#include "RenderStates.h"
 #include <map>
 #include <tuple>
 
@@ -22,12 +23,12 @@ namespace sb
 
 		void begin(DrawTarget& target);
 
-		void draw(Drawable* drawable, const Transform& transform = Transform::Identity);
+		void draw(Drawable* drawable, const RenderStates& states = RenderStates::Default);
 
-		inline void draw(Drawable& drawable, const Transform& transform = Transform::Identity) { draw(&drawable, transform); }
+		inline void draw(Drawable& drawable, const RenderStates& states = RenderStates::Default) { draw(&drawable, states); }
 
 		virtual void draw(const std::vector<Vertex>& vertices,
-			const PrimitiveType& primitiveType = PrimitiveType::Triangles, const Transform& transform = Transform::Identity);
+			const PrimitiveType primitiveType, const RenderStates& states = RenderStates::Default);
 
 		void end();
 
@@ -38,7 +39,7 @@ namespace sb
 
 		inline void flush();
 
-		inline void bufferVertices(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const Transform& transform);
+		inline void bufferVertices(const std::vector<Vertex>& vertices, const PrimitiveType primitiveType, const Transform& transform);
 
 		inline void transformVertices(std::vector<Vertex>& vertices, const Transform& transform);
 

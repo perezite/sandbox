@@ -25,6 +25,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\PrimitiveType.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Quad.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Renderer.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\RenderStates.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Shader.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Stopwatch.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Transform.h" />
@@ -39,6 +40,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Main.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Quad.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Renderer.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\RenderStates.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Shader.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Stopwatch.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Transform.cpp" />

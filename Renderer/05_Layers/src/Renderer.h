@@ -4,7 +4,7 @@
 #include "Vertex.h"
 #include "Shader.h"
 #include "PrimitiveType.h"
-#include "Transform.h"
+#include "RenderStates.h"
 #include <vector>
 
 namespace sb
@@ -12,7 +12,7 @@ namespace sb
 	class Renderer
 	{
 	public:
-		void render(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const Transform& transform);
+		void render(const std::vector<Vertex>& vertices, const PrimitiveType primitiveType, const RenderStates& states);
 
 		static void resetStatistics();
 
@@ -24,7 +24,7 @@ namespace sb
 
 		void setVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer);
 
-		void draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType);
+		void draw(const std::vector<Vertex>& vertices, const PrimitiveType primitiveType);
 
 		void cleanup();
 

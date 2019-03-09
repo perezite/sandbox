@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Mesh.h"
-#include "Transform.h"
+#include "RenderStates.h"
 
 namespace sb
 {
@@ -35,7 +35,7 @@ namespace sb
 
 		void setRotation(float radians);
 
-		virtual void draw(DrawTarget& target, Transform transform) = 0;
+		virtual void draw(DrawTarget& target, RenderStates states) = 0;
 
 	protected:
 		void updateTransform();

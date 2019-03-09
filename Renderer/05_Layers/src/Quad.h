@@ -10,7 +10,7 @@ namespace sb
 		Quad() 
 		{ }
 		
-		virtual void draw(DrawTarget& window, Transform transform);
+		virtual void draw(DrawTarget& window, RenderStates states);
 
 	private:
 		static const Mesh QuadMesh;

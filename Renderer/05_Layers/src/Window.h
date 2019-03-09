@@ -4,6 +4,7 @@
 #include "Drawable.h"
 #include "Renderer.h"
 #include "DrawTarget.h"
+#include "RenderStates.h"
 #include <SDL2/SDL.h>
 
 namespace sb
@@ -21,11 +22,11 @@ namespace sb
 
 		void clear();
 
-		void draw(Drawable* drawable, const Transform& transform);
+		void draw(Drawable* drawable, const RenderStates& states);
 
-		inline void draw(Drawable& drawable, const Transform& transform = Transform::Identity) { draw(&drawable, transform); }
+		inline void draw(Drawable& drawable, const RenderStates& states = RenderStates::Default) { draw(&drawable, states); }
 
-		virtual void draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType = PrimitiveType::Triangles, const Transform& transform = Transform::Identity);
+		virtual void draw(const std::vector<Vertex>& vertices, const PrimitiveType primitiveType, const RenderStates& states = RenderStates::Default);
 
 		void display();
 

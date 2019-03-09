@@ -14,12 +14,12 @@ namespace sb
 		m_target = &target;
 	}
 
-	void DrawBatch::draw(Drawable* drawable, const Transform& transform)
+	void DrawBatch::draw(Drawable* drawable, const RenderStates& states)
 	{
-		drawable->draw(*this, transform);
+		drawable->draw(*this, states);
 	}
 
-	void DrawBatch::draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const Transform& transform)
+	void DrawBatch::draw(const std::vector<Vertex>& vertices, const PrimitiveType primitiveType, const RenderStates& states)
 	{
 		m_unbatchedDrawCalls++;
 
@@ -30,7 +30,7 @@ namespace sb
 		}
 
 		m_currentPrimitiveType = primitiveType;
-		bufferVertices(vertices, primitiveType, transform);
+		bufferVertices(vertices, primitiveType, states.transform);
 	}
 
 	void DrawBatch::end()
@@ -65,7 +65,7 @@ namespace sb
 		m_buffer.clear();
 	}
 
-	void DrawBatch::bufferVertices(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const Transform& transform)
+	void DrawBatch::bufferVertices(const std::vector<Vertex>& vertices, const PrimitiveType primitiveType, const Transform& transform)
 	{
 		std::vector<Vertex> transformedVertices(vertices);
 		transformVertices(transformedVertices, transform);
