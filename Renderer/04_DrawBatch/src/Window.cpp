@@ -55,9 +55,9 @@ namespace sb
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
-	void Window::draw(Drawable& drawable, const Transform& transform)
+	void Window::draw(Drawable* drawable, const Transform& transform) 
 	{
-		drawable.draw(*this, transform);
+		drawable->draw(*this, transform);
 	}
 
 	void Window::draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const Transform& transform)

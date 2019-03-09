@@ -14,26 +14,29 @@ namespace sb
 		m_target = &target;
 	}
 
-	void DrawBatch::draw(Drawable& drawable, const Transform& transform)
+	void DrawBatch::draw(Drawable* drawable, const Transform& transform)
 	{
-		drawable.draw(*this, transform);
+		drawable->draw(*this, transform);
 	}
 
 	void DrawBatch::draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const Transform& transform)
 	{
+		m_unbatchedDrawCalls++;
+
 		assertBufferSize(vertices);
 
 		if (mustFlush(vertices, primitiveType)) {
 			flush();
-			m_currentPrimitiveType = primitiveType;
 		}
 
+		m_currentPrimitiveType = primitiveType;
 		bufferVertices(vertices, primitiveType, transform);
 	}
 
 	void DrawBatch::end()
 	{
-		flush();
+		if (m_buffer.size() > 0)
+			flush();
 		m_target = NULL;
 	}
 
@@ -45,6 +48,9 @@ namespace sb
 
 	inline bool DrawBatch::mustFlush(const std::vector<Vertex>& vertices, PrimitiveType primitiveType)
 	{
+		if (m_buffer.empty())
+			return false;
+
 		bool bufferTooSmall = m_buffer.size() + vertices.size() > m_buffer.capacity();
 		bool primitiveTypeChanged = primitiveType != m_currentPrimitiveType;
 
@@ -53,6 +59,8 @@ namespace sb
 
 	void DrawBatch::flush() 
 	{
+		m_batchedDrawCalls++;
+
 		m_target->draw(m_buffer, m_currentPrimitiveType);
 		m_buffer.clear();
 	}

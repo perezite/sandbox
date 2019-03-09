@@ -11,14 +11,20 @@ namespace sb
 	{
 	public:
 		DrawBatch(std::size_t bufferCapacity = 512)
-			: m_target(NULL)
+			: m_target(NULL), m_unbatchedDrawCalls(0), m_batchedDrawCalls(0)
 		{
 			m_buffer.reserve(bufferCapacity);
 		}
 
+		long getUnbatchedDrawCalls() { return m_unbatchedDrawCalls; }
+
+		long getBatchedDrawCalls() { return m_batchedDrawCalls; }
+
 		void begin(DrawTarget& target);
 
-		void draw(Drawable& drawable, const Transform& transform = Transform::Identity);
+		void draw(Drawable* drawable, const Transform& transform = Transform::Identity);
+
+		inline void draw(Drawable& drawable, const Transform& transform = Transform::Identity) { draw(&drawable, transform); }
 
 		virtual void draw(const std::vector<Vertex>& vertices,
 			const PrimitiveType& primitiveType = PrimitiveType::Triangles, const Transform& transform = Transform::Identity);
@@ -46,5 +52,9 @@ namespace sb
 		std::vector<Vertex> m_buffer;
 
 		PrimitiveType m_currentPrimitiveType;
+
+		long m_unbatchedDrawCalls;
+
+		long m_batchedDrawCalls;
 	};
 }

@@ -15,6 +15,8 @@ namespace sb
 			m_transformNeedsUpdate(true), m_position(0, 0), m_scale(1, 1), m_rotation(0)
 		{ }
 
+		virtual ~Drawable() { };
+
 		const Transform& getTransform();
 
 		inline const Vector2f& getPosition() const { return m_position; }
