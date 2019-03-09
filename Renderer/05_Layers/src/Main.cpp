@@ -23,8 +23,8 @@ void demo1()
 		window.update();
 		
 		window.clear();
-		window.draw(triangle1, 1.0f);
-		window.draw(quad1);
+		window.draw(triangle1);
+		window.draw(quad1, 0);
 
 		window.display();
 	}

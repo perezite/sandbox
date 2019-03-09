@@ -19,7 +19,7 @@ namespace sb
 		static std::size_t getNumDrawCalls();
 
 	protected:
-		void setup(const std::vector<Vertex>& vertices, const Transform& transform);
+		void setup(const std::vector<Vertex>& vertices, const RenderStates& states);
 
 
 		void setVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer);

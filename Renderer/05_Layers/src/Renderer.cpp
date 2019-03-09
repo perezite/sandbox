@@ -12,7 +12,7 @@ namespace sb
 		if (vertices.empty())
 			return;
 
-		setup(vertices, states.transform);
+		setup(vertices, states);
 		draw(vertices, primitiveType);
 		cleanup();
 	}
@@ -27,7 +27,7 @@ namespace sb
 		return m_numDrawCalls;
 	}
 
-	void Renderer::setup(const std::vector<Vertex>& vertices, const Transform& transform)
+	void Renderer::setup(const std::vector<Vertex>& vertices, const RenderStates& states)
 	{
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
@@ -38,7 +38,8 @@ namespace sb
 		setVertexAttribPointer(m_shader.getAttributeLocation("position"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), positionStart);
 		setVertexAttribPointer(m_shader.getAttributeLocation("color"), 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), colorStart);
 
-		m_shader.setUniformMatrix3("transform", transform.getTransposed().getMatrix());	
+		m_shader.setUniformMatrix3("transform", states.transform.getTransposed().getMatrix());	
+		m_shader.setUniformFloat("depth", states.depth);
 	}
 
 	void Renderer::setVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer)

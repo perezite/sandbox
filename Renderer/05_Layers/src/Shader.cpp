@@ -42,6 +42,13 @@ namespace sb
 		glUniformMatrix3fv(uniformLocation, 1, GL_FALSE, matrix3);
 	}
 
+	void Shader::setUniformFloat(std::string uniformName, float value)
+	{
+		GLuint uniformLocation = getUniformLocation(uniformName);
+
+		glUniform1f(uniformLocation, value);
+	}
+
 	void Shader::use()
 	{
 		glUseProgram(m_shader);
@@ -57,14 +64,14 @@ namespace sb
 		return
 			"attribute vec2 position;																\n"
 			"attribute vec4 color;																	\n"
-			"uniform mat3 transform;																		\n"
+			"uniform mat3 transform;																\n"
+			"uniform float depth;																	\n"
 			"varying vec4 v_color;																	\n"
 			"vec3 transformedPosition;																\n"
 			"void main()																			\n"
 			"{																						\n"
-			// "   transform = mat3(1, 0, 0, 0, 1, 0, 0.5, 0.5, 1);									\n"
 			"   transformedPosition = transform * vec3(position.x, position.y, 1);					\n"
-			"   gl_Position = vec4(transformedPosition.x, transformedPosition.y, 0, 1 );			\n"
+			"   gl_Position = vec4(transformedPosition.x, transformedPosition.y, depth, 1);			\n"
 			"	v_color = color;																	\n"
 			"}";
 	}
