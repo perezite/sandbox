@@ -10,7 +10,7 @@
 #include <iostream>
 #include <algorithm>
 
-void init(sb::Drawable* drawable) {
+/*void init(sb::Drawable* drawable) {
 	drawable->setPosition(sb::random(-1, 1), sb::random(-1, 1));
 	drawable->setRotation(sb::random(2 * sb::Pi));
 	drawable->setScale(sb::random(0.2f), sb::random(0.2f));
@@ -42,7 +42,7 @@ void printStatistics(sb::Stopwatch& sw) {
 void demo2() 
 {
 	sb::Window window;
-	sb::DrawBatch batch;
+	// sb::DrawBatch batch;
 	sb::Stopwatch sw;
 
 	std::vector<sb::Drawable*> drawables;
@@ -55,16 +55,15 @@ void demo2()
 		window.update();
 		window.clear();
 	
-		batch.begin(window);
+		// batch.begin(window);
 		for (std::size_t i = 0; i < drawables.size(); i++)
 			batch.draw(drawables[i]);
-		batch.end();
+		// batch.end();
 
-		/*
-			for (std::size_t i = 0; i < drawables.size(); i++)
-				batch.draw(drawables[i]);
-			window.draw(batch);
-		*/
+
+		//for (std::size_t i = 0; i < drawables.size(); i++)
+		//	batch.draw(drawables[i]);
+		//window.draw(batch);
 
 		window.display();
 
@@ -73,12 +72,57 @@ void demo2()
 
 	cleanup(drawables);
 }
+*/
+
+void init0(std::vector<sb::Triangle>& triangles, std::vector<sb::Quad>& quads) 
+{
+	triangles[0].setPosition(-0.5f, 0.5f);
+	triangles[1].setPosition(0.5f, -0.5f);
+	quads[0].setPosition(0.5f, 0.5f);
+	quads[1].setPosition(-0.5f, -0.5f);
+}
+
+void printStats0() {
+	static std::size_t counter = 0;
+	
+	if (counter % 100 == 0)
+		SDL_Log("%d", sb::Renderer::getNumDrawCalls());
+
+	sb::Renderer::resetStatistics();
+	counter++;
+}
+
+void demo0()
+{
+	sb::Window window;
+	sb::DrawBatch batch;
+	sb::Stopwatch sw;
+
+	std::vector<sb::Triangle> triangles(2);
+	std::vector<sb::Quad> quads(2);
+	init0(triangles, quads);
+
+	while (window.isOpen()) {
+		window.update();
+		
+		window.clear();
+		batch.draw(triangles[0]);
+		batch.draw(triangles[1]);
+		batch.draw(quads[0]);
+		batch.draw(quads[1]);
+		window.draw(batch);
+
+		window.display();
+
+		printStats0();
+	}
+}
 
 int main(int argc, char* args[])
 {
 	SDL_Log("DrawBatch Renderer: Build %s %s", __DATE__, __TIME__);
 
-	demo2();
+	demo0();
 
 	// demo1();
 }
