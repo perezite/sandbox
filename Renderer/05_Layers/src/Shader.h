@@ -16,8 +16,6 @@ namespace sb
 
 		void setUniformMatrix3(std::string uniformName, const float* matrix3);
 
-		void setUniformFloat(std::string uniformName, float value);
-
 		void use();
 
 		void destroy();

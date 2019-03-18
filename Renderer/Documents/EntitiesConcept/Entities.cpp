@@ -56,20 +56,25 @@ Scene::draw(DrawTarget& target, RenderStates& states) {
 	
 	DrawBatch batch;	
 	for(auto component: components) {
-		if (component->isBatched()) {
-			batch.draw(component);
-		} else {
+		if (!component->isBatched()) {
 			target.draw(batch);
 			target.draw(component);
 		}
+		else 
+			batch.draw(component);
 	}
+}
+
+inline bool compareComponents(Component* left, Component* right) {
+	return std::tie(left->layer, left->orderInLayer, left->isBatched(), left->getBatchMaterial(), left->getBatchPrimitiveType()) <
+		std::tie(right->layer, right->orderInLayer, right->isBatched(), right->getBatchMaterial(), right->getBatchPrimitiveType());
 }
 
 std::vector<Component*> Scene::collectAndSortComponents(std::vector<Entity*> entities) {
 	std::vector<Component*> result;
 	
 	for (auto entity: m_entities) {
-		components = m_entities.getComponents();
+		components = entity.getComponents();
 		std::insert(result.end(), components.begin(), components.end());
 	}
 	
@@ -93,22 +98,34 @@ Scene::computeWorldTransform(Entity& entity) {
 }
 
 class Component {
+public:	
+	Component() 
+		: m_isBatched(false), m_batchMaterial(Material::Default), 
+			m_batchPrimitiveType(PrimitiveType::Triangles)
+	{ }
+	
 	virtual void update() { };
 	
 	virtual void draw() { };
 	
-	virtual bool isBatched() { return false; }
+	bool isBatched() { return m_isBatched; }
 	
-	virtual Material& getBatchMaterial() { return Material::Default; }
+	Material& getBatchMaterial() { return m_BatchMaterial; }
 	
-	virtual PrimitiveType getBatchPrimitiveType() { return PrimitiveType::Triangles; }
+	PrimitiveType getBatchPrimitiveType() { return m_batchPrimitiveType; }
+}
 	
-	bool operator<(Component* left, Component* right) {
-		return std::tie(left->layer, left->orderInLayer, left->isBatched(), left->getBatchMaterial(), left->getBatchPrimitiveType()) <
-			std::tie(right->layer, right->orderInLayer, right->isBatched(), right->getBatchMaterial(), right->getBatchPrimitiveType());
-	}
+protected:
+	m_isBatched;
+	
+	m_batchMaterial;
+	
+	m_batchPrimitiveType;
 }
 
-
-
-
+class SpriteDrawer : public Component {
+	SpriteDrawer() 
+		: m_isBatched(true), m_batchMaterial(Sprite::getMaterial()), 
+			m_batchPrimitiveType(PrimitiveType::TriangleStrip)
+	{ }
+}

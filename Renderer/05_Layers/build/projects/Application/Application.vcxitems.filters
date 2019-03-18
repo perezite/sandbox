@@ -60,6 +60,18 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\RenderStates.h">
       <Filter>headers</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Entity.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Component.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\ShapeDrawer.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Transformable.h">
+      <Filter>headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Main.cpp" />
@@ -70,8 +82,10 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Triangle.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Renderer.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Quad.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Drawable.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawBatch.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\RenderStates.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Entity.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\ShapeDrawer.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Transformable.cpp" />
   </ItemGroup>
 </Project>

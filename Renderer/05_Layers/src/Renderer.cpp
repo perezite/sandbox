@@ -39,7 +39,6 @@ namespace sb
 		setVertexAttribPointer(m_shader.getAttributeLocation("color"), 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), colorStart);
 
 		m_shader.setUniformMatrix3("transform", states.transform.getTransposed().getMatrix());	
-		m_shader.setUniformFloat("depth", states.depth);
 	}
 
 	void Renderer::setVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer)

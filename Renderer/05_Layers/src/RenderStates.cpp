@@ -2,5 +2,5 @@
 
 namespace sb
 {
-	RenderStates RenderStates::Default = RenderStates(Transform::Identity, 0);
+	RenderStates RenderStates::Default = RenderStates(Transform::Identity);
 }
