@@ -28,8 +28,7 @@ namespace sb
 
 			inline void setTarget(DrawTarget& target) { m_target = &target; }
 
-			void draw(Drawable& drawable, Transform& transform);
-
+			using DrawTarget::draw;
 			virtual void draw(const std::vector<Vertex>& vertices,
 				const PrimitiveType& primitiveType, const Transform& transform = Transform::Identity);
 

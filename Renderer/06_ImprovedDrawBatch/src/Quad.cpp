@@ -15,6 +15,5 @@ namespace sb
 		transform *= getTransform();
 		target.draw(QuadMesh.getVertices(), QuadMesh.getPrimitiveType(), transform);
 	}
-
 }
 

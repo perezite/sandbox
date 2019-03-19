@@ -16,4 +16,3 @@ namespace sb
 		target.draw(TriangleMesh.getVertices(), TriangleMesh.getPrimitiveType(), transform);
 	}
 }
-

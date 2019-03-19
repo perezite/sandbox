@@ -60,6 +60,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Math.h">
       <Filter>headers</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\HierarchyTester.h">
+      <Filter>headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Main.cpp" />
@@ -72,5 +75,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Quad.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Drawable.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawBatch.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\HierarchyTester.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawTarget.cpp" />
   </ItemGroup>
 </Project>

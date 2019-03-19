@@ -21,10 +21,7 @@ namespace sb
 
 		void clear();
 
-		void draw(Drawable* drawable, const Transform& transform);
-
-		inline void draw(Drawable& drawable, const Transform& transform = Transform::Identity) { draw(&drawable, transform); }
-
+		using DrawTarget::draw;
 		virtual void draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType = PrimitiveType::Triangles, const Transform& transform = Transform::Identity);
 
 		void display();

@@ -15,18 +15,13 @@ namespace sb
 	void DrawBatch::draw(DrawTarget& target, Transform transform) 
 	{
 		transform *= getTransform();
-		
+
 		m_buffer.setTarget(target);
-		for (std::size_t i = 0; i < m_drawCommands.size(); i++) 
-			m_buffer.draw(m_drawCommands[i].drawable, m_drawCommands[i].transform);
+		 for (std::size_t i = 0; i < m_drawCommands.size(); i++) 
+			 m_buffer.draw(m_drawCommands[i].drawable, m_drawCommands[i].transform);
 
 		m_buffer.flush();
 		m_drawCommands.clear();
-	}
-
-	void DrawBatch::Buffer::draw(Drawable& drawable, Transform& transform)
-	{
-		drawable.draw(*this, transform);
 	}
 
 	void DrawBatch::Buffer::draw(const std::vector<Vertex>& vertices, 

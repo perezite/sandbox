@@ -1,6 +1,7 @@
 #include "Window.h"
 #include "Triangle.h"
 #include "Quad.h"
+#include "HierarchyTester.h"
 #include "DrawBatch.h"
 #include "Renderer.h"
 #include "Stopwatch.h"
@@ -9,70 +10,6 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
-
-/*void init(sb::Drawable* drawable) {
-	drawable->setPosition(sb::random(-1, 1), sb::random(-1, 1));
-	drawable->setRotation(sb::random(2 * sb::Pi));
-	drawable->setScale(sb::random(0.2f), sb::random(0.2f));
-}
-
-template <class T>
-void init(std::vector<sb::Drawable*>& shapes, std::size_t numShapes) {
-	for (std::size_t i = 0; i < numShapes; i++) {
-		sb::Drawable* drawable = (sb::Drawable*)new T();
-		init(drawable);
-		shapes.push_back(drawable);
-	}
-}
-
-void cleanup(std::vector<sb::Drawable*> drawables) {
-	for (std::size_t i = 0; i < drawables.size(); i++)
-		delete drawables[i];
-
-	drawables.clear();
-}
-
-void printStatistics(sb::Stopwatch& sw) {
-	static std::size_t counter = 0;
-	counter++;
-	if (counter % 60 == 0) 
-		SDL_Log("Elapsed: %f, FPS: %f", sw.getElapsedMs(), 1000 / sw.getElapsedMs());
-}
-
-void demo2() 
-{
-	sb::Window window;
-	// sb::DrawBatch batch;
-	sb::Stopwatch sw;
-
-	std::vector<sb::Drawable*> drawables;
-	init<sb::Triangle>(drawables, 2);
-	init<sb::Quad>(drawables, 2);
-
-	while (window.isOpen()) {
-		sw.reset();
-
-		window.update();
-		window.clear();
-	
-		// batch.begin(window);
-		for (std::size_t i = 0; i < drawables.size(); i++)
-			batch.draw(drawables[i]);
-		// batch.end();
-
-
-		//for (std::size_t i = 0; i < drawables.size(); i++)
-		//	batch.draw(drawables[i]);
-		//window.draw(batch);
-
-		window.display();
-
-		printStatistics(sw);
-	}
-
-	cleanup(drawables);
-}
-*/
 
 void init0(std::vector<sb::Triangle>& triangles, std::vector<sb::Quad>& quads) 
 {
@@ -118,11 +55,104 @@ void demo0()
 	}
 }
 
+void printStats1()
+{
+	static std::size_t counter = 0;
+
+	if (counter % 100 == 0)
+		SDL_Log("%d", sb::Renderer::getNumDrawCalls());
+
+	sb::Renderer::resetStatistics();
+	counter++;	
+}
+
+void demo1() 
+{
+	sb::Window window;
+	sb::DrawBatch batch;
+	
+	sb::HierarchyTester tester;
+	tester.setScale(0.3f, 0.3f);
+
+	while (window.isOpen()) {
+		window.update();
+		window.clear();
+		batch.draw(tester);
+		window.draw(batch);
+		window.display();
+
+		printStats1();
+	}
+}
+
+void init2(sb::Drawable* drawable) {
+	drawable->setPosition(sb::random(-1, 1), sb::random(-1, 1));
+	drawable->setRotation(sb::random(2 * sb::Pi));
+	drawable->setScale(sb::random(0.2f), sb::random(0.2f));
+}
+
+template <class T>
+void init2(std::vector<sb::Drawable*>& drawables, std::size_t numShapes) {
+	for (std::size_t i = 0; i < numShapes; i++) {
+		sb::Drawable* drawable = (sb::Drawable*)new T();
+		init2(drawable);
+		drawables.push_back(drawable);
+	}
+}
+
+void cleanup2(std::vector<sb::Drawable*> drawables) {
+	for (std::size_t i = 0; i < drawables.size(); i++)
+		delete drawables[i];
+
+	drawables.clear();
+}
+
+void printStats2() {
+	static std::size_t counter = 0;
+	static sb::Stopwatch sw;
+
+	counter++;
+	if (counter % 100 == 0) {
+		SDL_Log("Elapsed: %f, FPS: %f, DrawCalls: %d", 
+			sw.getElapsedMs(), 1000 / sw.getElapsedMs(), sb::Renderer::getNumDrawCalls());
+	}
+
+	sw.reset();
+	sb::Renderer::resetStatistics();
+}
+
+void demo2()
+{
+	sb::Window window;
+	sb::DrawBatch batch(16384);
+
+	std::vector<sb::Drawable*> drawables;
+	init2<sb::Triangle>(drawables, 2500);
+	init2<sb::Quad>(drawables, 2500);
+
+	while (window.isOpen()) {
+		window.update();
+		window.clear();
+
+		for (std::size_t i = 0; i < drawables.size(); i++)
+			batch.draw(*drawables[i]);
+		window.draw(batch);
+
+		window.display();
+
+		printStats2();	
+	}
+
+	cleanup2(drawables);
+}
+
 int main(int argc, char* args[])
 {
 	SDL_Log("DrawBatch Renderer: Build %s %s", __DATE__, __TIME__);
-
-	demo0();
+	
+	demo2();
 
 	// demo1();
+
+	// demo0();
 }

@@ -10,7 +10,7 @@ namespace sb
 		Quad() 
 		{ }
 		
-		virtual void draw(DrawTarget& window, Transform transform);
+		virtual void draw(DrawTarget& window, Transform transform = Transform::Identity);
 
 	private:
 		static const Mesh QuadMesh;
