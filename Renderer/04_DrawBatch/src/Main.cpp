@@ -20,7 +20,6 @@ void demo1()
 	sb::Triangle triangle2;
 	sb::Quad quad1;
 	sb::Quad quad2;
-
 	
 	triangle1.setPosition(-0.5f, 0.5f);
 	triangle2.setPosition(0.5f, -0.5f);

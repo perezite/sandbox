@@ -92,6 +92,5 @@ namespace sb
 		bool m_isDebugMode;
 
 		LoggerType m_type;
-
 	};
 }
