@@ -4,27 +4,6 @@
 #include <sstream>
 #include <windows.h>
 
-class Printer {
-public: 
-	Printer() 
-		: _tabs(0) 
-	{ }
-	std::ostream& print() {
-		for (std::size_t i = 0; i < _tabs; i++)
-			_stream << " ";
-		return _stream;
-	}
-	void addIndent(std::size_t numTabs) {
-		_tabs += numTabs;
-	}
-	std::ostringstream& getStream() {
-		return _stream;
-	}
-private:
-	std::ostringstream _stream;
-	std::size_t _tabs;
-};
-
 struct Vector2f {
 	Vector2f(float x_ = 0, float y_ = 0)
 		: x(x_), y(y_)
@@ -33,10 +12,20 @@ struct Vector2f {
 	float x, y;
 };
 
+class Texture {
+public:
+	void load(const std::string& path) {
+	}
+};
+
 class Component {
 };
 
 class Entity {
+private:
+	std::string _name;
+	std::vector<Component*> _components;
+	Vector2f _position;	
 public:
 	Entity(const std::string& name) 
 		: _name(name)
@@ -46,39 +35,41 @@ public:
 			delete _components[i];
 		_components.clear();
 	}
+	const std::string& getName() const { return _name; }
+	const Vector2f& getPosition() const { return _position; }
 	void setPosition(const Vector2f& position) { 
 		_position = position;
 	}
-	void print(Printer& printer) const {
-		printer.print() << "Entity (" << _name << "):" << std::endl; 
-	}
-private:
-	std::string _name;
-	std::vector<Component*> _components;
-	Vector2f _position;
 };
 
 class Scene {
+private: 
+	std::vector<Entity*> _entities;	
 public:
 	virtual ~Scene() {
 		for(std::size_t i = 0; i < _entities.size(); i++)
 			delete _entities[i];
 		_entities.clear();
 	}
+	const std::vector<Entity*> getEntities() const {
+		return _entities;
+	}
 	void addEntity(Entity* entity) {
 		_entities.push_back(entity);
 	}
-	void print(Printer& printer) const {
-		printer.print() << "Scene:" << std::endl;
-		printer.addIndent(1);
-		for (std::size_t i = 0; i < _entities.size(); i++)
-			_entities[i]->print(printer);
-	}
-private: 
-	std::vector<Entity*> _entities;
 };
 
 class SceneBuilder {
+private:
+	Scene& _scene;
+	Entity* _entity;
+protected:
+	void assertEntity() {
+		if (!_entity) {
+			std::cout << "Builder error: No entity set" << std::endl;
+			exit(1);
+		}
+	}	
 public:
 	SceneBuilder(Scene& scene) 
 		: _scene(scene), _entity(NULL)
@@ -96,30 +87,28 @@ public:
 	SceneBuilder& withPosition(float x, float y) {
 		return withPosition(Vector2f(x, y));
 	}
+};
+
+class ScenePrinter {
 protected:
-	void assertEntity() {
-		if (!_entity) {
-			std::cout << "Builder error: No entity set" << std::endl;
-			exit(1);
-		}
+	const std::string indent(std::size_t indentation = 0) {
+		return std::string(indentation, ' ');
 	}
-private:
-	Scene& _scene;
-	Entity* _entity;
-};
-
-class Texture {
-public:
-	void load(const std::string& path) {
+public: 
+	ScenePrinter() 
+	{ }
+	void print(Entity& entity) {
+		auto position = entity.getPosition();
+		std::cout << indent(1) << "Entity (" << entity.getName() << "):" << std::endl;
+		std::cout << indent(2) << "Position: (" << position.x << "," << position.y << ")" << std::endl; 
+	}
+	void print(Scene& scene) {
+		std::cout << "Scene: " << std::endl;
+		auto entities = scene.getEntities();
+		for (std::size_t i = 0; i < entities.size(); i++)
+			print(*entities[i]);
 	}
 };
-
-void print(const Scene& scene) {
-	Printer printer;
-	scene.print(printer);
-	std::string what = printer.getStream().str();
-	std::cout << what << std::endl;
-}
 
 void run() {
 	Scene scene;
@@ -142,8 +131,8 @@ void run() {
 			// .withComponent(new ParticleSystemDrawer(propulsionTexture))
 				// .withNumParticles(200)
 			// .withComponent(new PropulsionExtra());
-	
-	print(scene);
+			
+	ScenePrinter().print(scene);
 }
 
 int main() {
