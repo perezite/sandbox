@@ -7,7 +7,6 @@ struct Vector2f {
 	Vector2f(float x_ = 0, float y_ = 0)
 		: x(x_), y(y_)
 	{ }
-	
 	float x, y;
 };
 
@@ -23,7 +22,20 @@ public:
 
 class Window;
 class Drawable {
+public:
 	virtual void draw(Window& window, const Vector2f& position) = 0;
+};
+
+class Transformable {
+private: 
+	Vector2f _position;	
+	Vector2f _scale;
+public:
+	Transformable() : _position(0, 0), _scale(1, 1) { }
+	inline const Vector2f& getPosition() const { return _position; }
+	inline const Vector2f& getScale() const { return _scale; }	
+	inline void setPosition(const Vector2f& position) { _position = position; }
+	inline void setScale(const Vector2f& scale) { _scale = scale; }	
 };
 
 class Window {
@@ -55,19 +67,16 @@ public:
 };
 
 class Scene;
-class Component : public Drawable {
+class Component : public Drawable, public Transformable {
 private:
-	Vector2f _position;
 	std::string _type;
 public:
 	Component(const std::string& type) 
 		: _type(type)	
 	{ }
-	inline const Vector2f& getPosition() const { return _position; }	
 	inline const std::string& getType() const { return _type; } 
 	virtual void update(Scene& scene) { };
 	virtual void draw(Window& window, const Vector2f& position) { };
-	inline const Vector2f& getPosition() { return _position; }
 };
 
 class Paddle : public Component {
@@ -95,6 +104,22 @@ public:
 	}
 };
 
+class ParticleSystem : public Component {
+private:
+	std::size_t _numParticles;
+public:
+	ParticleSystem() 
+		: Component("ParticleSystem"), _numParticles(200)
+	{ }
+	inline void setNumParticles(std::size_t numParticles) { _numParticles = numParticles; }
+	void update() { 
+		std::cout << "ParticleSystem::update()" << std::endl;
+	}
+	void draw(Window& window, const Vector2f& position) {
+		std::cout << "ParticleSystem::draw() with " << _numParticles << " particles" << std::endl;
+	}
+};
+
 class Drawer : public Component {
 private:
 	Drawable& _drawable;
@@ -107,31 +132,26 @@ public:
 	}
 	void draw(Window& window, const Vector2f& position) {
 		std::cout << "Drawer::draw()" << std::endl;
+		_drawable.draw(window, position);
 	}
 };
 
-class Entity {
+class Entity : public Transformable {
 private:
 	std::string _name;
 	Entity* _parent;
 	std::vector<Component*> _components;
-	Vector2f _position;	
-	Vector2f _scale;
 public:
 	Entity(const std::string& name, Entity* parent = NULL) 
-		: _name(name), _parent(parent), _scale(1,1)
+		: _name(name), _parent(parent)
 	{ }
 	virtual ~Entity() {
 		for(std::size_t i = 0; i < _components.size(); i++)
 			delete _components[i];
 		_components.clear();
 	}
-	inline void setPosition(const Vector2f& position) { _position = position; }
-	inline void setScale(const Vector2f& scale) { _scale = scale; }
 	inline const std::string& getName() const { return _name; }
 	inline Entity* getParent() const { return _parent; }
-	inline const Vector2f& getPosition() const { return _position; }
-	inline const Vector2f& getScale() const { return _scale; }	
 	inline const std::vector<Component*>& getComponents() const { return _components; }
 	void addComponent(Component* component) {
 		_components.push_back(component);
@@ -178,36 +198,46 @@ class SceneBuilder {
 private:
 	Scene& _scene;
 	Entity* _entity;
-	Component* _component;
+	Transformable* _current;
 protected:
-	void assertEntity() {
+	Entity* getEntity() {
 		if (!_entity) {
 			std::cout << "Builder error: No entity set" << std::endl;
 			exit(1);
 		}
+		return _entity;; 
+	}
+	Transformable* getCurrent() {
+		if (!_current) {
+			std::cout << "Builder error: No transformable set" << std::endl;
+			exit(1);
+		}
+		return _current;			
 	}	
 public:
 	SceneBuilder(Scene& scene) 
-		: _scene(scene), _entity(NULL)
+		: _scene(scene), _entity(NULL), _current(NULL)
 	{ }
 	SceneBuilder& addEntity(const std::string& name="unnamed") {
 		_entity = new Entity(name);
+		_current = _entity;
 		_scene.addEntity(_entity);		
 		return *this;
 	}
 	SceneBuilder& withComponent(Component* component) {
-		assertEntity();
-		_entity->addComponent(component);
+		_current = component;
+		getEntity()->addComponent(component);
 		return *this;
-	}		
+	}
+	SceneBuilder& withComponent(Drawable& drawable) {
+		return withComponent(new Drawer(drawable));
+	}
 	SceneBuilder& withPosition(const Vector2f& position) {
-		assertEntity();
-		_entity->setPosition(position);
+		getCurrent()->setPosition(position);
 		return *this;
 	}
 	SceneBuilder& withScale(const Vector2f& scale) {
-		assertEntity();
-		_entity->setScale(scale);
+		getCurrent()->setScale(scale);
 		return *this;
 	}	
 	SceneBuilder& withPosition(float x, float y) {
@@ -218,6 +248,7 @@ public:
 	}	
 	SceneBuilder& withChildEntity(const std::string name="unnamed") {
 		_entity = new Entity(name, _entity);
+		_current = _entity;
 		_scene.addEntity(_entity);
 		return *this;	
 	}
@@ -231,20 +262,23 @@ protected:
 public: 
 	ScenePrinter() 
 	{ }
+	void printTransformable(const Transformable& transformable, std::size_t indent_) {
+		const Vector2f& position = transformable.getPosition();
+		const Vector2f& scale = transformable.getScale();
+		std::cout << indent(indent_) << "Position: (" << position.x << 
+			"," << position.y << ")" << std::endl; 
+		std::cout << indent(indent_) << "Scale: (" << scale.x << 
+			"," << scale.y << ")" << std::endl; 	
+	}
 	void print(const Component& component) {
 		std::cout << indent(2) << "Component (" << component.getType() << ")" << std::endl; 
-		const Vector2f position = component.getPosition();
-		std::cout << indent(3) << "Position (" << position.x << "," << 
-			position.y << ")" << std::endl; 
+		printTransformable(component, 3);
 	}
 	void print(const Entity& entity) {
 		auto position = entity.getPosition();
 		auto scale = entity.getScale();
 		std::cout << indent(1) << "Entity (" << entity.getName() << "):" << std::endl;
-		std::cout << indent(2) << "Position: (" << position.x << 
-			"," << position.y << ")" << std::endl; 
-		std::cout << indent(2) << "Scale: (" << scale.x << 
-			"," << scale.y << ")" << std::endl; 			
+		printTransformable(entity, 2);
 		if (entity.getParent())
 			std::cout << indent(2) << "Parent: " << entity.getParent()->getName() << std::endl;
 		auto components = entity.getComponents();
@@ -268,20 +302,19 @@ void run() {
 	paddleTexture.load("paddle.png");
 	propulsionTexture.load("propulsion.png");
 	Sprite paddleSprite(paddleTexture);
-	// ParticleSystem particleSystem(propulsionTexture);
+	ParticleSystem particleSystem;
+	particleSystem.setNumParticles(42);
 	
 	SceneBuilder(scene).addEntity("paddle")
 		.withPosition(1, 1)
 		.withComponent(new Paddle())
-			// withScale(0.5f, 0.5f)
-		.withComponent(new Drawer(paddleSprite))
+			.withScale(0.5f, 0.5f)
+		.withComponent(paddleSprite)
 		.withChildEntity("leftPropulsion")
 			.withPosition(-0.5f, -0.2f)
 			.withScale(0.1f, 0.1f)
-			.withComponent(new Propulsion(false));
-			// .withComponent(new Drawer(particleSystem))
-				// .withNumParticles(200)
-			// .withComponent(new PropulsionExtra());
+			.withComponent(new Propulsion(false))
+			.withComponent(particleSystem);
 
 	ScenePrinter().print(scene);		
 	scene.update();
