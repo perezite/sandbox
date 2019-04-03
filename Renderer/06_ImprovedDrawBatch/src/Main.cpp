@@ -146,11 +146,82 @@ void demo2()
 	cleanup2(drawables);
 }
 
+class Created {
+private:
+	std::size_t _val;
+public:
+	Created(std::size_t val) 
+		: _val(val)
+	{
+		std::cout << "Created::Created()" << std::endl;
+	}
+
+	void print() {
+		std::cout << _val << std::endl;
+	}
+};
+
+class Creator {
+private:
+	std::vector<Created*> _created;
+public:
+	void add(Created* created) {
+		_created.push_back(created);
+	}
+	void print() {
+		for (std::size_t i = 0; i < _created.size(); i++)
+			_created[i]->print();
+	}
+};
+
+void demo3()
+{
+	Creator creator;
+	creator.add(&Created(42));
+	creator.add(&Created(43));
+	creator.add(&Created(44));
+	creator.print();
+}
+
+class MyValue {
+	std::size_t _myVal;
+public:
+	MyValue(std::size_t myVal)
+		: _myVal(myVal)
+	{ }
+};
+
+std
+
+class MyStuff {
+public:
+	MyStuff(int* myInt, MyValue& myValue) {
+
+	}
+};
+
+template <class Type, class Arg1, class Arg2>
+Type* create(Arg1 arg1, Arg2 arg2)
+{
+	return new Type(arg1, arg2);
+}
+
+void demo4() {
+	int myInt = 42;
+	int* myIntPointer = &myInt;
+	MyValue myValue(43);
+	MyStuff* stuff = create<MyStuff>(myIntPointer, myValue);
+}
+
 int main(int argc, char* args[])
 {
 	SDL_Log("DrawBatch Renderer: Build %s %s", __DATE__, __TIME__);
 	
-	demo2();
+	demo4();
+
+	// demo3();
+
+	// demo2();
 
 	// demo1();
 
