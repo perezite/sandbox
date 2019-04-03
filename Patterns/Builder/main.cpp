@@ -322,6 +322,7 @@ void run() {
 }
 
 int main() {
+	int i = 42;
 	std::cout << "Build: " << __DATE__ << " " << __TIME__ << std::endl;
 	run();
 	
