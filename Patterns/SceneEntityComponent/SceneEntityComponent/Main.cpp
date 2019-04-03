@@ -84,7 +84,9 @@ private:
 	std::vector<Entity*> _entities;
 };
 
-void run(Scene& scene, Window& window) {
+void run(Scene& scene) {
+	Window window;
+
 	while (scene.isOpen()) {
 		window.update();
 		scene.update();
@@ -94,7 +96,6 @@ void run(Scene& scene, Window& window) {
 }
 
 void scene() {
-	Window window;
 	Scene scene;
 
 	Entity& firstEntity = scene.addEntity(new Entity());
@@ -103,7 +104,7 @@ void scene() {
 	secondEntity.addComponent(new Component("TestComponent2"));
 	secondEntity.addComponent(new Component("TestComponent3"));
 
-	run(scene, window);
+	run(scene);
 }
 
 int main() {
