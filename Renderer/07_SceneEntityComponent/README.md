@@ -1,3 +1,4 @@
 # Content
-Different drawables can be batched into a single draw call
-This is a new version of the DrawBatch with a slightly more intuitive Api.
+Some tests for scene management and 'entities'. The title of the folder is somewhat misleading. 
+There are actually no entities, but just plain header classes which contain the draw and update code. 
+This works fine so far and is super lightweight - a full fleged ECS system does not seem necessary.

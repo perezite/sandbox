@@ -13,6 +13,6 @@ namespace sb
 	public:
 		virtual ~Drawable() { };
 
-		virtual void draw(DrawTarget& target, Transform transform) = 0;
+		virtual void draw(DrawTarget& target, Transform transform = Transform::Identity) = 0;
 	};
 }
