@@ -63,16 +63,19 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Input.h">
       <Filter>headers</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Stickman.h">
+      <Filter>headers</Filter>
+    </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Scene.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\SceneBuilder.h">
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Demo1Scene.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Entity.h">
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Transformable.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Stickman.h">
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\StickmanTester.h">
       <Filter>headers</Filter>
     </ClInclude>
   </ItemGroup>
@@ -85,13 +88,10 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Triangle.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Renderer.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Quad.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Drawable.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawBatch.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawTarget.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Input.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Scene.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\SceneBuilder.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Entity.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Vector2f.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Transformable.cpp" />
   </ItemGroup>
 </Project>

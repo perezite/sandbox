@@ -6,7 +6,7 @@
 #include "Stopwatch.h"
 
 namespace sb {
-	class Stickman {
+	class Stickman : public Transformable {
 		Quad _chest;
 		Quad _head;
 
@@ -32,28 +32,17 @@ namespace sb {
 			initFingers(_rightFingers);
 		}
 
-		void initFingers(std::vector<Quad>& fingers) {
-			for (std::size_t i = 0; i < _leftFingers.size(); i++) {
-				fingers[i].setScale(1, 0.1f);
-				fingers[i].setPosition(0, 0.15f * i);
-			}
-		}
+		void draw(DrawTarget& drawTarget, DrawBatch& handBatch, Transform parent = Transform::Identity) {
+			parent *= getTransform();
 
-		void draw(DrawTarget& drawTarget, DrawBatch& handBatch, Transform& parent = Transform::Identity) {
 			drawTarget.draw(_chest, parent);
 			drawTarget.draw(_head, parent);
 
 			handBatch.draw(_leftHand, parent);
 			handBatch.draw(_rightHand, parent);
 
-			drawFingers(_leftFingers, handBatch, _leftHand.getTransform() * parent, Vector2f(-1, -0.3f));
-			drawFingers(_rightFingers, handBatch, _rightHand.getTransform() * parent, Vector2f(1, -0.3f));
-		}
-
-		void drawFingers(std::vector<Quad>& fingers, DrawBatch& batch, Transform transform, const Vector2f& offset) {		
-			transform.translate(offset);
-			for (std::size_t i = 0; i < fingers.size(); i++) 
-				batch.draw(fingers[i], transform);
+			drawFingers(_leftFingers, handBatch, parent * _leftHand.getTransform(), Vector2f(-1, -0.3f));
+			drawFingers(_rightFingers, handBatch, parent * _rightHand.getTransform(), Vector2f(1, -0.3f));
 		}
 
 		void update() {
@@ -65,5 +54,20 @@ namespace sb {
 			_leftHand.setPosition(-0.3f + sinf(dt * -5) * 0.05f, 0.1f);
 			_rightHand.setPosition(0.3f + sinf(dt * 5) * 0.05f, 0.1f);
 		}
+
+	protected:
+		void initFingers(std::vector<Quad>& fingers) {
+			for (std::size_t i = 0; i < _leftFingers.size(); i++) {
+				fingers[i].setScale(1, 0.1f);
+				fingers[i].setPosition(0, 0.15f * i);
+			}
+		}
+
+		void drawFingers(std::vector<Quad>& fingers, DrawBatch& batch, Transform parent, const Vector2f& offset) {
+			parent.translate(offset);
+			for (std::size_t i = 0; i < fingers.size(); i++)
+				batch.draw(fingers[i], parent);
+		}
+
 	};
 }

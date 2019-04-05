@@ -1,8 +1,8 @@
-#include "Drawable.h"
+#include "Transformable.h"
 
 namespace sb 
 {
-	const Transform& Drawable::getTransform()
+	const Transform& Transformable::getTransform()
 	{
 		if (m_transformNeedsUpdate)
 			updateTransform();
@@ -10,25 +10,25 @@ namespace sb
 		return m_transform;
 	}
 
-	void Drawable::setPosition(const Vector2f& position)
+	void Transformable::setPosition(const Vector2f& position)
 	{
 		m_position = position;
 		m_transformNeedsUpdate = true;
 	}
 
-	void Drawable::setScale(const sb::Vector2f& scale)
+	void Transformable::setScale(const sb::Vector2f& scale)
 	{
 		m_scale = scale;
 		m_transformNeedsUpdate = true;
 	}
 
-	void Drawable::setRotation(float radians)
+	void Transformable::setRotation(float radians)
 	{
 		m_rotation = radians;
 		m_transformNeedsUpdate = true;
 	}
 
-	void Drawable::updateTransform()
+	void Transformable::updateTransform()
 	{
 		m_transform = Transform(m_position, m_scale, m_rotation);
 		m_transformNeedsUpdate = false;

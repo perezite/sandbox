@@ -1,10 +1,10 @@
 #pragma once
+#include "Drawable.h"
 
-namespace sb
+namespace sb 
 {
-	class Scene
+	class Scene : public Drawable
 	{
-	public:
-		Scene();
+		virtual void update() = 0;
 	};
 }
