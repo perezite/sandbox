@@ -78,24 +78,27 @@ struct Scene : public Drawable {
 		return *entity;
 	}
 	virtual bool isOpen() const { return _isOpen; }
-	bool close() { _isOpen = false; }
+	void close() { _isOpen = false; }
 private:
 	bool _isOpen;
 	std::vector<Entity*> _entities;
 };
 
-void run(Scene& scene) {
-	Window window;
-
+void runScene1(Scene& scene, Window& window) {
+	std::size_t counter = 0;
 	while (scene.isOpen()) {
 		window.update();
 		scene.update();
 		window.draw(scene);
 		window.display();
+
+		counter++;
+		if (counter >= 3)
+			scene.close();
 	}
 }
 
-void scene() {
+void scene1(Window& window) {
 	Scene scene;
 
 	Entity& firstEntity = scene.addEntity(new Entity());
@@ -104,12 +107,37 @@ void scene() {
 	secondEntity.addComponent(new Component("TestComponent2"));
 	secondEntity.addComponent(new Component("TestComponent3"));
 
-	run(scene);
+	runScene1(scene, window);
+}
+
+void runScene2(Scene& scene, Window& window) {
+	while (scene.isOpen()) {
+		window.update();
+		scene.update();
+		window.draw(scene);
+		window.display();
+		scene.close();
+	}
+}
+
+void scene2(Window& window) {
+	Scene scene;
+
+	Entity& firstEntity = scene.addEntity(new Entity());
+	firstEntity.addComponent(new Component("TestComponent4"));
+	runScene2(scene, window);
+}
+
+void game() {
+	Window window;
+	scene1(window);
+	scene2(window);
 }
 
 int main() {
 	std::cout << "Build: " << __DATE__ << " " << __TIME__ << std::endl;
-	scene();
+	game();
+	std::cout << "The End!" << std::endl;
 	std::cin.get();
 
 	return 0;

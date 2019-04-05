@@ -45,8 +45,8 @@ namespace sb
 	const Transform& Transform::translate(const Vector2f& position)
 	{
 		Transform translation(
-			0, 0, position.x,
-			0, 0, position.y,
+			1, 0, position.x,
+			0, 1, position.y,
 			0, 0, 1);
 
 		return apply(translation);

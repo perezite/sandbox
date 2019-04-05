@@ -10,4 +10,6 @@ namespace sb
 
 		float x, y;
 	};
+
+	Vector2f operator+(const Vector2f& vector, const Vector2f& transform);
 }

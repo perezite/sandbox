@@ -72,6 +72,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Entity.h">
       <Filter>headers</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Stickman.h">
+      <Filter>headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Main.cpp" />
@@ -89,5 +92,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Scene.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\SceneBuilder.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Entity.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Vector2f.cpp" />
   </ItemGroup>
 </Project>

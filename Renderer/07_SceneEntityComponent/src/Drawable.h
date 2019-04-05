@@ -29,6 +29,10 @@ namespace sb
 
 		void setPosition(const sb::Vector2f& position);
 
+		inline void translate(const Vector2f& translation) { setPosition(getPosition() + translation);  }
+
+		inline void translate(float x, float y) { setPosition(getPosition() + Vector2f(x, y)); }
+
 		inline void setScale(float x, float y) { setScale(sb::Vector2f(x, y)); }
 
 		void setScale(const sb::Vector2f& scale);

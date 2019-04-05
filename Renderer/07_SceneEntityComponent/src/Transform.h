@@ -31,7 +31,11 @@ namespace sb
 
 		const Transform& translate(const Vector2f& position);
 
+		inline const Transform& translate(float x, float y) { return translate(Vector2f(x, y)); }
+
 		const Transform& scale(const Vector2f& scale);
+
+		inline const Transform& scale(float x, float y) { return scale(Vector2f(x, y)); }
 
 		const Transform& rotate(const float angle);
 
