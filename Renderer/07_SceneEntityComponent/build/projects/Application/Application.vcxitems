@@ -19,8 +19,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Drawable.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawBatch.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawTarget.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\HierarchyTester.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\KeyCode.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Entity.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Input.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Logger.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\GL.h" />
@@ -29,6 +28,8 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\PrimitiveType.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Quad.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Renderer.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Scene.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\SceneBuilder.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Shader.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Stopwatch.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Transform.h" />
@@ -41,11 +42,13 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Drawable.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawBatch.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawTarget.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\HierarchyTester.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Entity.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Input.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Main.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Quad.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Renderer.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Scene.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\SceneBuilder.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Shader.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Stopwatch.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Transform.cpp" />
