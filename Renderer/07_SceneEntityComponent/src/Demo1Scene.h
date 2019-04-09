@@ -33,11 +33,12 @@ namespace sb
 			triangle1.setPosition(0.5f, 0.3f);
 			triangle1.setScale(0.3f, 0.3f);
 			triangle1.setRotation(Pi / 5);
+
 			triangle2.setPosition(0.5f, -0.3f);
 			triangle2.setScale(0.3f, 0.3f);
 			triangle2.setRotation(-Pi / 5);
 		}
-
+		 
 		void draw(DrawTarget& target, Transform transform = Transform::Identity) {
 			target.draw(quad1); 
 			stickman.draw(target, batch);

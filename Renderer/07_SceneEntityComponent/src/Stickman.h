@@ -47,12 +47,12 @@ namespace sb {
 
 		void update() {
 			static Stopwatch sw;
-			float dt = sw.getElapsedSeconds();
+			float t = sw.getElapsedSeconds();
 
-			_chest.setPosition(0, sinf(dt * 3) * 0.05f);
-			_head.setPosition(0, 0.4f + sinf(dt * 10) * 0.02f);
-			_leftHand.setPosition(-0.3f + sinf(dt * -5) * 0.05f, 0.1f);
-			_rightHand.setPosition(0.3f + sinf(dt * 5) * 0.05f, 0.1f);
+			_chest.setPosition(0, sinf(t * 3) * 0.05f);
+			_head.setPosition(0, 0.4f + sinf(t * 10) * 0.02f);
+			_leftHand.setPosition(-0.3f + sinf(t * -5) * 0.05f, 0.1f);
+			_rightHand.setPosition(0.3f + sinf(t * 5) * 0.05f, 0.1f);
 		}
 
 	protected:

@@ -15,6 +15,7 @@ namespace sb
 		inline void endScene() { m_isPlaying = false; };
 
 		virtual void update() = 0;
+
 	private: 
 		bool m_isPlaying;
 	};
