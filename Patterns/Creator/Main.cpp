@@ -7,15 +7,16 @@ public:
 	Texture() { 
 		static std::size_t counter = 0;
 		_id = counter++;
-		std::cout << "Texture::ctor()" << std::endl;
+		std::cout << "Texture::ctor() " << _id << std::endl;
 	}
 
 	virtual ~Texture() {
 		std::cout << "Texture::dtor() " << _id << std::endl;
 	}
 
-	void loadFromFile(std::string filename) {
+	Texture& loadFromFile(std::string filename) {
 		std::cout << "Load texture from file: " << filename << std::endl;
+		return *this;
 	}
 
 	static Texture* createFromFile(const std::string& filename) {
@@ -27,16 +28,16 @@ public:
 
 void main() {
 	{
-		std::cout << "Test1" << std::endl;
-		Texture texture1;
-		texture1.loadFromFile("bunny.png");
+		//std::cout << "Test1" << std::endl;
+		//Texture texture1;
+		//texture1.loadFromFile("bunny.png");
 
-		std::cout << "Test2" << std::endl;
-		Texture* texture2 = Texture::createFromFile("bunny.png");
-		delete texture2;
+		//std::cout << "Test2" << std::endl;
+		//Texture* texture2 = Texture::createFromFile("bunny.png");
+		//delete texture2;
 
-		std::cout << "Test3" << std::endl;
-		Texture tex;
+		//std::cout << "Test3" << std::endl;
+		//Texture tex;
 
 		// Object<Texture> tex(new Texture())
 		// Object<Texture> tex()
@@ -46,8 +47,8 @@ void main() {
 	}
 
 	{
-		std::cout << "Test4" << std::endl;
-		Texture tex;
+		//std::cout << "Test4" << std::endl;
+		//Texture tex;
 	}
 
 	{
@@ -55,6 +56,12 @@ void main() {
 		// Texture tex(Texture::loadFromFile("bunny.png"));
 		// Texture tex::create(...);
 		// Object<Texture> texture(new Texture());
+	}
+
+	{
+		/*std::cout << "Begin Test5" << std::endl;
+		auto texture = Texture().loadFromFile("bunny.png");
+		std::cout << "End Test5" << std::endl;*/
 	}
 
 	std::cout << "Press any key to continue" << std::endl;
