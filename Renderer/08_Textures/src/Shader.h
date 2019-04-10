@@ -3,14 +3,23 @@
 #include "GL.h"
 #include <map>
 #include <string>
-
+#include <iostream>
 
 namespace sb
 {
 	class Shader
 	{
 	public:
-		Shader();
+		Shader()
+		{ 
+			std::cout << "Shader()" << std::endl;
+		}
+
+		Shader(const std::string& vertexShaderCode, const std::string& fragmentShaderCode);
+
+		void loadFromMemory(const std::string& vertexShaderCode, const std::string& fragmentShaderCode);
+
+		Shader& getDefault();
 
 		GLuint getAttributeLocation(std::string attribute);
 
@@ -21,18 +30,22 @@ namespace sb
 		void destroy();
 
 	protected:
-		std::string getVertexShaderSource();
-
-		std::string getFragmentShaderSource();
-
-		GLuint getUniformLocation(std::string uniform);
-
 		GLuint compile(std::string shaderCode, GLenum type);
 
 		void link();
 
+		GLuint getUniformLocation(std::string uniform);
+
+		std::string getDefaultVertexShaderCode();
+
+		std::string getDefaultFragmentShaderCode();
+
 	private:
-		GLuint m_shader;
+		std::string m_vertexShaderCode;
+
+		std::string m_fragmentShaderCode;
+
+		GLuint m_handle;
 
 		std::map<std::string, GLuint> m_attributeLocations;
 

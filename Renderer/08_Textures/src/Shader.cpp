@@ -1,33 +1,43 @@
 #include "Shader.h"
+#include "Logger.h"
 
-#include <iostream>
+#define SB_SHADER_CODE(x) #x
 
 namespace sb
 {
-	Shader::Shader()
+	Shader::Shader(const std::string& vertexShaderCode, const std::string& fragmentShaderCode) 
 	{
-		m_shader = glCreateProgram();
-		if (m_shader == 0) {
-			std::cout << "error creating shader program" << std::endl;
-			std::cin.get();
-		}
+		loadFromMemory(vertexShaderCode, fragmentShaderCode);
+	}
 
-		std::string vertexShaderCode = getVertexShaderSource();
-		std::string fragmentShaderCode = getFragmentShaderSource();
+	void Shader::loadFromMemory(const std::string& vertexShaderCode, const std::string& fragmentShaderCode) 
+	{
+		m_handle = glCreateProgram();
+		SB_ERROR_IF(m_handle == 0) << "Allocating shader failed" << std::endl;
+
 		GLuint vertexShader = compile(vertexShaderCode, GL_VERTEX_SHADER);
 		GLuint fragmentShader = compile(fragmentShaderCode, GL_FRAGMENT_SHADER);
 
-		glAttachShader(m_shader, vertexShader);
-		glAttachShader(m_shader, fragmentShader);
+		glAttachShader(m_handle, vertexShader);
+		glAttachShader(m_handle, fragmentShader);
+
 		link();
+
 		glDeleteShader(vertexShader);
 		glDeleteShader(fragmentShader);
+	}
+
+	Shader& Shader::getDefault() 
+	{
+		static Shader defaultShader;
+		defaultShader.loadFromMemory(getDefaultVertexShaderCode(), getDefaultFragmentShaderCode());
+		return defaultShader;
 	}
 
 	GLuint Shader::getAttributeLocation(std::string attribute) 
 	{
 		if (m_attributeLocations.find(attribute) == m_attributeLocations.end()) {
-			GLuint location = glGetAttribLocation(m_shader, attribute.c_str());
+			GLuint location = glGetAttribLocation(m_handle, attribute.c_str());
 			m_attributeLocations[attribute] = location;
 			return location;
 		}
@@ -44,51 +54,12 @@ namespace sb
 
 	void Shader::use()
 	{
-		glUseProgram(m_shader);
+		glUseProgram(m_handle);
 	}
 
 	void Shader::destroy()
 	{
-		glDeleteProgram(m_shader);
-	}
-
-	std::string Shader::getVertexShaderSource()
-	{
-		return
-			"attribute vec2 position;																\n"
-			"attribute vec4 color;																	\n"
-			"uniform mat3 transform;																		\n"
-			"varying vec4 v_color;																	\n"
-			"vec3 transformedPosition;																\n"
-			"void main()																			\n"
-			"{																						\n"							
-			"   transformedPosition = transform * vec3(position.x, position.y, 1);					\n"
-			"   gl_Position = vec4(transformedPosition.x, transformedPosition.y, 0, 1 );			\n"
-			"	v_color = color;																	\n"
-			"}";
-	}
-
-	std::string Shader::getFragmentShaderSource()
-	{
-		return
-			"#version 100									\n"
-			"precision mediump float;						\n"
-			"varying vec4 v_color;		 					\n"
-			"void main()									\n"
-			"{												\n"
-			"  gl_FragColor = v_color;						\n"
-			"}												\n";
-	}
-
-	GLuint Shader::getUniformLocation(std::string uniform)
-	{
-		if (m_uniformLocations.find(uniform) == m_uniformLocations.end()) {
-			GLuint location = glGetUniformLocation(m_shader, uniform.c_str());
-			m_uniformLocations[uniform] = location;
-			return location;
-		}
-
-		return m_uniformLocations[uniform];
+		glDeleteProgram(m_handle);
 	}
 
 	GLuint Shader::compile(std::string shaderCode, GLenum type)
@@ -109,8 +80,7 @@ namespace sb
 				if (infoLen > 1) {
 					char* infoLog = new char[infoLen];
 					glGetShaderInfoLog(shader, infoLen, NULL, infoLog);
-					std::cout << "error compiling shader: " << infoLog << std::endl;
-					std::cin.get();
+					SB_ERROR() << "error compiling shader: " << infoLog << std::endl;
 					delete[] infoLog;
 				}
 				glDeleteShader(shader);
@@ -123,22 +93,62 @@ namespace sb
 
 	void Shader::link()
 	{
-		glLinkProgram(m_shader);
+		glLinkProgram(m_handle);
 		GLint linked;
-		glGetProgramiv(m_shader, GL_LINK_STATUS, &linked);
+		glGetProgramiv(m_handle, GL_LINK_STATUS, &linked);
 		if (!linked) {
 			GLint infoLen = 0;
-			glGetProgramiv(m_shader, GL_INFO_LOG_LENGTH, &infoLen);
+			glGetProgramiv(m_handle, GL_INFO_LOG_LENGTH, &infoLen);
 
 			if (infoLen > 1) {
 				char* infoLog = new char[infoLen];
-				glGetProgramInfoLog(m_shader, infoLen, NULL, infoLog);
-				std::cout << "Error linking shader program: " << std::endl << infoLog << std::endl;
-				std::cin.get();
+				glGetProgramInfoLog(m_handle, infoLen, NULL, infoLog);
+				SB_ERROR() << "Error linking shader program: " << std::endl << infoLog << std::endl;
 				delete[] infoLog;
 			}
 
-			glDeleteProgram(m_shader);
+			glDeleteProgram(m_handle);
 		}
+	}
+
+	GLuint Shader::getUniformLocation(std::string uniform)
+	{
+		if (m_uniformLocations.find(uniform) == m_uniformLocations.end()) {
+			GLuint location = glGetUniformLocation(m_handle, uniform.c_str());
+			m_uniformLocations[uniform] = location;
+			return location;
+		}
+
+		return m_uniformLocations[uniform];
+	}
+
+	std::string Shader::getDefaultVertexShaderCode()
+	{
+		return SB_SHADER_CODE (
+			attribute vec2 position;																\n
+			attribute vec4 color;																	\n
+			uniform mat3 transform;																	\n
+			varying vec4 v_color;																	\n
+			vec3 transformedPosition;																\n
+			void main()																				\n
+			{																						\n							
+				transformedPosition = transform * vec3(position.x, position.y, 1);					\n
+				gl_Position = vec4(transformedPosition.x, transformedPosition.y, 0, 1 );			\n
+				v_color = color;																	\n
+			}																						\n
+		);
+	}
+
+	std::string Shader::getDefaultFragmentShaderCode()
+	{
+		return SB_SHADER_CODE(
+			#version 100									\n
+			precision mediump float;						\n
+			varying vec4 v_color;		 					\n
+			void main()										\n
+			{												\n
+				gl_FragColor = v_color;						\n
+			}												\n
+		);
 	}
 }
