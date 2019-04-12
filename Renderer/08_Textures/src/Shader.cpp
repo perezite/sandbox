@@ -6,20 +6,26 @@ namespace sb
 {
 	Shader::Shader(const std::string& vertexShaderCode, const std::string& fragmentShaderCode) 
 	{
-		loadFromMemory(vertexShaderCode, fragmentShaderCode);
+		loadFromAsset(vertexShaderCode, fragmentShaderCode);
 	}
 
 	Shader& Shader::getDefault()
 	{
-		static Shader defaultShader(getDefaultVertexShaderCode(), getDefaultFragmentShaderCode());
+		static Shader defaultShader;
+		static bool isLoaded = false;
+		if (!isLoaded) {
+			defaultShader.loadFromMemory(getDefaultVertexShaderCode(), getDefaultFragmentShaderCode());
+			isLoaded = true;
+		}
 		return defaultShader;
 	}
 
-	GLuint Shader::getAttributeLocation(std::string attribute)
+	GLint Shader::getAttributeLocation(std::string attribute)
 	{
 		if (m_attributeLocations.find(attribute) == m_attributeLocations.end()) {
-			GLuint location;
+			GLint location;
 			GL_CHECK(location = glGetAttribLocation(m_handle, attribute.c_str()));
+			SB_ERROR_IF(location < 0) << "Requested shader attribute " << attribute << " is not available" << std::endl;
 			m_attributeLocations[attribute] = location;
 			return location;
 		}
@@ -27,10 +33,16 @@ namespace sb
 		return m_attributeLocations[attribute];
 	}
 
-	void Shader::setUniformMatrix3(std::string uniformName, const float* matrix3)
+	void Shader::setMatrix3(std::string uniformName, const float* matrix3)
 	{
 		GLuint uniformLocation = getUniformLocation(uniformName);
 		GL_CHECK(glUniformMatrix3fv(uniformLocation, 1, GL_FALSE, matrix3));
+	}
+
+	void Shader::setInteger(std::string uniformName, int value)
+	{
+		GLuint uniformLocation = getUniformLocation(uniformName);
+		GL_CHECK(glUniform1i(uniformLocation, value));
 	}
 
 
@@ -68,7 +80,7 @@ namespace sb
 		loadFromMemory(Asset::readAllText(vertexShaderAssetPath), Asset::readAllText(fragmentShaderAssetPath));
 	}
 
-	void Shader::use()
+	void Shader::use() const
 	{
 		GL_CHECK(glUseProgram(m_handle));
 	}

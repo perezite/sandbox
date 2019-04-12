@@ -129,17 +129,70 @@ void demo5() {
 	}
 }
 
+void demo7() {
+	sb::Window window;
+	
+	sb::Quad quad;
+	/*quad.getMesh()[0].color = sb::Color(1, 0, 0, 1);
+	quad.getMesh()[1].color = sb::Color(0, 1, 0, 1);
+	quad.getMesh()[2].color = sb::Color(0, 0, 1, 1);
+	quad.getMesh()[3].color = sb::Color(0, 1, 1, 1);*/
+
+	sb::Texture texture("Textures/GreenBlock.png");
+	sb::Shader shader("Shaders/Diffuse.vert", "Shaders/Diffuse.frag");
+	sb::DrawStates states;
+	states.texture = &texture;
+	states.shader = &shader;
+	
+	while (window.isOpen()) {
+		sb::Input::update();
+		window.update();
+		window.clear(sb::Color(1, 1, 1, 1));
+		// window.draw(quad);
+		window.draw(quad, states);
+		window.display();
+	}
+}
+
+void disco(sb::Quad& quad) {
+	sb::Mesh& mesh = quad.getMesh();
+	mesh[0].color = sb::Color(1, 0, 0, 1);
+	mesh[1].color = sb::Color(0, 1, 0, 1);
+	mesh[2].color = sb::Color(0, 0, 1, 1);
+	mesh[3].color = sb::Color(0, 1, 1, 1);
+}
+
+void demo6() {
+	sb::Window window;
+
+	sb::Quad quad;
+	disco(quad);
+
+	while (window.isOpen()) {
+		sb::Input::update();
+		window.update();
+		window.clear();
+		window.draw(quad);
+		window.display();
+	}
+	
+}
+
 int main(int argc, char* args[])
 {
 	SDL_Log("Texture Renderer: Build %s %s", __DATE__, __TIME__);
 
-	demo5();
+	demo7();
 
-	demo4();
+	// demo6();
 
-	demo3();
+	//demo5();
 
-	demo2();
+	//demo4();
 
-	demo1();
+	//demo3();
+
+	//demo2();
+
+	//demo1();
 }

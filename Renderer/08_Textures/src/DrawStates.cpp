@@ -2,5 +2,9 @@
 
 namespace sb
 {
-	const DrawStates DrawStates::Default = DrawStates();
+	DrawStates& DrawStates::getDefault()
+	{
+		static DrawStates defaultStates;
+		return defaultStates;
+	}
 }

@@ -12,19 +12,21 @@ namespace sb
 		Shader()
 		{ }
 
-		Shader(const std::string& vertexShaderCode, const std::string& fragmentShaderCode);
+		Shader(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
 
 		static Shader& getDefault();
 
-		GLuint getAttributeLocation(std::string attribute);
+		GLint getAttributeLocation(std::string attribute);
 
-		void setUniformMatrix3(std::string uniformName, const float* matrix3);
+		void setMatrix3(std::string uniformName, const float* matrix3);
+
+		void setInteger(std::string uniformName, int value);
 
 		void loadFromMemory(const std::string& vertexShaderCode, const std::string& fragmentShaderCode);
 
 		void loadFromAsset(const std::string& vertexShaderAssetPath, const std::string& fragmentShaderCode);
 
-		void use();
+		void use() const;
 
 		void destroy();
 

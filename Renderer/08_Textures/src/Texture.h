@@ -18,6 +18,8 @@ namespace sb
 
 		void loadFromAsset(const std::string filePath, bool flipVertically = true);
 
+		void bind() const;
+
 	protected:
 		SDL_Surface* convertPixelFormat(SDL_Surface* surface, Uint32 pixelFormat);
 

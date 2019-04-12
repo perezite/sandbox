@@ -17,11 +17,11 @@ namespace sb
 
 		void update();
 
-		void clear();
-
+		void clear(const Color& clearColor = Color(0, 0, 0, 1));
+		
 		using DrawTarget::draw;
 		virtual void draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType = PrimitiveType::Triangles, 
-			const DrawStates& states = DrawStates::Default);
+			const DrawStates& states = DrawStates::getDefault());
 
 		void display();
 

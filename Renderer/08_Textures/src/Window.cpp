@@ -40,7 +40,7 @@ namespace sb
 		m_renderer = new Renderer();		
 
 		GL_CHECK(glDisable(GL_DEPTH_TEST));
-		GL_CHECK(glClearColor(1, 1, 1, 1));
+		// GL_CHECK(glClearColor(1, 1, 1, 1));
 	}
 
 	Window::~Window()
@@ -55,8 +55,9 @@ namespace sb
 			m_isOpen = false;
 	}
 
-	void Window::clear()
+	void Window::clear(const Color& clearColor)
 	{
+		glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 		GL_CHECK(glClear(GL_COLOR_BUFFER_BIT));
 	}
 

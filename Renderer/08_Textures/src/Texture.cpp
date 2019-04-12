@@ -33,6 +33,11 @@ namespace sb
 		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
 	}
 
+	void Texture::bind() const
+	{
+		GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_handle));
+	}
+
 	SDL_Surface* Texture::convertPixelFormat(SDL_Surface* surface, Uint32 pixelFormat)
 	{
 		SDL_Surface* converted = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ABGR8888, SDL_SWSURFACE);

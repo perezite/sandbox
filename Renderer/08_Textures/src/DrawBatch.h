@@ -31,7 +31,7 @@ namespace sb
 
 			using DrawTarget::draw;
 			virtual void draw(const std::vector<Vertex>& vertices,
-				const PrimitiveType& primitiveType, const DrawStates& states = DrawStates::Default);
+				const PrimitiveType& primitiveType, const DrawStates& states = DrawStates::getDefault());
 
 			void flush();
 
@@ -66,7 +66,7 @@ namespace sb
 			m_drawCommands.reserve(bufferCapacity / 4);
 		}
 
-		void draw(Drawable& drawable, const DrawStates& states = DrawStates::Default);
+		void draw(Drawable& drawable, const DrawStates& states = DrawStates::getDefault());
 
 		virtual void draw(DrawTarget& target, DrawStates states);
 

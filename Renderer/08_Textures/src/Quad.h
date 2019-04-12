@@ -10,9 +10,11 @@ namespace sb
 		Quad() 
 		{ }
 		
-		virtual void draw(DrawTarget& window, DrawStates states = DrawStates::Default);
+		virtual void draw(DrawTarget& window, DrawStates states = DrawStates::getDefault());
+
+		inline Mesh& getMesh() { return QuadMesh; }
 
 	private:
-		static const Mesh QuadMesh;
+		static Mesh QuadMesh;
 	};
 }

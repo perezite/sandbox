@@ -10,11 +10,11 @@ namespace sb
 	class DrawTarget
 	{
 	public:
-		void draw(Drawable* drawable, const DrawStates& states = DrawStates::Default);
+		void draw(Drawable* drawable, const DrawStates& states = DrawStates::getDefault());
 
-		void draw(Drawable& drawable, const DrawStates& states = DrawStates::Default);
+		void draw(Drawable& drawable, const DrawStates& states = DrawStates::getDefault());
 
 		virtual void draw(const std::vector<Vertex>& vertices,
-			const PrimitiveType& primitiveType, const DrawStates& states = DrawStates::Default) = 0;		
+			const PrimitiveType& primitiveType, const DrawStates& states = DrawStates::getDefault()) = 0;		
 	};
 }
