@@ -32,7 +32,7 @@ namespace sb
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
 		m_shader.use();
-
+	
 		GLvoid* positionStart = (GLvoid*) &(vertices[0].position);
 		GLvoid* colorStart = (GLvoid*) &(vertices[0].color);
 		setVertexAttribPointer(m_shader.getAttributeLocation("position"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), positionStart);
@@ -48,7 +48,7 @@ namespace sb
 	}
 
 	void Renderer::draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType)
-	{
+	{	
 		glDrawArrays((GLenum)primitiveType, 0, vertices.size());
 		checkGLErrors();
 

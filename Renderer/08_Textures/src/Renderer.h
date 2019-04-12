@@ -12,6 +12,10 @@ namespace sb
 	class Renderer
 	{
 	public:
+		Renderer()
+			: m_shader(Shader::getDefault())
+		{ }
+
 		void render(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const Transform& transform);
 
 		static void resetStatistics();
@@ -30,7 +34,7 @@ namespace sb
 		void checkGLErrors();
 
 	private:
-		Shader m_shader;
+		Shader& m_shader;
 
 		static std::size_t m_numDrawCalls;
 	};

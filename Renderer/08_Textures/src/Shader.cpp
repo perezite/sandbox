@@ -1,13 +1,52 @@
 #include "Shader.h"
 #include "Logger.h"
-
-#define SB_SHADER_CODE(x) #x
+#include "Asset.h"
 
 namespace sb
 {
 	Shader::Shader(const std::string& vertexShaderCode, const std::string& fragmentShaderCode) 
 	{
 		loadFromMemory(vertexShaderCode, fragmentShaderCode);
+	}
+
+	Shader& Shader::getDefault()
+	{
+		static Shader defaultShader(getDefaultVertexShaderCode(), getDefaultFragmentShaderCode());
+		return defaultShader;
+	}
+
+	GLuint Shader::getAttributeLocation(std::string attribute)
+	{
+		if (m_attributeLocations.find(attribute) == m_attributeLocations.end()) {
+			GLuint location = glGetAttribLocation(m_handle, attribute.c_str());
+			m_attributeLocations[attribute] = location;
+			return location;
+		}
+
+		return m_attributeLocations[attribute];
+	}
+
+	void Shader::setUniformMatrix3(std::string uniformName, const float* matrix3)
+	{
+		GLuint uniformLocation = getUniformLocation(uniformName);
+
+		GLuint glError1 = glGetError();
+
+		glUniformMatrix3fv(uniformLocation, 1, GL_FALSE, matrix3);
+
+		GLuint glError2 = glGetError();
+	}
+
+
+	GLuint Shader::getUniformLocation(std::string uniform)
+	{
+		if (m_uniformLocations.find(uniform) == m_uniformLocations.end()) {
+			GLuint location = glGetUniformLocation(m_handle, uniform.c_str());
+			m_uniformLocations[uniform] = location;
+			return location;
+		}
+
+		return m_uniformLocations[uniform];
 	}
 
 	void Shader::loadFromMemory(const std::string& vertexShaderCode, const std::string& fragmentShaderCode) 
@@ -27,29 +66,9 @@ namespace sb
 		glDeleteShader(fragmentShader);
 	}
 
-	Shader& Shader::getDefault() 
+	void Shader::loadFromAsset(const std::string & vertexShaderAssetPath, const std::string & fragmentShaderAssetPath)
 	{
-		static Shader defaultShader;
-		defaultShader.loadFromMemory(getDefaultVertexShaderCode(), getDefaultFragmentShaderCode());
-		return defaultShader;
-	}
-
-	GLuint Shader::getAttributeLocation(std::string attribute) 
-	{
-		if (m_attributeLocations.find(attribute) == m_attributeLocations.end()) {
-			GLuint location = glGetAttribLocation(m_handle, attribute.c_str());
-			m_attributeLocations[attribute] = location;
-			return location;
-		}
-
-		return m_attributeLocations[attribute];
-	}
-
-	void Shader::setUniformMatrix3(std::string uniformName, const float* matrix3)
-	{
-		GLuint uniformLocation = getUniformLocation(uniformName);
-
-		glUniformMatrix3fv(uniformLocation, 1, GL_FALSE, matrix3);
+		loadFromMemory(Asset::readAllText(vertexShaderAssetPath), Asset::readAllText(fragmentShaderAssetPath));
 	}
 
 	void Shader::use()
@@ -109,17 +128,6 @@ namespace sb
 
 			glDeleteProgram(m_handle);
 		}
-	}
-
-	GLuint Shader::getUniformLocation(std::string uniform)
-	{
-		if (m_uniformLocations.find(uniform) == m_uniformLocations.end()) {
-			GLuint location = glGetUniformLocation(m_handle, uniform.c_str());
-			m_uniformLocations[uniform] = location;
-			return location;
-		}
-
-		return m_uniformLocations[uniform];
 	}
 
 	std::string Shader::getDefaultVertexShaderCode()

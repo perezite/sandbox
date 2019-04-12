@@ -1,9 +1,10 @@
 #pragma once
-
 #include "GL.h"
 #include <map>
 #include <string>
 #include <iostream>
+
+#define SB_SHADER_CODE(x) #x
 
 namespace sb
 {
@@ -11,19 +12,19 @@ namespace sb
 	{
 	public:
 		Shader()
-		{ 
-			std::cout << "Shader()" << std::endl;
-		}
+		{ }
 
 		Shader(const std::string& vertexShaderCode, const std::string& fragmentShaderCode);
 
-		void loadFromMemory(const std::string& vertexShaderCode, const std::string& fragmentShaderCode);
-
-		Shader& getDefault();
+		static Shader& getDefault();
 
 		GLuint getAttributeLocation(std::string attribute);
 
 		void setUniformMatrix3(std::string uniformName, const float* matrix3);
+
+		void loadFromMemory(const std::string& vertexShaderCode, const std::string& fragmentShaderCode);
+
+		void loadFromAsset(const std::string& vertexShaderAssetPath, const std::string& fragmentShaderCode);
 
 		void use();
 
@@ -36,15 +37,11 @@ namespace sb
 
 		GLuint getUniformLocation(std::string uniform);
 
-		std::string getDefaultVertexShaderCode();
+		static std::string getDefaultVertexShaderCode();
 
-		std::string getDefaultFragmentShaderCode();
+		static std::string getDefaultFragmentShaderCode();
 
 	private:
-		std::string m_vertexShaderCode;
-
-		std::string m_fragmentShaderCode;
-
 		GLuint m_handle;
 
 		std::map<std::string, GLuint> m_attributeLocations;

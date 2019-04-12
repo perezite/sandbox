@@ -72,6 +72,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Texture.h">
       <Filter>headers</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Asset.h">
+      <Filter>headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Main.cpp" />
@@ -88,5 +91,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Vector2f.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Transformable.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Texture.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Asset.cpp" />
   </ItemGroup>
 </Project>
