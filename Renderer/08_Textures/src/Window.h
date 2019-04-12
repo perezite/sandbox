@@ -1,10 +1,8 @@
 #pragma once
 
-#include "GL.h"
 #include "Drawable.h"
 #include "Renderer.h"
 #include "DrawTarget.h"
-#include <SDL2/SDL.h>
 
 namespace sb
 {
@@ -22,7 +20,8 @@ namespace sb
 		void clear();
 
 		using DrawTarget::draw;
-		virtual void draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType = PrimitiveType::Triangles, const Transform& transform = Transform::Identity);
+		virtual void draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType = PrimitiveType::Triangles, 
+			const DrawStates& states = DrawStates::Default);
 
 		void display();
 

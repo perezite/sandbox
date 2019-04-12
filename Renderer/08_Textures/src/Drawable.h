@@ -1,7 +1,7 @@
 #pragma once
-
 #include "Mesh.h"
 #include "Transformable.h"
+#include "DrawStates.h"
 
 namespace sb
 {
@@ -13,6 +13,6 @@ namespace sb
 	public:
 		virtual ~Drawable() { };
 
-		virtual void draw(DrawTarget& target, Transform transform = Transform::Identity) = 0;
+		virtual void draw(DrawTarget& target, DrawStates drawStates) = 0;
 	};
 }

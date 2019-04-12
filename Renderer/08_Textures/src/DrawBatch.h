@@ -2,6 +2,7 @@
 #include "DrawTarget.h"
 #include "Drawable.h"
 #include "Window.h"
+#include "DrawStates.h"
 #include <map>
 #include <tuple>
 
@@ -11,12 +12,12 @@ namespace sb
 	{
 	private:
 		struct DrawCommand {
-			DrawCommand(Drawable& drawable_, Transform transform_)
-				: drawable(drawable_), transform(transform_)
+			DrawCommand(Drawable& drawable_, DrawStates states_)
+				: drawable(drawable_), states(states_)
 			{ }
 
 			Drawable& drawable;
-			Transform transform;
+			DrawStates states;
 		};
 
 		class Buffer : public DrawTarget {
@@ -30,7 +31,7 @@ namespace sb
 
 			using DrawTarget::draw;
 			virtual void draw(const std::vector<Vertex>& vertices,
-				const PrimitiveType& primitiveType, const Transform& transform = Transform::Identity);
+				const PrimitiveType& primitiveType, const DrawStates& states = DrawStates::Default);
 
 			void flush();
 
@@ -40,7 +41,7 @@ namespace sb
 			bool mustFlush(const std::vector<Vertex>& vertices, PrimitiveType primitiveType);
 
 			void insert(const std::vector<Vertex>& vertices, 
-				const PrimitiveType& primitiveType, const Transform& transform);
+				const PrimitiveType& primitiveType, const DrawStates& states);
 
 			inline void transformVertices(std::vector<Vertex>& vertices, const Transform& transform);
 
@@ -65,9 +66,9 @@ namespace sb
 			m_drawCommands.reserve(bufferCapacity / 4);
 		}
 
-		void draw(Drawable& drawable, const Transform& transform = Transform::Identity);
+		void draw(Drawable& drawable, const DrawStates& states = DrawStates::Default);
 
-		virtual void draw(DrawTarget& target, Transform transform);
+		virtual void draw(DrawTarget& target, DrawStates states);
 
 	private:
 		Buffer m_buffer;

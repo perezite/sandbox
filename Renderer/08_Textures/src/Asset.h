@@ -8,8 +8,8 @@ namespace sb
 	public:
 		static std::string readAllText(const std::string& assetPath);
 
-	protected:
 		static std::string getFilePath(const std::string& assetPath);
+	protected:
 
 		static std::string getAssetFolderPath();
 

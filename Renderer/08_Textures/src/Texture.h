@@ -9,16 +9,23 @@ namespace sb
 	{
 	public:
 		Texture()
-		// 	: m_surface(NULL), m_handle(0)
+		: m_surface(NULL), m_handle(0)
 		{ }
 
-		Texture(const std::string filePath, bool flipVertically = false);
+		~Texture();
 
-		void loadFromFile(const std::string filePath, bool invertHorizontally = false);
+		Texture(const std::string filePath, bool flipVertically = true);
+
+		void loadFromAsset(const std::string filePath, bool flipVertically = true);
+
+	protected:
+		SDL_Surface* convertPixelFormat(SDL_Surface* surface, Uint32 pixelFormat);
+
+		SDL_Surface* flipSurfaceVertically(SDL_Surface* surface);
 
 	private:
-		// SDL_Surface* m_surface;
+		SDL_Surface* m_surface;
 
-		// GLuint m_handle;
+		GLuint m_handle;
 	};
 }

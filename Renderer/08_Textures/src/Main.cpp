@@ -4,11 +4,11 @@
 #include "Quad.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "Triangle.h"
 #include <SDL2/SDL.h>
 #include <vector>
 #include <iostream>
 #include <string>
-
 
 void demo1() {
 	sb::Window window;
@@ -106,13 +106,24 @@ void demo4() {
 
 void demo5() {
 	sb::Window window;
+	
+	sb::DrawBatch batch;
 	sb::Quad quad;
-	sb::Texture texture;
+	std::vector<sb::Triangle> triangles(2);
+	triangles[0].setScale(0.5f, 0.5f);
+	triangles[0].setPosition(-0.5f, -0.5f);
+	triangles[1].setScale(0.5f, 0.5f);
+	triangles[1].setPosition(0.5f, 0.5f);
+	quad.setScale(0.25f, 0.25f);
+	quad.setPosition(-0.5f, 0.5f);
 
 	while (window.isOpen()) {
 		sb::Input::update();
 		window.update();
 		window.clear();
+		batch.draw(triangles[0]);
+		batch.draw(triangles[1]);
+		window.draw(batch);
 		window.draw(quad);
 		window.display();
 	}

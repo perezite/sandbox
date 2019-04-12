@@ -1,11 +1,17 @@
 #include "Window.h"
 #include "Input.h"
+#include "GL.h"
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
 namespace sb 
 {
 	Window::Window(int width, int height) 
 		: m_isOpen(true)
 	{
+		SDL_Init(SDL_INIT_VIDEO);
+		IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG);
+
 		#ifdef WIN32
 			SDL_Init(SDL_INIT_VIDEO);
 			SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -54,9 +60,9 @@ namespace sb
 		GL_CHECK(glClear(GL_COLOR_BUFFER_BIT));
 	}
 
-	void Window::draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const Transform& transform)
+	void Window::draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawStates& states)
 	{
-		m_renderer->render(vertices, primitiveType, transform);
+		m_renderer->render(vertices, primitiveType, states);
 	}
 
 	void Window::display()

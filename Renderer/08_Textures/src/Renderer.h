@@ -16,14 +16,14 @@ namespace sb
 			: m_shader(Shader::getDefault())
 		{ }
 
-		void render(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const Transform& transform);
+		void render(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawStates& states);
 
 		static void resetStatistics();
 
 		static std::size_t getNumDrawCalls();
 
 	protected:
-		void setup(const std::vector<Vertex>& vertices, const Transform& transform);
+		void setup(const std::vector<Vertex>& vertices, const DrawStates& states);
 
 		void setVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer);
 

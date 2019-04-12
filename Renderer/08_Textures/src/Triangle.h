@@ -10,7 +10,7 @@ namespace sb
 		Triangle() 
 		{ }
 
-		virtual void draw(DrawTarget& window, Transform transform = Transform::Identity);
+		virtual void draw(DrawTarget& window, DrawStates states = DrawStates::Default);
 
 	private:
 		static const Mesh TriangleMesh;

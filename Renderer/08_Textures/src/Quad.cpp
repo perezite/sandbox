@@ -10,10 +10,10 @@ namespace sb
 		Vertex(Vector2f( 0.5f,  0.5f), Color(0, 1, 1, 1))
 	}, PrimitiveType::TriangleStrip);
 
-	void Quad::draw(DrawTarget& target, Transform transform)
+	void Quad::draw(DrawTarget& target, DrawStates states)
 	{
-		transform *= getTransform();
-		target.draw(QuadMesh.getVertices(), QuadMesh.getPrimitiveType(), transform);
+		states.transform *= getTransform();
+		target.draw(QuadMesh.getVertices(), QuadMesh.getPrimitiveType(), states);
 	}
 }
 

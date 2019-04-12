@@ -7,28 +7,28 @@ namespace sb
 {
 	std::size_t DrawBatch::Buffer::BatchingThreshold = 20;
 
-	void DrawBatch::draw(Drawable& drawable, const Transform& transform)
+	void DrawBatch::draw(Drawable& drawable, const DrawStates& states)
 	{
-		m_drawCommands.emplace_back(drawable, transform);
+		m_drawCommands.emplace_back(drawable, states);
 	}
 
-	void DrawBatch::draw(DrawTarget& target, Transform transform) 
+	void DrawBatch::draw(DrawTarget& target, DrawStates states) 
 	{
-		transform *= getTransform();
+		states.transform *= getTransform();
 
 		m_buffer.setTarget(target);
 		 for (std::size_t i = 0; i < m_drawCommands.size(); i++) 
-			 m_buffer.draw(m_drawCommands[i].drawable, m_drawCommands[i].transform);
+			 m_buffer.draw(m_drawCommands[i].drawable, m_drawCommands[i].states);
 
 		m_buffer.flush();
 		m_drawCommands.clear();
 	}
 
 	void DrawBatch::Buffer::draw(const std::vector<Vertex>& vertices, 
-		const PrimitiveType& primitiveType, const Transform& transform)
+		const PrimitiveType& primitiveType, const DrawStates& states)
 	{
 		if (vertices.size() > BatchingThreshold)
-			m_target->draw(vertices, primitiveType, transform);
+			m_target->draw(vertices, primitiveType, states);
 
 		if (mustFlush(vertices, primitiveType))
 			flush();
@@ -36,7 +36,7 @@ namespace sb
 		assertBufferSize(vertices);
 
 		m_currentPrimitiveType = primitiveType;
-		insert(vertices, primitiveType, transform);
+		insert(vertices, primitiveType, states);
 	}
 
 	void DrawBatch::Buffer::flush() 
@@ -63,10 +63,10 @@ namespace sb
 	}
 
 	void DrawBatch::Buffer::insert(const std::vector<Vertex>& vertices, 
-		const PrimitiveType& primitiveType, const Transform& transform)
+		const PrimitiveType& primitiveType, const DrawStates& states)
 	{
 		std::vector<Vertex> transformedVertices(vertices);
-		transformVertices(transformedVertices, transform);
+		transformVertices(transformedVertices, states.transform);
 
 		if (primitiveType == PrimitiveType::Triangles)
 			insertTriangles(transformedVertices);
