@@ -92,5 +92,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Transformable.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Texture.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Asset.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\GL.cpp" />
   </ItemGroup>
 </Project>

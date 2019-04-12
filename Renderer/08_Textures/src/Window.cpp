@@ -33,8 +33,8 @@ namespace sb
 		// the renderer expects an opened opengl context, so make sure it is created in the proper place!
 		m_renderer = new Renderer();		
 
-		glDisable(GL_DEPTH_TEST);
-		glClearColor(1, 1, 1, 1);
+		GL_CHECK(glDisable(GL_DEPTH_TEST));
+		GL_CHECK(glClearColor(1, 1, 1, 1));
 	}
 
 	Window::~Window()
@@ -51,7 +51,7 @@ namespace sb
 
 	void Window::clear()
 	{
-		glClear(GL_COLOR_BUFFER_BIT);
+		GL_CHECK(glClear(GL_COLOR_BUFFER_BIT));
 	}
 
 	void Window::draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const Transform& transform)

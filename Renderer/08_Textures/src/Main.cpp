@@ -3,21 +3,12 @@
 #include "Input.h"
 #include "Quad.h"
 #include "Shader.h"
-#include "Asset.h"
+#include "Texture.h"
 #include <SDL2/SDL.h>
 #include <vector>
 #include <iostream>
 #include <string>
 
-void demo0() {
-	std::string test = SB_SHADER_CODE(
-		line1	\n
-		line2	\n
-		line	\n
-	);
-	std::cout << test << std::endl;
-	std::cin.get();
-}
 
 void demo1() {
 	sb::Window window;
@@ -82,29 +73,27 @@ void demo3() {
 	sb::Window window;
 	sb::Shader shader;
 
-	const std::string vertexShader = SB_SHADER_CODE(
-		attribute vec2 position;																\n
-		attribute vec4 color;																	\n
-		uniform mat3 transform;																	\n
-		varying vec4 v_color;																	\n
-		vec3 transformedPosition;																\n
-		void main()																				\n
-	{ \n
-		transformedPosition = transform * vec3(position.x, position.y, 1);					\n
-		gl_Position = vec4(transformedPosition.x, transformedPosition.y, 0, 1);				\n
-		v_color = color;																	\n
-	}																						\n
-	);
+	const std::string vertexShader =
+		"attribute vec2 position;																\n"
+		"attribute vec4 color;																	\n"
+		"uniform mat3 transform;																\n"
+		"varying vec4 v_color;																	\n"
+		"vec3 transformedPosition;																\n"
+		"void main()																			\n"
+		"{																						\n"
+		"	transformedPosition = transform * vec3(position.x, position.y, 1);					\n"
+		"	gl_Position = vec4(transformedPosition.x, transformedPosition.y, 0, 1);				\n"
+		"	v_color = color;																	\n"
+		"}																						\n";
 
-	const std::string fragmentShader = SB_SHADER_CODE(
-		#version 100									\n
-		precision mediump float;						\n
-		varying vec4 v_color;		 					\n
-		void main()										\n
-	{ \n
-		gl_FragColor = v_color;						\n
-	}												\n
-	);
+	const std::string fragmentShader =
+		"#version 100									\n"
+		"precision mediump float;						\n"
+		"varying vec4 v_color;		 					\n"
+		"void main()									\n"
+		"{ \n											  "
+		"	gl_FragColor = v_color;						\n"
+		"}												\n";
 
 	shader.loadFromMemory(vertexShader, fragmentShader);
 }
@@ -115,17 +104,31 @@ void demo4() {
 	shader.loadFromAsset("Shaders/diffuse.vs", "Shaders/diffuse.fs");
 }
 
+void demo5() {
+	sb::Window window;
+	sb::Quad quad;
+	sb::Texture texture;
+
+	while (window.isOpen()) {
+		sb::Input::update();
+		window.update();
+		window.clear();
+		window.draw(quad);
+		window.display();
+	}
+}
+
 int main(int argc, char* args[])
 {
 	SDL_Log("Texture Renderer: Build %s %s", __DATE__, __TIME__);
 
+	demo5();
+
 	demo4();
 
-	// demo3();
+	demo3();
 
-	// demo2();
+	demo2();
 
-	// demo1();
-
-	// demo0();
+	demo1();
 }

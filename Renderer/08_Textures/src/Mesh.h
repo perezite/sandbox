@@ -1,6 +1,5 @@
 #pragma once
 
-#include "GL.h"
 #include "Vertex.h"
 #include "PrimitiveType.h"
 #include <vector>

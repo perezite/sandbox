@@ -18,7 +18,8 @@ namespace sb
 	GLuint Shader::getAttributeLocation(std::string attribute)
 	{
 		if (m_attributeLocations.find(attribute) == m_attributeLocations.end()) {
-			GLuint location = glGetAttribLocation(m_handle, attribute.c_str());
+			GLuint location;
+			GL_CHECK(location = glGetAttribLocation(m_handle, attribute.c_str()));
 			m_attributeLocations[attribute] = location;
 			return location;
 		}
@@ -29,19 +30,15 @@ namespace sb
 	void Shader::setUniformMatrix3(std::string uniformName, const float* matrix3)
 	{
 		GLuint uniformLocation = getUniformLocation(uniformName);
-
-		GLuint glError1 = glGetError();
-
-		glUniformMatrix3fv(uniformLocation, 1, GL_FALSE, matrix3);
-
-		GLuint glError2 = glGetError();
+		GL_CHECK(glUniformMatrix3fv(uniformLocation, 1, GL_FALSE, matrix3));
 	}
 
 
 	GLuint Shader::getUniformLocation(std::string uniform)
 	{
 		if (m_uniformLocations.find(uniform) == m_uniformLocations.end()) {
-			GLuint location = glGetUniformLocation(m_handle, uniform.c_str());
+			GLuint location;
+			GL_CHECK(location = glGetUniformLocation(m_handle, uniform.c_str()));
 			m_uniformLocations[uniform] = location;
 			return location;
 		}
@@ -51,19 +48,19 @@ namespace sb
 
 	void Shader::loadFromMemory(const std::string& vertexShaderCode, const std::string& fragmentShaderCode) 
 	{
-		m_handle = glCreateProgram();
-		SB_ERROR_IF(m_handle == 0) << "Allocating shader failed" << std::endl;
+		GL_CHECK(m_handle = glCreateProgram());
+		SB_ERROR_IF(m_handle == 0) << "Creating shader program failed" << std::endl;
 
 		GLuint vertexShader = compile(vertexShaderCode, GL_VERTEX_SHADER);
 		GLuint fragmentShader = compile(fragmentShaderCode, GL_FRAGMENT_SHADER);
 
-		glAttachShader(m_handle, vertexShader);
-		glAttachShader(m_handle, fragmentShader);
+		GL_CHECK(glAttachShader(m_handle, vertexShader));
+		GL_CHECK(glAttachShader(m_handle, fragmentShader));
 
 		link();
 
-		glDeleteShader(vertexShader);
-		glDeleteShader(fragmentShader);
+		GL_CHECK(glDeleteShader(vertexShader));
+		GL_CHECK(glDeleteShader(fragmentShader));
 	}
 
 	void Shader::loadFromAsset(const std::string & vertexShaderAssetPath, const std::string & fragmentShaderAssetPath)
@@ -73,36 +70,37 @@ namespace sb
 
 	void Shader::use()
 	{
-		glUseProgram(m_handle);
+		GL_CHECK(glUseProgram(m_handle));
 	}
 
 	void Shader::destroy()
 	{
-		glDeleteProgram(m_handle);
+		GL_CHECK(glDeleteProgram(m_handle));
 	}
 
 	GLuint Shader::compile(std::string shaderCode, GLenum type)
 	{
 		GLint compiled;
-		GLuint shader = glCreateShader(type);
+		GLuint shader;
+		GL_CHECK(shader = glCreateShader(type));
 
 		if (shader != 0) {
 			const char* shaderCodeStr = shaderCode.c_str();
-			glShaderSource(shader, 1, &shaderCodeStr, NULL);
-			glCompileShader(shader);
+			GL_CHECK(glShaderSource(shader, 1, &shaderCodeStr, NULL));
+			GL_CHECK(glCompileShader(shader));
 
-			glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
+			GL_CHECK(glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled));
 			if (!compiled) {
 				GLint infoLen = 0;
-				glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen);
+				GL_CHECK(glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen));
 
 				if (infoLen > 1) {
 					char* infoLog = new char[infoLen];
-					glGetShaderInfoLog(shader, infoLen, NULL, infoLog);
+					GL_CHECK(glGetShaderInfoLog(shader, infoLen, NULL, infoLog));
 					SB_ERROR() << "error compiling shader: " << infoLog << std::endl;
 					delete[] infoLog;
 				}
-				glDeleteShader(shader);
+				GL_CHECK(glDeleteShader(shader));
 				shader = 0;
 			}
 		}
@@ -112,51 +110,49 @@ namespace sb
 
 	void Shader::link()
 	{
-		glLinkProgram(m_handle);
+		GL_CHECK(glLinkProgram(m_handle));
 		GLint linked;
-		glGetProgramiv(m_handle, GL_LINK_STATUS, &linked);
+		GL_CHECK(glGetProgramiv(m_handle, GL_LINK_STATUS, &linked));
 		if (!linked) {
 			GLint infoLen = 0;
-			glGetProgramiv(m_handle, GL_INFO_LOG_LENGTH, &infoLen);
+			GL_CHECK(glGetProgramiv(m_handle, GL_INFO_LOG_LENGTH, &infoLen));
 
 			if (infoLen > 1) {
 				char* infoLog = new char[infoLen];
-				glGetProgramInfoLog(m_handle, infoLen, NULL, infoLog);
+				GL_CHECK(glGetProgramInfoLog(m_handle, infoLen, NULL, infoLog));
 				SB_ERROR() << "Error linking shader program: " << std::endl << infoLog << std::endl;
 				delete[] infoLog;
 			}
 
-			glDeleteProgram(m_handle);
+			GL_CHECK(glDeleteProgram(m_handle));
 		}
 	}
 
 	std::string Shader::getDefaultVertexShaderCode()
-	{
-		return SB_SHADER_CODE (
-			attribute vec2 position;																\n
-			attribute vec4 color;																	\n
-			uniform mat3 transform;																	\n
-			varying vec4 v_color;																	\n
-			vec3 transformedPosition;																\n
-			void main()																				\n
-			{																						\n							
-				transformedPosition = transform * vec3(position.x, position.y, 1);					\n
-				gl_Position = vec4(transformedPosition.x, transformedPosition.y, 0, 1 );			\n
-				v_color = color;																	\n
-			}																						\n
-		);
+	{	
+		return
+			"attribute vec2 position;																\n"
+			"attribute vec4 color;																	\n"
+			"uniform mat3 transform;																\n"
+			"varying vec4 v_color;																	\n"
+			"vec3 transformedPosition;																\n"
+			"void main()																			\n"
+			"{																						\n"
+			"	transformedPosition = transform * vec3(position.x, position.y, 1);					\n"
+			"	gl_Position = vec4(transformedPosition.x, transformedPosition.y, 0, 1 );			\n"
+			"	v_color = color;																	\n"
+			"}																						\n";
 	}
 
 	std::string Shader::getDefaultFragmentShaderCode()
 	{
-		return SB_SHADER_CODE(
-			#version 100									\n
-			precision mediump float;						\n
-			varying vec4 v_color;		 					\n
-			void main()										\n
-			{												\n
-				gl_FragColor = v_color;						\n
-			}												\n
-		);
+		return
+			"#version 100									\n"
+			"precision mediump float;						\n"
+			"varying vec4 v_color;		 					\n"
+			"void main()									\n"
+			"{												\n"
+			"	gl_FragColor = v_color;						\n"
+			"}												\n";
 	}
 }

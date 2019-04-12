@@ -4,8 +4,6 @@
 #include <string>
 #include <iostream>
 
-#define SB_SHADER_CODE(x) #x
-
 namespace sb
 {
 	class Shader

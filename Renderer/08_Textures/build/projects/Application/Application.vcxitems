@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Asset.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\GL.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Texture.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Transformable.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawBatch.cpp" />

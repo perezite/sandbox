@@ -9,7 +9,7 @@ namespace sb
 	{
 	public:
 		Texture()
-			: m_surface(NULL), m_handle(0)
+		// 	: m_surface(NULL), m_handle(0)
 		{ }
 
 		Texture(const std::string filePath, bool flipVertically = false);
@@ -17,8 +17,8 @@ namespace sb
 		void loadFromFile(const std::string filePath, bool invertHorizontally = false);
 
 	private:
-		SDL_Surface* m_surface;
+		// SDL_Surface* m_surface;
 
-		GLuint m_handle;
+		// GLuint m_handle;
 	};
 }
