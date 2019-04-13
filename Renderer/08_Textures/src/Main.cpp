@@ -5,6 +5,7 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "Triangle.h"
+#include "Sprite.h"
 #include <SDL2/SDL.h>
 #include <vector>
 #include <iostream>
@@ -129,44 +130,9 @@ void demo5() {
 	}
 }
 
-void demo7() {
-	sb::Window window;
-	
-	sb::Quad quad;
-	/*quad.getMesh()[0].color = sb::Color(1, 0, 0, 1);
-	quad.getMesh()[1].color = sb::Color(0, 1, 0, 1);
-	quad.getMesh()[2].color = sb::Color(0, 0, 1, 1);
-	quad.getMesh()[3].color = sb::Color(0, 1, 1, 1);*/
-
-	sb::Texture texture("Textures/GreenBlock.png");
-	sb::Shader shader("Shaders/Diffuse.vert", "Shaders/Diffuse.frag");
-	sb::DrawStates states;
-	states.texture = &texture;
-	states.shader = &shader;
-	
-	while (window.isOpen()) {
-		sb::Input::update();
-		window.update();
-		window.clear(sb::Color(1, 1, 1, 1));
-		// window.draw(quad);
-		window.draw(quad, states);
-		window.display();
-	}
-}
-
-void disco(sb::Quad& quad) {
-	sb::Mesh& mesh = quad.getMesh();
-	mesh[0].color = sb::Color(1, 0, 0, 1);
-	mesh[1].color = sb::Color(0, 1, 0, 1);
-	mesh[2].color = sb::Color(0, 0, 1, 1);
-	mesh[3].color = sb::Color(0, 1, 1, 1);
-}
-
 void demo6() {
 	sb::Window window;
-
 	sb::Quad quad;
-	disco(quad);
 
 	while (window.isOpen()) {
 		sb::Input::update();
@@ -174,17 +140,85 @@ void demo6() {
 		window.clear();
 		window.draw(quad);
 		window.display();
+	}	
+}
+
+void demo7() {
+	sb::Window window;
+	sb::Quad quad;
+	sb::Mesh& mesh = quad.getMesh();
+	for (std::size_t i = 0; i < 4; i++)
+		mesh[i].color = sb::Color(1, 1, 1, 1);
+
+	sb::Texture texture("Textures/GreenBlock.png");
+	sb::Shader shader("Shaders/Diffuse.vert", "Shaders/Diffuse.frag");
+	sb::DrawStates states;
+	states.texture = &texture;
+	states.shader = &shader;
+
+	while (window.isOpen()) {
+		sb::Input::update();
+		window.update();
+		window.clear(sb::Color(1, 1, 1, 1));
+		window.draw(quad, states);
+		window.display();
 	}
-	
+}
+
+void demo8() {
+	sb::Window window;
+	sb::Quad quad;
+	sb::Mesh& mesh = quad.getMesh();
+	for (std::size_t i = 0; i < 4; i++)
+		mesh[i].color = sb::Color(1, 1, 1, 1);
+	sb::Texture texture("Textures/GreenBlock.png");
+
+	while (window.isOpen()) {
+		sb::Input::update();
+		window.update();
+		window.clear(sb::Color(1, 1, 1, 1));
+		window.draw(quad, texture);
+		window.display();
+	}
+}
+
+void demo9() {
+	sb::Window window;
+	sb::Texture texture("Textures/GreenBlock.png");
+	sb::Sprite sprite;
+	sprite.setTexture(&texture);
+
+	while (window.isOpen()) {
+		sb::Input::update();
+		window.update();
+		window.clear(sb::Color(0, 0, 0, 1));
+		
+		static int i = 0; 
+		if (i % 2 == 0)
+			sprite.setTexture(NULL);
+		else
+			sprite.setTexture(&texture);
+		i++;
+
+		window.draw(sprite);
+		window.display();
+	}
+
 }
 
 int main(int argc, char* args[])
 {
 	SDL_Log("Texture Renderer: Build %s %s", __DATE__, __TIME__);
 
-	demo7();
+	demo9();
 
-	// demo6();
+	// demo8();
+
+	// demo8();
+
+	// demo7();
+
+	//demo6();
 
 	//demo5();
 

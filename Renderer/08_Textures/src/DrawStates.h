@@ -14,15 +14,15 @@ namespace sb
 		Shader* shader;
 
 		DrawStates()
-			: transform(Transform::Identity), texture(NULL), shader(&Shader::getDefault())
+			: transform(Transform::Identity), texture(NULL), shader(NULL)
 		{ }
 
 		DrawStates(const Transform& transform_)
-			: transform(transform_), texture(NULL), shader(&Shader::getDefault())
+			: transform(transform_), texture(NULL), shader(NULL)
 		{ }
 
 		DrawStates(const Texture& texture_)
-			: transform(Transform::Identity), texture(&texture_), shader(&Shader::getDefault())
+			: transform(Transform::Identity), texture(&texture_), shader(NULL)
 		{ }
 
 		DrawStates(Shader& shader_)

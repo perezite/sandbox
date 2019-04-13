@@ -21,6 +21,8 @@ namespace sb
 	protected:
 		void setup(const std::vector<Vertex>& vertices, const DrawStates& states);
 
+		Shader* selectShader(const DrawStates& states);
+
 		void setVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer);
 
 		void glDraw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType);

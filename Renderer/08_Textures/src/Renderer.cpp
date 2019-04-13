@@ -33,21 +33,35 @@ namespace sb
 		GL_CHECK(glEnable(GL_BLEND));
 		GL_CHECK(glActiveTexture(GL_TEXTURE0));
 
-		states.shader->use();
+		Shader* shader = selectShader(states);
+		shader->use();
+
 		if (states.texture)
 			states.texture->bind();
 
 		GLvoid* position = (GLvoid*) &(vertices[0].position);
 		GLvoid* color = (GLvoid*) &(vertices[0].color);
 		GLvoid* texCoords = (GLvoid*) &(vertices[0].texCoords);
-		setVertexAttribPointer(states.shader->getAttributeLocation("position"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), position);
-		setVertexAttribPointer(states.shader->getAttributeLocation("color"), 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), color);
+		setVertexAttribPointer(shader->getAttributeLocation("position"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), position);
+		setVertexAttribPointer(shader->getAttributeLocation("color"), 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), color);
 		if (states.texture)
-			setVertexAttribPointer(states.shader->getAttributeLocation("texCoords"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), texCoords);
+			setVertexAttribPointer(shader->getAttributeLocation("texCoords"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), texCoords);
 
-		states.shader->setMatrix3("transform", states.transform.getTransposed().getMatrix());
+		shader->setMatrix3("transform", states.transform.getTransposed().getMatrix());
 		if (states.texture)
-			states.shader->setInteger("texture", 0);
+			shader->setInteger("texture", 0);
+	}
+
+	Shader* Renderer::selectShader(const DrawStates& states) 
+	{
+		if (states.shader)
+			return states.shader;
+
+		if (states.texture)
+			return &Shader::getDefaultTextured();
+
+		else
+			return &Shader::getDefault();
 	}
 
 	void Renderer::setVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer)
@@ -72,10 +86,12 @@ namespace sb
 
 	void Renderer::cleanup(const DrawStates& states)
 	{
+		Shader* shader = selectShader(states);
+
 		if (states.texture)
-			GL_CHECK(glDisableVertexAttribArray(states.shader->getAttributeLocation("texCoords")));
-		GL_CHECK(glDisableVertexAttribArray(states.shader->getAttributeLocation("color")));
-		GL_CHECK(glDisableVertexAttribArray(states.shader->getAttributeLocation("position")));
+			GL_CHECK(glDisableVertexAttribArray(shader->getAttributeLocation("texCoords")));
+		GL_CHECK(glDisableVertexAttribArray(shader->getAttributeLocation("color")));
+		GL_CHECK(glDisableVertexAttribArray(shader->getAttributeLocation("position")));
 
 	}
 }

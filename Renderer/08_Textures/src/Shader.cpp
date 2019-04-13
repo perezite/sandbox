@@ -20,6 +20,17 @@ namespace sb
 		return defaultShader;
 	}
 
+	Shader& Shader::getDefaultTextured()
+	{
+		static Shader defaultTexturedShader;
+		static bool isLoaded = false;
+		if (!isLoaded) {
+			defaultTexturedShader.loadFromMemory(getDefaultTexturedVertexShaderCode(), getDefaultTexturedFragmentShaderCode());
+			isLoaded = true;
+		}
+		return defaultTexturedShader;
+	}
+
 	GLint Shader::getAttributeLocation(std::string attribute)
 	{
 		if (m_attributeLocations.find(attribute) == m_attributeLocations.end()) {
@@ -166,5 +177,38 @@ namespace sb
 			"{												\n"
 			"	gl_FragColor = v_color;						\n"
 			"}												\n";
+	}
+
+	std::string Shader::getDefaultTexturedVertexShaderCode()
+	{
+		return
+			"attribute vec2 position;																\n"
+			"attribute vec4 color;																	\n"
+			"attribute vec2 texCoords;																\n"
+			"uniform mat3 transform;																\n"
+			"varying vec4 v_color;																	\n"
+			"varying vec2 v_texCoords;																\n"
+			"vec3 transformedPosition;																\n"
+			"void main()																			\n"
+			"{																						\n"
+			"	transformedPosition = transform * vec3(position.x, position.y, 1);					\n"
+			"	gl_Position = vec4(transformedPosition.x, transformedPosition.y, 0, 1);				\n"
+			"	v_color = color;																	\n"
+			"	v_texCoords = texCoords;															\n"
+			"}																						\n";
+	}
+
+	std::string Shader::getDefaultTexturedFragmentShaderCode()
+	{
+		return
+			"#version 100														\n"
+			"precision mediump float;											\n"
+			"varying vec4 v_color;												\n"
+			"varying vec2 v_texCoords;											\n"
+			"uniform sampler2D texture;											\n"
+			"void main()														\n"
+			"{																	\n"
+			"	gl_FragColor = texture2D(texture, v_texCoords) * v_color;		\n"
+			"}																	\n";
 	}
 }

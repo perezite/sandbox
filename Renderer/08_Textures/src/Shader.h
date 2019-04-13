@@ -16,6 +16,8 @@ namespace sb
 
 		static Shader& getDefault();
 
+		static Shader& getDefaultTextured();
+
 		GLint getAttributeLocation(std::string attribute);
 
 		void setMatrix3(std::string uniformName, const float* matrix3);
@@ -40,6 +42,10 @@ namespace sb
 		static std::string getDefaultVertexShaderCode();
 
 		static std::string getDefaultFragmentShaderCode();
+
+		static std::string getDefaultTexturedVertexShaderCode();
+
+		static std::string getDefaultTexturedFragmentShaderCode();
 
 	private:
 		GLuint m_handle;
