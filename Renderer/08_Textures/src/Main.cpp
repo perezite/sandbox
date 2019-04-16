@@ -6,6 +6,8 @@
 #include "Texture.h"
 #include "Triangle.h"
 #include "Sprite.h"
+#include "Math.h"
+#include "Stopwatch.h"
 #include <SDL2/SDL.h>
 #include <vector>
 #include <iostream>
@@ -203,16 +205,138 @@ void demo9() {
 		window.draw(sprite);
 		window.display();
 	}
-
 }
+
+class Paramecium {
+	const float epsilon = 0.01f;
+
+	float speed;
+	sb::Stopwatch sw;
+	sb::Sprite sprite;
+	sb::Vector2f targetPosition;
+	sb::Vector2f targetScale;
+
+protected:
+	void move(float ds) {
+		sb::Vector2f distance = (targetPosition - sprite.getPosition());
+		sb::Vector2f direction = distance.normalized();
+		sprite.setPosition(sprite.getPosition() + ds * speed * direction);
+
+		if (distance.getLength() < epsilon) {
+			targetPosition = sb::Vector2f(sb::random(-1, 1), sb::random(-1, 1));
+			speed = sb::random(0.5f, 0.7f);
+		}
+	}
+
+	void wobble(float ds) {
+		sb::Vector2f diff = targetScale - sprite.getScale();
+		sb::Vector2f direction = diff.normalized();
+		const sb::Vector2f& current = sprite.getScale();
+		sprite.setScale(current.x + direction.x * ds, current.y + direction.y * ds * 0.1f);
+
+		if (diff.getLength() < epsilon) 
+			targetScale = sb::Vector2f(sb::random(0.01f, 0.3f), sb::random(0.01f, 0.3f));
+	}
+
+public:
+	Paramecium()
+		: targetPosition(sb::random(-1, 1), sb::random(-1, 1)), 
+		targetScale(sb::random(0.1f, 0.3f), sb::random(0.1f, 0.3f)),
+		speed(sb::random(0.5f, 0.7f))
+	{
+
+		targetPosition = sb::Vector2f(0, 0);
+
+		sb::Vector2f position(sb::random(-1, 1), sb::random(-1, 1));
+		sprite.setPosition(position);
+
+		sb::Vector2f scale(sb::random(0.2f, 0.3f), sb::random(0.2f, 0.3f));
+		sprite.setScale(scale);
+
+		sprite.setRotation(sb::random(0, 2 * sb::Pi));
+	}
+
+	inline void setTexture(sb::Texture* texture) { sprite.setTexture(texture); }
+
+	void update(float ds) {
+		move(ds);
+		wobble(ds);
+	}
+
+	void draw(sb::DrawTarget& target) {
+		target.draw(sprite);
+	}
+};
+
+struct Scene10 {
+	std::vector<sb::Texture> textures;
+	std::vector<Paramecium> paramecia;
+
+	void initTextures() {
+		textures[0].loadFromAsset("Textures/CyanBlock.png");
+		textures[1].loadFromAsset("Textures/GreenBlock.png");
+		textures[2].loadFromAsset("Textures/PurpleBlock.png");
+		textures[3].loadFromAsset("Textures/RedBlock.png");
+		textures[4].loadFromAsset("Textures/YellowBlock.png");
+	}
+
+	void initParamecia() {
+		for (std::size_t i = 0; i < paramecia.size(); i++) {
+			sb::Texture* texture = &textures[rand() % textures.size()];
+			paramecia[i].setTexture(texture);
+		}
+	}
+
+	Scene10()
+		: textures(5), paramecia(20)
+	{
+		initTextures();
+		initParamecia();
+	}
+
+	void update(float ds) {
+		for (std::size_t i = 0; i < paramecia.size(); i++)
+			paramecia[i].update(ds);
+	}
+
+	void draw(sb::DrawTarget& target) {
+		for (std::size_t i = 0; i < paramecia.size(); i++)
+			paramecia[i].draw(target);
+	}
+};
+
+float getDeltaSeconds() {
+	static sb::Stopwatch sw;
+	float deltaSeconds = sw.getElapsedSeconds();
+	sw.reset();
+	return deltaSeconds;
+}
+
+void demo10() {
+	sb::Window window;
+	Scene10 scene;
+
+	while (window.isOpen()) {
+		sb::Input::update();
+		window.update();
+		scene.update(getDeltaSeconds());
+
+		window.clear(sb::Color(0, 0, 0, 1));
+		scene.draw(window);
+		window.display();
+	}
+}
+
 
 int main(int argc, char* args[])
 {
 	SDL_Log("Texture Renderer: Build %s %s", __DATE__, __TIME__);
 
-	demo9();
+	demo10();
 
-	// demo8();
+	// demo9();
+
+	//demo8();
 
 	// demo8();
 

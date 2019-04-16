@@ -9,7 +9,15 @@ namespace sb
 		{ }
 
 		float x, y;
+
+		float getLength();
+
+		Vector2f normalized();
 	};
 
-	Vector2f operator+(const Vector2f& vector, const Vector2f& transform);
+	Vector2f operator+(const Vector2f& left, const Vector2f& right);
+
+	Vector2f operator-(const Vector2f& left, const Vector2f& right);
+
+	Vector2f operator*(float scalar, const Vector2f& vector);
 }
