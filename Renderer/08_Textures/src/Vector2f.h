@@ -4,7 +4,16 @@ namespace sb
 {
 	struct Vector2f
 	{
-		Vector2f(float x_ = 0, float y_ = 0) 
+		Vector2f()
+			: x(0), y(0)
+		{ }
+
+		Vector2f(float s_)
+			: x(s_), y(s_)
+		{ }
+
+
+		Vector2f(float x_, float y_) 
 			: x(x_), y(y_)
 		{ }
 

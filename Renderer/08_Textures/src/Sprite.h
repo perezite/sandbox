@@ -16,6 +16,8 @@ namespace sb
 			: m_texture(&texture)
 		{ }
 
+		inline Texture* getTexture() { return m_texture; }
+
 		inline void setTexture(Texture* texture) { m_texture = texture; }
 
 		inline Mesh& getMesh() { return SpriteMesh; }

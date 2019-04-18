@@ -12,6 +12,7 @@
 #include <vector>
 #include <iostream>
 #include <string>
+#include <algorithm>
 
 void demo1() {
 	sb::Window window;
@@ -209,12 +210,17 @@ void demo9() {
 
 class Paramecium {
 	const float epsilon = 0.01f;
+	const float scaleSpeed = 0.1f;
+	const sb::Vector2f speedRange = sb::Vector2f(0.5f, 0.7f);
+	const sb::Vector2f positionRange = sb::Vector2f(-1, 1);
+	const sb::Vector2f scaleRange = sb::Vector2f(0, 0.3f);
+	const sb::Vector2f rotationRange = sb::Vector2f(0, 2 * sb::Pi);
 
 	float speed;
 	sb::Stopwatch sw;
 	sb::Sprite sprite;
 	sb::Vector2f targetPosition;
-	sb::Vector2f targetScale;
+	float targetScale;
 
 protected:
 	void move(float ds) {
@@ -223,37 +229,37 @@ protected:
 		sprite.setPosition(sprite.getPosition() + ds * speed * direction);
 
 		if (distance.getLength() < epsilon) {
-			targetPosition = sb::Vector2f(sb::random(-1, 1), sb::random(-1, 1));
-			speed = sb::random(0.5f, 0.7f);
+			targetPosition = sb::Vector2f(sb::random2D(positionRange.x, positionRange.y));
+			speed = sb::random(speedRange.x, speedRange.y);
 		}
 	}
 
 	void wobble(float ds) {
-		sb::Vector2f diff = targetScale - sprite.getScale();
-		sb::Vector2f direction = diff.normalized();
-		const sb::Vector2f& current = sprite.getScale();
-		sprite.setScale(current.x + direction.x * ds, current.y + direction.y * ds * 0.1f);
+		float currentScale = sprite.getScale().x;
+		float direction = targetScale > currentScale ? 1.0f : -1.0f;
+		float newScale = currentScale + ds * direction * scaleSpeed;
+		sprite.setScale(newScale, newScale);
 
-		if (diff.getLength() < epsilon) 
-			targetScale = sb::Vector2f(sb::random(0.01f, 0.3f), sb::random(0.01f, 0.3f));
+		if (fabs(targetScale - currentScale) < epsilon) {
+			targetScale = sb::random(scaleRange.x, scaleRange.y);
+		}
 	}
 
 public:
 	Paramecium()
-		: targetPosition(sb::random(-1, 1), sb::random(-1, 1)), 
-		targetScale(sb::random(0.1f, 0.3f), sb::random(0.1f, 0.3f)),
-		speed(sb::random(0.5f, 0.7f))
+		: targetPosition(sb::random2D(positionRange.x, positionRange.y)), 
+		targetScale(sb::random(scaleRange.x, scaleRange.y)),
+		speed(sb::random(speedRange.x, speedRange.y))
 	{
-
 		targetPosition = sb::Vector2f(0, 0);
 
-		sb::Vector2f position(sb::random(-1, 1), sb::random(-1, 1));
+		sb::Vector2f position(sb::random2D(positionRange.x, positionRange.y));
 		sprite.setPosition(position);
 
-		sb::Vector2f scale(sb::random(0.2f, 0.3f), sb::random(0.2f, 0.3f));
+		sb::Vector2f scale(sb::random(scaleRange.x, scaleRange.y));
 		sprite.setScale(scale);
 
-		sprite.setRotation(sb::random(0, 2 * sb::Pi));
+		sprite.setRotation(sb::random(rotationRange.x, rotationRange.y));
 	}
 
 	inline void setTexture(sb::Texture* texture) { sprite.setTexture(texture); }
@@ -288,7 +294,7 @@ struct Scene10 {
 	}
 
 	Scene10()
-		: textures(5), paramecia(20)
+		: textures(5), paramecia(30)
 	{
 		initTextures();
 		initParamecia();
@@ -327,12 +333,125 @@ void demo10() {
 	}
 }
 
+void printStats()
+{
+	static sb::Stopwatch sw;
+	static std::size_t i = 0;
+	static std::size_t numFrames = 0;
+
+	if (i % 100 == 0) {
+		float fps = float(numFrames) / sw.getElapsedSeconds();
+		SDL_Log("Num Draw Calls: %d, FPS: %f", sb::Renderer::getNumDrawCalls(), fps);
+	}
+
+	i++;
+	numFrames++;
+	sb::Renderer::resetStatistics();
+}
+
+void demo11() {
+	sb::Window window;
+	sb::DrawBatch batch;
+	sb::Texture texture1;
+	sb::Texture texture2;
+	texture1.loadFromAsset("Textures/RedBlock.png");
+	texture2.loadFromAsset("Textures/GreenBlock.png");
+	sb::Sprite sprite1;
+	sb::Sprite sprite2;
+	sprite1.setPosition(-0.5f, -0.5f);
+	sprite1.setTexture(&texture1);
+	sprite2.setTexture(&texture2);
+	sprite2.setPosition(0.5f, 0.5f);
+
+	while (window.isOpen()) {
+		sb::Input::update();
+		window.update();
+
+		window.clear(sb::Color(0, 0, 0, 1));
+		batch.draw(sprite1);
+		batch.draw(sprite2);
+		window.draw(batch);
+		window.display();
+
+		printStats();
+	}
+}
+
+class Scene12 : public sb::Drawable {
+	std::vector<sb::Texture> textures;
+	std::vector<sb::Sprite> sprites;
+
+protected:
+	void initTextures() {
+		textures[0].loadFromAsset("Textures/CyanBlock.png");
+		textures[1].loadFromAsset("Textures/GreenBlock.png");
+		textures[2].loadFromAsset("Textures/PurpleBlock.png");
+		textures[3].loadFromAsset("Textures/RedBlock.png");
+		textures[4].loadFromAsset("Textures/YellowBlock.png");
+	}
+
+	void init(sb::Sprite& sprite) {
+		sprite.setPosition(sb::random2D(-1, 1));
+		sprite.setRotation(sb::random(0, 2 * sb::Pi));
+		sprite.setScale(sb::random(0.015f, 0.07f));
+		sprite.setTexture(&textures[rand() % textures.size()]);
+	}
+
+	static bool compare(sb::Sprite& left, sb::Sprite& right) {
+		return left.getTexture() < right.getTexture();
+	}
+
+	void sort() {
+		std::sort(sprites.begin(), sprites.end(), compare);
+	}
+
+public:
+	Scene12()
+		: textures(5), sprites(5000)
+	{
+		initTextures();
+
+		for (std::size_t i = 0; i < sprites.size(); i++)
+			init(sprites[i]);
+		sort();
+	}
+
+	virtual void draw(sb::DrawTarget& target, sb::DrawStates drawStates = sb::DrawStates::getDefault()) {
+		for (std::size_t i = 0; i < sprites.size(); i++)
+			target.draw(sprites[i]);
+	}
+};
+
+void demo12() {
+	sb::Window window;
+	sb::DrawBatch batch(16384);
+	Scene12 scene;
+
+	while (window.isOpen()) {
+		sb::Input::update();
+		window.update();
+
+		window.clear(sb::Color(0, 0, 0, 1));
+		batch.draw(scene);
+		window.draw(batch);
+		//scene.draw(window);
+		window.display();
+
+		printStats();
+	}
+}
 
 int main(int argc, char* args[])
 {
 	SDL_Log("Texture Renderer: Build %s %s", __DATE__, __TIME__);
 
-	demo10();
+	srand(43);
+
+	demo12();
+	
+	//demo11();
+
+	// demo10();
 
 	// demo9();
 

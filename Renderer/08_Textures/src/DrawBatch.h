@@ -36,9 +36,9 @@ namespace sb
 			void flush();
 
 		protected:
-			void assertBufferSize(const std::vector<Vertex>& vertices);
+			void assertBufferCapacity(const std::vector<Vertex>& vertices);
 
-			bool mustFlush(const std::vector<Vertex>& vertices, PrimitiveType primitiveType);
+			bool mustFlush(const std::vector<Vertex>& vertices, const PrimitiveType primitiveType, const DrawStates& states);
 
 			void insert(const std::vector<Vertex>& vertices, 
 				const PrimitiveType& primitiveType, const DrawStates& states);
@@ -55,6 +55,8 @@ namespace sb
 			DrawTarget* m_target;
 
 			std::vector<Vertex> m_vertices;
+
+			DrawStates m_currentStates;
 
 			PrimitiveType m_currentPrimitiveType;
 		};

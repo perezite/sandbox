@@ -30,36 +30,40 @@ namespace sb
 		if (vertices.size() > BatchingThreshold)
 			m_target->draw(vertices, primitiveType, states);
 
-		if (mustFlush(vertices, primitiveType))
+		if (mustFlush(vertices, primitiveType, states))
 			flush();
 
-		assertBufferSize(vertices);
+		assertBufferCapacity(vertices);
 
 		m_currentPrimitiveType = primitiveType;
+		m_currentStates = states;
 		insert(vertices, primitiveType, states);
 	}
 
 	void DrawBatch::Buffer::flush() 
 	{
-		m_target->draw(m_vertices, m_currentPrimitiveType);
+		DrawStates states = m_currentStates;
+		states.transform = Transform::Identity;
+		m_target->draw(m_vertices, m_currentPrimitiveType, states);
 		m_vertices.clear();
 	}
 
-	inline void DrawBatch::Buffer::assertBufferSize(const std::vector<Vertex>& vertices)
+	inline void DrawBatch::Buffer::assertBufferCapacity(const std::vector<Vertex>& vertices)
 	{
 		if (vertices.size() > m_vertices.capacity())
 			SB_ERROR() << "The DrawBatch buffer size is too small for the given drawable. Please specify a larger buffer size in the constructor" << std::endl;
 	}
 
-	bool DrawBatch::Buffer::mustFlush(const std::vector<Vertex>& vertices, PrimitiveType primitiveType)
+	bool DrawBatch::Buffer::mustFlush(const std::vector<Vertex>& vertices, const PrimitiveType primitiveType, const DrawStates& states)
 	{
 		if (m_vertices.empty())
 			return false;
 
 		bool bufferTooSmall = m_vertices.size() + vertices.size() > m_vertices.capacity();
 		bool primitiveTypeChanged = primitiveType != m_currentPrimitiveType;
+		bool statesChanged = states != m_currentStates;
 
-		return bufferTooSmall || primitiveTypeChanged;
+		return bufferTooSmall || primitiveTypeChanged || statesChanged;
 	}
 
 	void DrawBatch::Buffer::insert(const std::vector<Vertex>& vertices, 

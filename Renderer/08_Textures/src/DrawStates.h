@@ -35,4 +35,7 @@ namespace sb
 
 		static DrawStates& getDefault();
 	};
+
+	const bool operator ==(const DrawStates& left, const DrawStates& right);
+	inline const bool operator !=(const DrawStates& left, const DrawStates& right) { return !(left == right); }
 }
