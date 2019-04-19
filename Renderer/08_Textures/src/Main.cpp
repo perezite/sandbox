@@ -247,9 +247,9 @@ protected:
 
 public:
 	Paramecium()
-		: targetPosition(sb::random2D(positionRange.x, positionRange.y)), 
-		targetScale(sb::random(scaleRange.x, scaleRange.y)),
-		speed(sb::random(speedRange.x, speedRange.y))
+		: speed(sb::random(speedRange.x, speedRange.y)),
+		targetPosition(sb::random2D(positionRange.x, positionRange.y)),
+		targetScale(sb::random(scaleRange.x, scaleRange.y))
 	{
 		targetPosition = sb::Vector2f(0, 0);
 
@@ -379,7 +379,39 @@ void demo11() {
 	}
 }
 
-class Scene12 : public sb::Drawable {
+void init12(std::vector<sb::Quad>& quads) {
+	for (std::size_t i = 0; i < quads.size(); i++) {
+		quads[i].setPosition(sb::random2D(-1, 1));
+		quads[i].setScale(sb::random(0.015f, 0.07f));
+		quads[i].setRotation(sb::random(0, 2 * sb::Pi));
+	}
+}
+
+void draw12(std::vector<sb::Quad>& quads, sb::DrawBatch& batch) {
+	for (std::size_t i = 0; i < quads.size(); i++)
+		batch.draw(quads[i]);
+}
+
+void demo12() {
+	sb::Window window;
+	sb::DrawBatch batch(16384);
+	std::vector<sb::Quad> quads(5000);
+	init12(quads);
+
+	while (window.isOpen()) {
+		sb::Input::update();
+		window.update();
+
+		window.clear(sb::Color(0, 0, 0, 1));
+		draw12(quads, batch);
+		window.draw(batch);
+		window.display();
+
+		printStats();
+	}
+}
+
+class Scene13 : public sb::Drawable {
 	std::vector<sb::Texture> textures;
 	std::vector<sb::Sprite> sprites;
 
@@ -408,8 +440,8 @@ protected:
 	}
 
 public:
-	Scene12()
-		: textures(5), sprites(5000)
+	Scene13()
+		: textures(5), sprites(2500)
 	{
 		initTextures();
 
@@ -424,10 +456,10 @@ public:
 	}
 };
 
-void demo12() {
+void demo13() {
 	sb::Window window;
 	sb::DrawBatch batch(16384);
-	Scene12 scene;
+	Scene13 scene;
 
 	while (window.isOpen()) {
 		sb::Input::update();
@@ -449,9 +481,11 @@ int main(int argc, char* args[])
 
 	srand(43);
 
-	demo12();
+	demo13();
+
+	// demo12();
 	
-	//demo11();
+	// demo11();
 
 	// demo10();
 
