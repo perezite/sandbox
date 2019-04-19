@@ -47,7 +47,7 @@ namespace sb
 		if (states.texture)
 			setVertexAttribPointer(shader->getAttributeLocation("texCoords"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), texCoords);
 
-		shader->setMatrix3("transform", states.transform.getTransposed().getMatrix());
+		shader->setMatrix3("transform", states.transform.getMatrix());
 		if (states.texture)
 			shader->setInteger("texture", 0);
 	}

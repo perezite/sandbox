@@ -27,8 +27,6 @@ namespace sb
 
 		inline const float* getMatrix() const { return m_matrix; }
 
-		Transform getTransposed() const;
-
 		const Transform& translate(const Vector2f& position);
 
 		inline const Transform& translate(float x, float y) { return translate(Vector2f(x, y)); }
