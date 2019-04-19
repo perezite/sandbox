@@ -341,6 +341,8 @@ void printStats()
 
 	if (i % 100 == 0) {
 		float fps = float(numFrames) / sw.getElapsedSeconds();
+		numFrames = 0;
+		sw.reset();
 		SDL_Log("Num Draw Calls: %d, FPS: %f", sb::Renderer::getNumDrawCalls(), fps);
 	}
 
