@@ -12,9 +12,9 @@ class ParticleSystem : public sb::Drawable {
 	const sb::Vector2f m_scaleRange;
 	std::size_t m_numParticles;
 	sb::Mesh m_mesh;
-	const sb::Texture* m_texture;
+	std::vector<sb::Vector2f> m_velocities;
 	std::size_t m_updateIndex;
-	bool m_isShrinking;
+	bool m_isGrowing;
 	float m_elapsed;
 
 protected:
@@ -34,11 +34,12 @@ protected:
 	}
 
 	void randomizeParticle(std::size_t index) {
-		sb::Vector2f position = sb::random2D(-1, 1);
+		sb::Vector2f position = sb::random2D(-0.1f, 0.1f);
 		sb::Vector2f scale = sb::random(m_scaleRange.x, m_scaleRange.y);
 		float rotation = sb::random(0, 2 * sb::Pi);
 		sb::Transform transform(position, scale, rotation);
 		setParticle(transform, index);
+		m_velocities[index] = sb::random(0.05f, 0.5f) * position.normalized();
 	}
 
 	void init() {
@@ -55,42 +56,61 @@ protected:
 		m_mesh[index * 6 + 5].position = sb::Vector2f(0, 0);
 	}
 
-	void updateParticle(std::size_t index) {
-		if (m_isShrinking)
-			hideParticle(index);
-		else
+	void scaleParticle(std::size_t index) {
+		if (m_isGrowing)
 			randomizeParticle(index);
+		else
+			hideParticle(index);
 	}
 
-	void updateParticle() {
-		updateParticle(m_updateIndex);
+	void scaleParticle() {
+		scaleParticle(m_updateIndex);
 		m_updateIndex++;
 		if (m_updateIndex == m_numParticles - 1) {
-			m_isShrinking = !m_isShrinking;
+			m_isGrowing = !m_isGrowing;
 			m_updateIndex = 0;
 		}
 	}
 
-public:
-	ParticleSystem(std::size_t numParticles)
-		: m_scaleRange(0.02f, 0.04f), m_numParticles(numParticles), m_mesh(m_numParticles * 6, 
-			sb::PrimitiveType::TriangleStrip), m_texture(NULL), m_updateIndex(0),
-			m_isShrinking(true), m_elapsed(0)
-	{
-		init();
+	void scale(float ds) {
+		m_elapsed += ds;
+		float decayInterval = 0.0005f;
+		while (m_elapsed > decayInterval) {
+			scaleParticle();
+			m_elapsed -= decayInterval;
+		}
 	}
 
+	void moveParticle(float ds, std::size_t index) {
+		m_mesh[index * 6 + 0].position += ds * m_velocities[index];
+		m_mesh[index * 6 + 1].position += ds * m_velocities[index];
+		m_mesh[index * 6 + 2].position += ds * m_velocities[index];
+		m_mesh[index * 6 + 3].position += ds * m_velocities[index];
+		m_mesh[index * 6 + 4].position += ds * m_velocities[index];
+		m_mesh[index * 6 + 5].position += ds * m_velocities[index];
+	}
+
+	void move(float ds) {
+		for (std::size_t i = 0; i < m_numParticles; i++)
+			moveParticle(ds, i);
+	}
+
+
+public:
+	ParticleSystem(std::size_t numParticles)
+		: m_scaleRange(0.02f, 0.04f), m_numParticles(numParticles), 
+			m_mesh(m_numParticles * 6, sb::PrimitiveType::TriangleStrip), 
+			m_velocities(numParticles), m_updateIndex(0),
+			m_isGrowing(true), m_elapsed(0)
+	{ }
+
 	void update(float ds) {
-		m_elapsed += ds;
-		while (m_elapsed > 0.001f) {
-			updateParticle();
-			m_elapsed -= 0.001f;
-		}
+		scale(ds);
+		move(ds);
 	}
 
 	virtual void draw(sb::DrawTarget& target, sb::DrawStates drawStates = sb::DrawStates::getDefault()) {
 		drawStates.transform *= getTransform();
-		drawStates.texture = m_texture;
 		target.draw(m_mesh.getVertices(), m_mesh.getPrimitiveType(), drawStates);
 	}
 };
@@ -109,7 +129,6 @@ void demo1() {
 	sb::Window window;
 	ParticleSystem particles(5000);
 
-	float elapsed = 0;
 	while (window.isOpen()) {
 		sb::Input::update();
 		window.update();

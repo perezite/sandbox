@@ -29,4 +29,7 @@ namespace sb
 	Vector2f operator-(const Vector2f& left, const Vector2f& right);
 
 	Vector2f operator*(float scalar, const Vector2f& vector);
+
+	const Vector2f& operator+=(Vector2f& left, const Vector2f& right);
+
 }

@@ -33,4 +33,11 @@ namespace sb
 	{
 		return Vector2f(scalar * vector.x, scalar * vector.y);
 	}
+
+	const Vector2f & operator+=(Vector2f& left, const Vector2f& right)
+	{
+		left.x += right.x;
+		left.y += right.y;
+		return left;
+	}
 }
