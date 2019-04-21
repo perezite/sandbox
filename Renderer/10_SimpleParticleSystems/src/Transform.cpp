@@ -120,6 +120,12 @@ namespace sb
 		return transform.transform(vector);
 	}
 
+	Vector2f operator*(const Transform& transform, const Vector2f& vector)
+	{
+		sb::Vector2f transformed = vector;
+		return transform.transform(transformed);
+	}
+
 	Mesh operator*(const Transform& transform, const Mesh& mesh)
 	{
 		Mesh result(mesh);

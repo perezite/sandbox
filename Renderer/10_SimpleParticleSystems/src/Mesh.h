@@ -13,6 +13,10 @@ namespace sb
 			: m_vertices(vertices), m_primitiveType(primitiveType)
 		{ }
 
+		Mesh(const std::size_t numVertices, const PrimitiveType primitiveType)
+			: m_vertices(numVertices), m_primitiveType(primitiveType)
+		{ }
+
 		Mesh() { }
 
 		void setVertices(std::vector<Vertex>& vertices) { m_vertices = vertices; }

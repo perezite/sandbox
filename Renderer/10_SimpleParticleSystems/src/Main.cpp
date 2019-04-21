@@ -6,105 +6,125 @@
 #include "Texture.h"
 #include "Sprite.h"
 #include "Math.h"
+#include "Stopwatch.h"
 
-class Scene2 {
-	sb::DrawBatch batch;
-	sb::Texture texture;
-	std::vector<sb::Drawable*> drawables;
+class ParticleSystem : public sb::Drawable {
+	const sb::Vector2f m_scaleRange;
+	std::size_t m_numParticles;
+	sb::Mesh m_mesh;
+	const sb::Texture* m_texture;
+	std::size_t m_updateIndex;
+	bool m_isShrinking;
+	float m_elapsed;
 
 protected:
-	void allocate() {
-		drawables[0] = new sb::Quad();
-		drawables[1] = new sb::Quad();
-		drawables[2] = new sb::Triangle();
-		drawables[3] = new sb::Triangle();
-		drawables[4] = new sb::Sprite();
-		drawables[5] = new sb::Sprite();
+	void setParticle(sb::Transform& transform, std::size_t index) {
+		std::vector<sb::Vector2f> edges(4);
+		edges[0] = transform * sb::Vector2f(-0.5f, -0.5f);
+		edges[1] = transform * sb::Vector2f( 0.5f, -0.5f);
+		edges[2] = transform * sb::Vector2f(-0.5f,  0.5f);
+		edges[3] = transform * sb::Vector2f( 0.5f,  0.5f);
 
+		m_mesh[index * 6 + 0] = sb::Vertex(edges[0], sb::Color(1, 0, 0, 1), sb::Vector2f(0, 0));
+		m_mesh[index * 6 + 1] = sb::Vertex(edges[0], sb::Color(1, 0, 0, 1), sb::Vector2f(0, 0));
+		m_mesh[index * 6 + 2] = sb::Vertex(edges[1], sb::Color(0, 1, 0, 1), sb::Vector2f(1, 0));
+		m_mesh[index * 6 + 3] = sb::Vertex(edges[2], sb::Color(0, 0, 1, 1), sb::Vector2f(0, 1));
+		m_mesh[index * 6 + 4] = sb::Vertex(edges[3], sb::Color(0, 1, 1, 1), sb::Vector2f(1, 1));
+		m_mesh[index * 6 + 5] = sb::Vertex(edges[3], sb::Color(0, 1, 1, 1), sb::Vector2f(1, 1));
+	}
+
+	void randomizeParticle(std::size_t index) {
+		sb::Vector2f position = sb::random2D(-1, 1);
+		sb::Vector2f scale = sb::random(m_scaleRange.x, m_scaleRange.y);
+		float rotation = sb::random(0, 2 * sb::Pi);
+		sb::Transform transform(position, scale, rotation);
+		setParticle(transform, index);
 	}
 
 	void init() {
-		texture.loadFromAsset("Textures/GreenBlock.png");
-
-		drawables[0]->setPosition(-0.75, -0.75f);
-		drawables[0]->setScale(0.1f, 0.1f);
-		drawables[0]->setRotation(-30 * sb::ToRadian);
-
-		drawables[1]->setPosition(-0.5, -0.5f);
-		drawables[1]->setScale(0.2f, 0.2f);
-		drawables[1]->setRotation(30 * sb::ToRadian);
-
-		drawables[2]->setPosition(0.5, 0.5f);
-		drawables[2]->setScale(0.1f, 0.1f);
-		drawables[2]->setRotation(-30 * sb::ToRadian);
-
-		drawables[3]->setPosition(0.75, 0.75f);
-		drawables[3]->setScale(0.2f, 0.2f);
-		drawables[3]->setRotation(30 * sb::ToRadian);
-
-		drawables[4]->setPosition(0.5, -0.5f);
-		drawables[4]->setScale(0.1f, 0.1f);
-		drawables[4]->setRotation(-30 * sb::ToRadian);
-		((sb::Sprite*)drawables[4])->setTexture(&texture);
-
-		drawables[5]->setPosition(0.75, -0.75f);
-		drawables[5]->setScale(0.2f, 0.2f);
-		drawables[5]->setRotation(30 * sb::ToRadian);
-		((sb::Sprite*)drawables[5])->setTexture(&texture);
+		for (std::size_t i = 0; i < m_numParticles; i++) 
+			randomizeParticle(i);
 	}
-	
+
+	void hideParticle(std::size_t index) {
+		m_mesh[index * 6 + 0].position = sb::Vector2f(0, 0);
+		m_mesh[index * 6 + 1].position = sb::Vector2f(0, 0);
+		m_mesh[index * 6 + 2].position = sb::Vector2f(0, 0);
+		m_mesh[index * 6 + 3].position = sb::Vector2f(0, 0);
+		m_mesh[index * 6 + 4].position = sb::Vector2f(0, 0);
+		m_mesh[index * 6 + 5].position = sb::Vector2f(0, 0);
+	}
+
+	void updateParticle(std::size_t index) {
+		if (m_isShrinking)
+			hideParticle(index);
+		else
+			randomizeParticle(index);
+	}
+
+	void updateParticle() {
+		updateParticle(m_updateIndex);
+		m_updateIndex++;
+		if (m_updateIndex == m_numParticles - 1) {
+			m_isShrinking = !m_isShrinking;
+			m_updateIndex = 0;
+		}
+	}
+
 public:
-	Scene2()
-		: drawables(6)
+	ParticleSystem(std::size_t numParticles)
+		: m_scaleRange(0.02f, 0.04f), m_numParticles(numParticles), m_mesh(m_numParticles * 6, 
+			sb::PrimitiveType::TriangleStrip), m_texture(NULL), m_updateIndex(0),
+			m_isShrinking(true), m_elapsed(0)
 	{
-		allocate();
 		init();
 	}
 
-	void draw(sb::DrawTarget& target) {
-		for (std::size_t i = 0; i < drawables.size(); i++)
-			target.draw(drawables[i]);
+	void update(float ds) {
+		m_elapsed += ds;
+		while (m_elapsed > 0.001f) {
+			updateParticle();
+			m_elapsed -= 0.001f;
+		}
 	}
 
-
+	virtual void draw(sb::DrawTarget& target, sb::DrawStates drawStates = sb::DrawStates::getDefault()) {
+		drawStates.transform *= getTransform();
+		drawStates.texture = m_texture;
+		target.draw(m_mesh.getVertices(), m_mesh.getPrimitiveType(), drawStates);
+	}
 };
 
-void demo2() {
-	sb::Window window;
-	Scene2 scene;
-
-	while(window.isOpen()) {
-		sb::Input::update();
-		window.update();
-		
-		window.clear();
-		scene.draw(window);
-		window.display();
-	}
+float getDeltaSeconds()
+{
+	static sb::Stopwatch sw;
+	static float lastElapsed = 0;
+	float elapsed = sw.getElapsedSeconds();
+	float delta = elapsed - lastElapsed;
+	lastElapsed = elapsed;
+	return delta;
 }
 
 void demo1() {
 	sb::Window window;
-	sb::Quad quad;
-	quad.setScale(0.5f, 0.5f);
-	quad.setRotation(-45 * sb::ToRadian);
-	quad.setPosition(0.5f, 0.5f);
+	ParticleSystem particles(5000);
 
+	float elapsed = 0;
 	while (window.isOpen()) {
 		sb::Input::update();
 		window.update();
+		particles.update(getDeltaSeconds());
 
 		window.clear();
-		window.draw(quad);
+		window.draw(particles);
 		window.display();
 	}
 }
 
 int main(int argc, char* args[])
 {
-	SDL_Log("Texture Renderer: Build %s %s", __DATE__, __TIME__);
+	SDL_Log("Simple particle system Renderer: Build %s %s", __DATE__, __TIME__);
+	srand(48);
 
-	demo2();
-
-	// demo1();
+	demo1();
 }

@@ -53,5 +53,7 @@ namespace sb
 
 	const Vector2f& operator*=(Vector2f& vector, const Transform& transform);
 
+	Vector2f operator*(const Transform& transform, const Vector2f& vector);
+
 	Mesh operator *(const Transform& transform, const Mesh& mesh);
 }
