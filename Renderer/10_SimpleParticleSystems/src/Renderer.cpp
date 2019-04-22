@@ -72,16 +72,9 @@ namespace sb
 
 	void Renderer::glDraw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType)
 	{	
-		glDrawArrays((GLenum)primitiveType, 0, vertices.size());
-		checkGLErrors();
+		GL_CHECK(glDrawArrays((GLenum)primitiveType, 0, vertices.size()));
 
 		m_numDrawCalls++;
-	}
-
-	void Renderer::checkGLErrors()
-	{
-		GLuint glError = glGetError();
-		SB_ERROR_IF(glError != 0) << "GL error: " << glError << std::endl;
 	}
 
 	void Renderer::cleanup(const DrawStates& states)

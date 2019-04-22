@@ -38,9 +38,12 @@ namespace sb
 
 		// the renderer expects an opened opengl context, so make sure it is created in the proper place!
 		m_renderer = new Renderer();		
+		
+		//auto bla = SDL_GL_GetSwapInterval();
+		//auto blub = SDL_GL_SetSwapInterval(0);
+		
 
 		GL_CHECK(glDisable(GL_DEPTH_TEST));
-		// GL_CHECK(glClearColor(1, 1, 1, 1));
 	}
 
 	Window::~Window()
