@@ -330,11 +330,11 @@ protected:
 	}
 
 public:
-	ParticleSystem3(std::size_t numParticles)
+	ParticleSystem3(std::size_t numParticles, float timeOffset = 0)
 		: m_particleSizeRange(0, 0.1f), m_numParticles(numParticles),
 		m_mesh(m_numParticles * 6, sb::PrimitiveType::TriangleStrip),
 		m_velocities(numParticles), m_updateIndex(0),
-		m_isGrowing(true), m_elapsed(0), m_texture(NULL)
+		m_isGrowing(true), m_elapsed(timeOffset), m_texture(NULL)
 	{ }
 
 	void initSimple() {
@@ -424,23 +424,37 @@ void demo5() {
 	}
 }
 
+void initParticleSystems(std::vector<ParticleSystem3>& result, std::size_t numSystems, 
+	std::size_t numParticlesPerSystem, const sb::Texture& texture) 
+{
+	for (std::size_t i = 0; i < numSystems; i++) {
+		ParticleSystem3 system(numParticlesPerSystem, sb::random(0, 0));
+		float aspect = 360.0f / 640.0f;
+		system.setScale(0.1666666f, 0.1666666f * aspect);
+		system.setParticleSizeRange(0.158f, 0.5f);
+		system.setPosition(sb::random2D(-0.95f, 0.95f));
+		system.setTexture(texture);
+
+		result.push_back(system);
+	}
+}
+
 void demo6() {
-	float aspect = 360.0f / 640.0f;
 	sb::Window window(360, 640);
 	sb::Texture greenPropulsion("Textures/GreenPropulsion.png");
-	ParticleSystem3 particles(100);
-	particles.setTexture(greenPropulsion);
-	particles.setScale(0.1666666f, 0.1666666f * aspect);
-	particles.setParticleSizeRange(0.158f, 0.5f);
+	std::vector<ParticleSystem3> particleSystems;
+	initParticleSystems(particleSystems, 15, 100, greenPropulsion);
 
 	while (window.isOpen()) {
 		float ds = getDeltaSeconds();
 		sb::Input::update();
 		window.update();
-		particles.update(ds);
+		for (std::size_t i = 0; i < particleSystems.size(); i++)
+			particleSystems[i].update(ds);
 
 		window.clear(sb::Color(1, 1, 1, 1));
-		window.draw(particles);
+		for (std::size_t i = 0; i < particleSystems.size(); i++)
+			window.draw(particleSystems[i]);
 		window.display();
 		printStats(10);
 	}
