@@ -425,11 +425,10 @@ void demo5() {
 }
 
 void initParticleSystems(std::vector<ParticleSystem3>& result, std::size_t numSystems, 
-	std::size_t numParticlesPerSystem, const sb::Texture& texture) 
+	std::size_t numParticlesPerSystem, float aspect, const sb::Texture& texture) 
 {
 	for (std::size_t i = 0; i < numSystems; i++) {
 		ParticleSystem3 system(numParticlesPerSystem, sb::random(0, 0));
-		float aspect = 360.0f / 640.0f;
 		system.setScale(0.1666666f, 0.1666666f * aspect);
 		system.setParticleSizeRange(0.158f, 0.5f);
 		system.setPosition(sb::random2D(-0.95f, 0.95f));
@@ -439,11 +438,46 @@ void initParticleSystems(std::vector<ParticleSystem3>& result, std::size_t numSy
 	}
 }
 
+class Backdrop : public sb::Drawable {
+	sb::Texture m_texture;
+	sb::Sprite m_sprite;
+
+public:
+	Backdrop()
+		: m_texture("Textures/Backdrop.png"), m_sprite(m_texture)
+	{ 
+		float scale = 2.0f / 3.0f;
+		m_sprite.setScale(scale, scale);
+	}
+
+	virtual void draw(sb::DrawTarget& target, sb::DrawStates drawStates = sb::DrawStates::getDefault()) {
+		drawStates.transform *= getTransform();
+
+		float step = 2.0f / 3.0f;
+		for (std::size_t i = 0; i < 3; i++) {
+			for (std::size_t j = 0; j < 3; j++) {
+				float horizontalPos = -1 + i * step + 0.5f * step;
+				float verticalPos = -1 + j * step + 0.5f * step;
+				m_sprite.setPosition(horizontalPos, verticalPos);
+				target.draw(m_sprite, drawStates);
+			}
+		}
+	}
+
+};
+
 void demo6() {
-	sb::Window window(360, 640);
+	float width = 360;
+	float height = 640;
+	sb::Window window((int)width, (int)height);
+	sb::DrawBatch batch(8192);
+
+	float aspect = width / height;
+	Backdrop backdrop;
+	
 	sb::Texture greenPropulsion("Textures/GreenPropulsion.png");
 	std::vector<ParticleSystem3> particleSystems;
-	initParticleSystems(particleSystems, 15, 100, greenPropulsion);
+	initParticleSystems(particleSystems, 15, 100, aspect, greenPropulsion);
 
 	while (window.isOpen()) {
 		float ds = getDeltaSeconds();
@@ -453,8 +487,11 @@ void demo6() {
 			particleSystems[i].update(ds);
 
 		window.clear(sb::Color(1, 1, 1, 1));
+		batch.draw(backdrop);
+		window.draw(batch);
 		for (std::size_t i = 0; i < particleSystems.size(); i++)
 			window.draw(particleSystems[i]);
+
 		window.display();
 		printStats(10);
 	}
