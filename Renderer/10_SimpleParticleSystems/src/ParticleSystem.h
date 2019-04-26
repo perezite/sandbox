@@ -33,7 +33,6 @@ namespace sb
 		void moveParticle(float ds, std::size_t index);
 
 	private:
-
 		const sb::Texture* m_texture;
 		
 		sb::Mesh m_mesh;

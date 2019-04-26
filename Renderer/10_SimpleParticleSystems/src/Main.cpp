@@ -558,12 +558,109 @@ void demo7() {
 	}
 }
 
+class Scene8 : public sb::Drawable {
+	float _aspect;
+	sb::DrawBatch batch;
+	sb::Texture greenPropulsion;
+	std::vector<sb::Texture> spriteTextures;
+	Backdrop backdrop;
+	std::vector<sb::Sprite> sprites;
+	std::vector<sb::ParticleSystem> particleSystems;
+
+protected:
+	void initTextures() {
+		spriteTextures[0].loadFromAsset("Textures/CyanBlock.png");
+		spriteTextures[1].loadFromAsset("Textures/GreenBlock.png");
+		spriteTextures[2].loadFromAsset("Textures/PurpleBlock.png");
+		spriteTextures[3].loadFromAsset("Textures/RedBlock.png");
+		spriteTextures[4].loadFromAsset("Textures/YellowBlock.png");
+	}
+
+	void initSpriteBatch(std::size_t startIndex, std::size_t count, sb::Texture& texture) {
+		for (std::size_t i = 0; i < count; i++) {
+			sprites[startIndex + i].setTexture(&texture);
+			sprites[startIndex + i].setPosition(sb::random2D(-1, 1));
+			float scale = sb::random(0.05f, 0.13f);
+			sprites[startIndex + i].setScale(scale, scale * _aspect);
+		}
+	}
+
+	void initSprites() {
+		std::size_t batchSize = 14;
+		std::size_t textureIndex = 0;
+		for (std::size_t i = 0; i < sprites.size(); i += batchSize) {
+			initSpriteBatch(i, batchSize, spriteTextures[textureIndex]);
+			textureIndex = ++textureIndex % spriteTextures.size();
+		}
+	}
+
+	void initParticleSystems() {
+		for (std::size_t i = 0; i < 15; i++) {
+			sb::ParticleSystem system(100);
+			system.setScale(0.1666666f, 0.1666666f * _aspect);
+			system.setParticleSizeRange(0.158f, 0.5f);
+			system.setPosition(sb::random2D(-0.95f, 0.95f));
+			system.setTexture(greenPropulsion);
+			particleSystems.push_back(system);
+		}
+	}
+
+public:
+	Scene8(float aspect) : 
+		_aspect(aspect), batch(8192), greenPropulsion("Textures/GreenPropulsion.png"),
+		spriteTextures(5), sprites(140)
+	{
+		initTextures();
+		initSprites();
+		initParticleSystems();
+	}
+
+	void update(float ds) {
+		for (std::size_t i = 0; i < particleSystems.size(); i++)
+			particleSystems[i].update(ds);
+	}
+
+	virtual void draw(sb::DrawTarget& target, sb::DrawStates drawStates) {
+		drawStates.transform *= getTransform();
+
+		batch.draw(backdrop, drawStates);
+		for (std::size_t i = 0; i < sprites.size(); i++)
+			batch.draw(sprites[i], drawStates);
+		target.draw(batch);
+		for (std::size_t i = 0; i < particleSystems.size(); i++)
+			target.draw(particleSystems[i], drawStates);
+	}
+};
+
+void demo8() {
+	float width = 360;
+	float height = 640;
+	float aspect = width / height;
+	sb::Window window((int)width, (int)height);
+	
+	Scene8 scene(aspect);
+
+	while (window.isOpen()) {
+		float ds = getDeltaSeconds();
+		sb::Input::update();
+		window.update();
+		scene.update(ds);
+
+		window.clear(sb::Color(1, 1, 1, 1));
+		window.draw(scene);
+		window.display();
+		printStats(10);
+	}
+}
+
 int main(int argc, char* args[])
 {
 	SDL_Log("Simple particle system Renderer: Build %s %s", __DATE__, __TIME__);
 	srand(48);
+	
+	demo8();
 
-	demo7();
+	// demo7();
 
 	// demo6();
 

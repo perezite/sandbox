@@ -5,12 +5,10 @@
 namespace sb
 {
 	ParticleSystem::ParticleSystem(std::size_t numParticles, float timeOffset)
-		: m_particleSizeRange(0, 0.1f), m_numParticles(numParticles),
-		m_mesh(numParticles * 6, sb::PrimitiveType::TriangleStrip),
-		m_velocities(numParticles), m_updateIndex(0), m_texture(NULL)
-	{ 
-	}
-
+		: m_texture(NULL), m_mesh(numParticles * 6, sb::PrimitiveType::TriangleStrip),
+			m_numParticles(numParticles), m_particleSizeRange(0, 0.1f), m_velocities(numParticles), 
+			m_updateIndex(0), m_isGrowing(true), m_elapsed(0)
+	{ }
 
 	void ParticleSystem::update(float ds)
 	{
