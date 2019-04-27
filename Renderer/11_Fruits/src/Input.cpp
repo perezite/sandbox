@@ -71,9 +71,10 @@ namespace sb
 	sb::Vector2f Input::getTouchPosition(const sb::Vector2f& windowResolution)
 	{
 		#ifdef WIN32
-			return m_mousePosition;
+			return sb::Vector2f(m_mousePosition.x, -m_mousePosition.y + windowResolution.y);
 		#elif defined(__ANDROID__)
-			return sb::Vector2f(windowResolution.x * m_fingerPosition.x, windowResolution.y * m_fingerPosition.y);
+			float y = -m_fingerPosition.y + 1;
+			return sb::Vector2f(windowResolution.x * m_fingerPosition.x, windowResolution.y * y);
 		#else	
 			#error os not supported
 		#endif

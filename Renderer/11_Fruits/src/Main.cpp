@@ -328,16 +328,50 @@ void demo4() {
 		sb::Input::update();
 		window.update();
 
+		const sb::Vector2f& touchPosition = sb::Input::getTouchPosition(window.getResolution());
+		std::cout << touchPosition.x << " " << touchPosition.y << std::endl;
+
 		window.clear(sb::Color(1, 1, 1, 1));
 		window.display();
 	}
 }
 
+sb::Vector2f normalizePixelCoordinates(const sb::Vector2f& touchPosition, const sb::Vector2f& resolution) {
+	return sb::Vector2f(touchPosition.x * 2 / resolution.x - 1, touchPosition.y * 2 / resolution.y - 1);
+}
+
+void demo5() {
+	sb::Window window(800, 800);
+
+	Scene2 scene(100, sb::Vector2f(0.05f, 0.3f));
+	scene.setDragCoefficient(8);
+	scene.getFruits()[0].setScale(0.35f, 0.35f);
+
+	while (window.isOpen()) {
+		float ds = getDeltaSeconds();
+		sb::Input::update();
+		window.update();
+		scene.update(ds);
+		if (sb::Input::isTouchDown(1)) {
+			sb::Vector2f touch = normalizePixelCoordinates(sb::Input::getTouchPosition(window.getResolution()), window.getResolution());
+			 scene.getFruits()[0].setPosition(touch);
+		}
+
+		window.clear(sb::Color(1, 1, 1, 1));
+		window.draw(scene);
+		window.display();
+	}
+}
+
+
+
 int main(int argc, char* args[])
 {
 	SDL_Log("Fruits Renderer: Build %s %s", __DATE__, __TIME__);
 
-	demo4();
+	demo5();
+
+	// demo4();
 
 	// demo3();
 
