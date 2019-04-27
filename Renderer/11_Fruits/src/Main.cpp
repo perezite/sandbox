@@ -124,6 +124,7 @@ class Scene2 : public sb::Drawable {
 	std::vector<sb::Vector2f> fruitVelocities;
 	std::vector<sb::Vector2f> fruitForces;
 	float dragCoefficient;
+	float inverseAspect;
 
 protected:
 	void initTextures() {
@@ -141,7 +142,7 @@ protected:
 	void initFruits(std::size_t numFruits, const sb::Vector2f& scaleRange) {
 		std::size_t textureIndex = 0;
 		for (std::size_t i = 0; i < numFruits; i++) {
-			fruits[i].setPosition(sb::random2D(-1, 1));
+			fruits[i].setPosition(sb::random(-1, 1), inverseAspect * sb::random(-1, 1));
 			float scale = sb::random(scaleRange.x, scaleRange.y);
 			fruits[i].setScale(scale, scale);
 			fruits[i].setRotation(sb::random(2.0f * sb::Pi));
@@ -169,7 +170,7 @@ protected:
 		}
 	}
 
-	void clearFruitForces() {
+	void clearForces() {
 		for (std::size_t i = 0; i < fruitForces.size(); i++)
 			fruitForces[i] = sb::Vector2f(0, 0);
 	}
@@ -217,12 +218,12 @@ protected:
 		
 		if (left < -1)
 			force += (-1 - left) * sb::Vector2f(1, 0);
-		if (top > 1)
-			force += (top - 1) * sb::Vector2f(0, -1);
+		if (top > 1 * inverseAspect)
+			force += (top - 1 * inverseAspect) * sb::Vector2f(0, -1);
 		if (right > 1)
 			force += (right - 1) * sb::Vector2f(-1, 0);
-		if (bottom < -1)
-			force += (-1 - bottom) * sb::Vector2f(0, 1);
+		if (bottom < -1 * inverseAspect)
+			force += (-1 * inverseAspect - bottom) * sb::Vector2f(0, 1);
 
 		return 1000 * force;
 	}
@@ -242,7 +243,7 @@ protected:
 	}
 
 	void physics(float ds) {
-		clearFruitForces();
+		clearForces();
 		computeCollisionForces();
 		computeBoundaryForces();
 		computeDragForces();
@@ -250,9 +251,9 @@ protected:
 	}
 
 public:
-	Scene2(std::size_t numFruits, const sb::Vector2f& fruitScaleRange)
-		: batch(8192), textures(9), fruits(numFruits), 
-		fruitVelocities(numFruits), fruitForces(numFruits), dragCoefficient(10)
+	Scene2(std::size_t numFruits, const sb::Vector2f& fruitScaleRange, float aspect_)
+		: batch(8192), textures(9), fruits(numFruits), fruitVelocities(numFruits), 
+		fruitForces(numFruits), dragCoefficient(10), inverseAspect(1 / aspect_)
 	{
 		initTextures();
 		initFruits(numFruits, fruitScaleRange);
@@ -277,6 +278,8 @@ public:
 	}
 
 	virtual void draw(sb::DrawTarget& target, sb::DrawStates drawStates = sb::DrawStates::getDefault()) {
+		drawStates.transform *= getTransform();
+
 		for (std::size_t i = 0; i < fruits.size(); i++)
 			batch.draw(fruits[i], drawStates);
 		target.draw(batch);
@@ -286,7 +289,7 @@ public:
 void demo2() {
 	sb::Window window;
 
-	Scene2 scene(100, sb::Vector2f(0.1f, 0.3f));
+	Scene2 scene(100, sb::Vector2f(0.1f, 0.3f), 1);
 	scene.isDebug(true);
 	scene.getFruits()[0].setPosition(-0.3f, -0.3f);
 
@@ -305,7 +308,7 @@ void demo2() {
 void demo3() {
 	sb::Window window;
 
-	Scene2 scene(100, sb::Vector2f(0.05f, 0.3f));
+	Scene2 scene(100, sb::Vector2f(0.05f, 0.3f), 1);
 	scene.isDebug(false);
 	scene.getFruits()[0].setPosition(-0.3f, -0.3f);
 
@@ -336,14 +339,15 @@ void demo4() {
 	}
 }
 
-sb::Vector2f normalizePixelCoordinates(const sb::Vector2f& touchPosition, const sb::Vector2f& resolution) {
-	return sb::Vector2f(touchPosition.x * 2 / resolution.x - 1, touchPosition.y * 2 / resolution.y - 1);
+sb::Vector2f normalizePixelCoordinates(const sb::Vector2f& touchPosition, const sb::Vector2f& resolution, float aspect) {
+	float inverseAspect = 1 / aspect;
+	return sb::Vector2f(touchPosition.x * 2 / resolution.x - 1, touchPosition.y * 2 * inverseAspect / resolution.y - inverseAspect);
 }
 
 void demo5() {
 	sb::Window window(800, 800);
 
-	Scene2 scene(100, sb::Vector2f(0.05f, 0.3f));
+	Scene2 scene(100, sb::Vector2f(0.05f, 0.3f), 1);
 	scene.setDragCoefficient(8);
 	scene.getFruits()[0].setScale(0.35f, 0.35f);
 
@@ -353,7 +357,7 @@ void demo5() {
 		window.update();
 		scene.update(ds);
 		if (sb::Input::isTouchDown(1)) {
-			sb::Vector2f touch = normalizePixelCoordinates(sb::Input::getTouchPosition(window.getResolution()), window.getResolution());
+			sb::Vector2f touch = normalizePixelCoordinates(sb::Input::getTouchPosition(window.getResolution()), window.getResolution(), 1);
 			 scene.getFruits()[0].setPosition(touch);
 		}
 
@@ -363,13 +367,40 @@ void demo5() {
 	}
 }
 
+void demo6() {
+	float width = 360 * 1.2f;
+	float height = 640 * 1.2f;
+	float aspect = width / height;
+	sb::Window window((int)width, (int)height);
 
+	Scene2 scene(100, sb::Vector2f(0.05f, 0.3f), aspect);
+	scene.setDragCoefficient(8);
+	scene.getFruits()[0].setScale(0.35f, 0.35f);
+	scene.setScale(1, aspect);
+
+	while (window.isOpen()) {
+		float ds = getDeltaSeconds();
+		sb::Input::update();
+		window.update();
+		scene.update(ds);
+		if (sb::Input::isTouchDown(1)) {
+			sb::Vector2f touch = normalizePixelCoordinates(sb::Input::getTouchPosition(window.getResolution()), window.getResolution(), aspect);
+			scene.getFruits()[0].setPosition(touch);
+		}
+
+		window.clear(sb::Color(1, 1, 1, 1));
+		window.draw(scene);
+		window.display();
+	}
+}
 
 int main(int argc, char* args[])
 {
 	SDL_Log("Fruits Renderer: Build %s %s", __DATE__, __TIME__);
 
-	demo5();
+	demo6();
+
+	// demo5();
 
 	// demo4();
 
@@ -379,5 +410,5 @@ int main(int argc, char* args[])
 
 	// demo1();
 
-	//demo0();
+	// demo0();
 }
