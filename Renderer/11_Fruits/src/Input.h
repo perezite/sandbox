@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Vector2f.h"
 #include <SDL2/SDL.h>
 #include <set>
 
@@ -18,12 +19,31 @@ namespace sb
 		
 		inline static bool isKeyGoingDown(const KeyCode key) { return m_keysGoingDown.count(key) > 0; }
 
+		inline static bool isTouchDown(const int index) { return m_touchesDown.count(index) > 0; }
+
+		inline static bool isTouchGoingDown(const int index) { return m_touchesGoingDown.count(index) > 0; }
+
+		static sb::Vector2f getTouchPosition(const sb::Vector2f& windowResolution);
+
+	protected:
+		static sb::Vector2f fingerToPixelCoordinates(const sb::Vector2f& position);
+
 	private:
 		static bool m_hasQuitEvent;
 
 		static std::set<KeyCode> m_keysDown;
 
 		static std::set<KeyCode> m_keysGoingDown;
+
+		static std::set<SDL_FingerID> m_touchesDown;
+
+		static std::set<SDL_FingerID> m_touchesGoingDown;
+
+		static sb::Vector2f m_mousePosition;
+
+		static sb::Vector2f m_fingerPosition;
+
+		static bool m_insideWindow;
 	};
 
 	enum class KeyCode

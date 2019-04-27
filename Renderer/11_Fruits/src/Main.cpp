@@ -63,7 +63,6 @@ void demo0() {
 	circle.setScale(0.2f, 0.2f);
 
 	while (window.isOpen()) {
-		float ds = getDeltaSeconds();
 		sb::Input::update();
 		window.update();
 
@@ -109,7 +108,6 @@ void demo1() {
 	apple.isDebug(true);
 
 	while (window.isOpen()) {
-		float ds = getDeltaSeconds();
 		sb::Input::update();
 		window.update();
 
@@ -280,7 +278,7 @@ public:
 
 	virtual void draw(sb::DrawTarget& target, sb::DrawStates drawStates = sb::DrawStates::getDefault()) {
 		for (std::size_t i = 0; i < fruits.size(); i++)
-			batch.draw(fruits[i]), drawStates;
+			batch.draw(fruits[i], drawStates);
 		target.draw(batch);
 	}
 }; 
@@ -323,11 +321,25 @@ void demo3() {
 	}
 }
 
+void demo4() {
+	sb::Window window;
+
+	while (window.isOpen()) {
+		sb::Input::update();
+		window.update();
+
+		window.clear(sb::Color(1, 1, 1, 1));
+		window.display();
+	}
+}
+
 int main(int argc, char* args[])
 {
 	SDL_Log("Fruits Renderer: Build %s %s", __DATE__, __TIME__);
 
-	demo3();
+	demo4();
+
+	// demo3();
 
 	// demo2();
 

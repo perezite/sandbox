@@ -13,6 +13,8 @@ namespace sb
 
 		~Window();
 
+		inline const sb::Vector2f& getResolution() const { return m_resolution; }
+
 		bool isOpen() { return m_isOpen; }
 
 		void update();
@@ -33,5 +35,7 @@ namespace sb
 		SDL_GLContext m_glContext;
 
 		Renderer* m_renderer;
+
+		Vector2f m_resolution;
 	};
 }
