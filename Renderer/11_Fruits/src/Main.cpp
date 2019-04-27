@@ -80,7 +80,7 @@ class Fruit : public sb::Drawable {
 
 public:
 	Fruit()
-		: debug(false), boundingCircle(50, 0.03f)
+		: debug(false), boundingCircle(50, 0.1f)
 	{
 		boundingCircle.setScale(0.5f, 0.5f);
 	}
@@ -119,10 +119,13 @@ void demo1() {
 	}
 }
 
-/* class Scene0 : public sb::Drawable {
+class Scene2 : public sb::Drawable {
 	sb::DrawBatch batch;
 	std::vector<sb::Texture> textures;
 	std::vector<Fruit> fruits;
+	std::vector<sb::Vector2f> fruitVelocities;
+	std::vector<sb::Vector2f> fruitForces;
+	float dragCoefficient;
 
 protected:
 	void initTextures() {
@@ -137,11 +140,11 @@ protected:
 		textures[8].loadFromAsset("Textures/watermelon.png");
 	}
 
-	void initFruits(std::size_t numFruits) {
+	void initFruits(std::size_t numFruits, const sb::Vector2f& scaleRange) {
 		std::size_t textureIndex = 0;
 		for (std::size_t i = 0; i < numFruits; i++) {
 			fruits[i].setPosition(sb::random2D(-1, 1));
-			float scale = sb::random(0.1f, 0.15f);
+			float scale = sb::random(scaleRange.x, scaleRange.y);
 			fruits[i].setScale(scale, scale);
 			fruits[i].setRotation(sb::random(2.0f * sb::Pi));
 			fruits[i].setTexture(&textures[textureIndex]);
@@ -149,18 +152,130 @@ protected:
 		}
 	}
 
-public:
-	Scene0(std::size_t numFruits)
-		: batch(8192), textures(9), fruits(numFruits)
-	{
-		initTextures();
-		initFruits(numFruits);
+	void input(float ds) {
+		if (sb::Input::isKeyDown(sb::KeyCode::Left)) {
+			fruits[0].translate(-1 * ds, 0);
+			fruitVelocities[0] = sb::Vector2f(0, 0);
+		}
+		if (sb::Input::isKeyDown(sb::KeyCode::Up)) {
+			fruits[0].translate(0, 1 * ds);
+			fruitVelocities[0] = sb::Vector2f(0, 0);
+		}
+		if (sb::Input::isKeyDown(sb::KeyCode::Right)) {
+			fruits[0].translate(1 * ds, 0);
+			fruitVelocities[0] = sb::Vector2f(0, 0);
+		}
+		if (sb::Input::isKeyDown(sb::KeyCode::Down)) {
+			fruits[0].translate(0, -1 * ds);
+			fruitVelocities[0] = sb::Vector2f(0, 0);
+		}
 	}
 
-	void update(float ds) {
+	void clearFruitForces() {
+		for (std::size_t i = 0; i < fruitForces.size(); i++)
+			fruitForces[i] = sb::Vector2f(0, 0);
+	}
+
+	const sb::Vector2f computeCollisionForce(const Fruit& current, const Fruit& other) {
+		const sb::Vector2f currentScale = current.getScale();
+		const sb::Vector2f otherScale = other.getScale();
+		const float leftRadius = (currentScale.x + currentScale.y) / 4.0f;
+		const float rightRadius = (otherScale.x + otherScale.y) / 4.0f;
+		sb::Vector2f distance = other.getPosition() - current.getPosition();
+		float distanceLength = distance.getLength();
+		float collisionDistance = distanceLength - leftRadius - rightRadius;
+
+		return collisionDistance < 0 ?
+			collisionDistance * 1000 * distance.normalized() :
+			sb::Vector2f(0, 0);
+	}
+
+	void computeCollisionForces() {
 		for (std::size_t i = 0; i < fruits.size(); i++) {
-			fruits[i].update(ds);
+			for (std::size_t j = i + 1; j < fruits.size(); j++) {
+				const Fruit& current = fruits[i];
+				const Fruit& other = fruits[j];
+				const sb::Vector2f& force = computeCollisionForce(current, other);
+				fruitForces[i] += force;
+				fruitForces[j] += -force;
+			}
 		}
+	}
+
+	void computeDragForces() {
+		for (std::size_t i = 0; i < fruits.size(); i++)
+			fruitForces[i] -= dragCoefficient * fruitVelocities[i];
+	}
+
+	sb::Vector2f computeBoundaryForce(const Fruit& fruit) {
+		const float radius = (fruit.getScale().x + fruit.getScale().y) / 4.0f;
+		const sb::Vector2f position = fruit.getPosition();
+		sb::Vector2f force;
+
+		float left = position.x - radius;
+		float top = position.y + radius;
+		float right = position.x + radius;
+		float bottom = position.y - radius;
+		
+		if (left < -1)
+			force += (-1 - left) * sb::Vector2f(1, 0);
+		if (top > 1)
+			force += (top - 1) * sb::Vector2f(0, -1);
+		if (right > 1)
+			force += (right - 1) * sb::Vector2f(-1, 0);
+		if (bottom < -1)
+			force += (-1 - bottom) * sb::Vector2f(0, 1);
+
+		return 1000 * force;
+	}
+
+	void computeBoundaryForces() {
+		for (std::size_t i = 0; i < fruitForces.size(); i++)
+			fruitForces[i] += computeBoundaryForce(fruits[i]);
+	}
+
+	void integrate(float ds) {
+		for (std::size_t i = 0; i < fruits.size(); i++) {
+			fruitVelocities[i] += ds * fruitForces[i];
+			sb::Vector2f position = fruits[i].getPosition();
+			position += ds * fruitVelocities[i];
+			fruits[i].setPosition(position);
+		}
+	}
+
+	void physics(float ds) {
+		clearFruitForces();
+		computeCollisionForces();
+		computeBoundaryForces();
+		computeDragForces();
+		integrate(ds);
+	}
+
+public:
+	Scene2(std::size_t numFruits, const sb::Vector2f& fruitScaleRange)
+		: batch(8192), textures(9), fruits(numFruits), 
+		fruitVelocities(numFruits), fruitForces(numFruits), dragCoefficient(10)
+	{
+		initTextures();
+		initFruits(numFruits, fruitScaleRange);
+	}
+
+	inline std::vector<Fruit>& getFruits() { return fruits; };
+
+	void isDebug(bool debug) {
+		for (std::size_t i = 0; i < fruits.size(); i++)
+			fruits[i].isDebug(debug);
+	}
+
+	inline void setDragCoefficient(float coefficient) { dragCoefficient = coefficient; }
+
+	void update(float ds) {
+		input(ds);
+
+		physics(ds);
+
+		for (std::size_t i = 0; i < fruits.size(); i++)
+			fruits[i].update(ds);
 	}
 
 	virtual void draw(sb::DrawTarget& target, sb::DrawStates drawStates = sb::DrawStates::getDefault()) {
@@ -168,13 +283,55 @@ public:
 			batch.draw(fruits[i]), drawStates;
 		target.draw(batch);
 	}
-}; */
+}; 
+
+void demo2() {
+	sb::Window window;
+
+	Scene2 scene(100, sb::Vector2f(0.1f, 0.3f));
+	scene.isDebug(true);
+	scene.getFruits()[0].setPosition(-0.3f, -0.3f);
+
+	while (window.isOpen()) {
+		float ds = getDeltaSeconds();
+		sb::Input::update();
+		window.update();
+		scene.update(ds);
+
+		window.clear(sb::Color(1, 1, 1, 1));
+		window.draw(scene);
+		window.display();
+	}
+}
+
+void demo3() {
+	sb::Window window;
+
+	Scene2 scene(100, sb::Vector2f(0.05f, 0.3f));
+	scene.isDebug(false);
+	scene.getFruits()[0].setPosition(-0.3f, -0.3f);
+
+	while (window.isOpen()) {
+		float ds = getDeltaSeconds();
+		sb::Input::update();
+		window.update();
+		scene.update(ds);
+
+		window.clear(sb::Color(1, 1, 1, 1));
+		window.draw(scene);
+		window.display();
+	}
+}
 
 int main(int argc, char* args[])
 {
 	SDL_Log("Fruits Renderer: Build %s %s", __DATE__, __TIME__);
-	
-	demo1();
+
+	demo3();
+
+	// demo2();
+
+	// demo1();
 
 	//demo0();
 }

@@ -8,7 +8,7 @@ namespace sb
 		return Vector2f();
 	}
 
-	float Vector2f::getLength()
+	float Vector2f::getLength() const 
 	{
 		return sqrt(x * x + y * y);
 	}
@@ -17,6 +17,11 @@ namespace sb
 	{
 		float inverseLength = 1 / getLength();
 		return inverseLength * (*this);
+	}
+
+	Vector2f Vector2f::operator-() const
+	{
+		return sb::Vector2f(-this->x, -this->y);
 	}
 
 	Vector2f operator+(const Vector2f& left, const Vector2f& right)
@@ -38,6 +43,12 @@ namespace sb
 	{
 		left.x += right.x;
 		left.y += right.y;
+		return left;
+	}
+
+	const Vector2f& operator-=(Vector2f& left, const Vector2f& right) {
+		left.x -= right.x;
+		left.y -= right.y;
 		return left;
 	}
 }

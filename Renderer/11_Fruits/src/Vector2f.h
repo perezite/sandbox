@@ -19,9 +19,11 @@ namespace sb
 
 		float x, y;
 
-		float getLength();
+		float getLength() const;
 
 		Vector2f normalized();
+
+		Vector2f operator-() const;
 	};
 
 	Vector2f operator+(const Vector2f& left, const Vector2f& right);
@@ -32,4 +34,5 @@ namespace sb
 
 	const Vector2f& operator+=(Vector2f& left, const Vector2f& right);
 
+	const Vector2f& operator-=(Vector2f& left, const Vector2f& right);
 }
