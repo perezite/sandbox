@@ -1,5 +1,6 @@
 #include <iostream>
 #include <algorithm>
+#include <vector>
 
 class MyEntity {
 	float _x, _y;
@@ -19,7 +20,7 @@ public:
 	}
 };
 
-void demo0() {
+void demo1() {
 	MyEntity entity(0.5f, 0.5f);
 
 	while (true) {
@@ -44,8 +45,6 @@ public:
 	inline void setX(float x) { _x = x; }
 
 	inline void setY(float y) { _y = y; }
-
-
 };
 
 class Physics {
@@ -79,7 +78,7 @@ public:
 	}
 };
 
-void demo1() {
+void demo2() {
 	MyEntity2 entity(0.5f, 0.5f);
 
 	while (true) {
@@ -89,8 +88,92 @@ void demo1() {
 	}
 }
 
-void main() {
-	demo1();
+class Entity3;
 
-	// demo0();
+class Component3 {
+	Entity3* _entity;
+
+public:
+	virtual void update() = 0;
+
+	inline Entity3& getEntity() { return *_entity; }
+
+	inline void setEntity(Entity3& entity) { _entity = &entity; }
+};
+
+class Entity3 {
+	std::vector<Component3*> _components;
+
+	float _x, _y;
+
+public:
+	Entity3(float x = 0, float y = 0)
+		: _x(x), _y(y)
+	{ }
+
+	~Entity3() {
+		for (std::size_t i = 0; i < _components.size(); i++)
+			delete _components[i];
+	}
+
+	inline float getX() const { return _x; }
+
+	inline float getY() const { return _y; }
+
+	inline void setX(float x) { _x = x; }
+
+	inline void setY(float y) { _y = y; }
+
+	void addComponent(Component3* component) {
+		component->setEntity(*this);
+		_components.push_back(component);
+	}
+
+	void updateComponents() {
+		for (std::size_t i = 0; i < _components.size(); i++)
+			_components[i]->update();
+	}
+};
+
+class Physics3 : public Component3 {
+public:
+	virtual void update() {
+		getEntity().setX(std::max(getEntity().getX() - 0.1f, 0.0f));
+		getEntity().setY(std::max(getEntity().getY() - 0.1f, 0.0f));
+	}
+};
+
+class MyEntity3 : public Entity3 {
+public:
+	MyEntity3(float x, float y)
+		: Entity3(x, y)
+	{
+		addComponent(new Physics3());
+	}
+
+	void update() {
+		updateComponents();
+	}
+
+	void print() {
+		std::cout << getX() << " " << getY() << std::endl;
+	}
+};
+
+void demo3() {
+	MyEntity3 entity(0.5f, 0.5f);
+
+	while (true) {
+		entity.update();
+		entity.print();
+		std::cin.get();
+	}
+}
+
+void main() {
+	demo3();
+
+	// demo2();
+
+	// demo1();
 }
