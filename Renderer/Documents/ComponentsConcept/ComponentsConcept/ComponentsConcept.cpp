@@ -1,6 +1,8 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <string>
+
 
 class MyEntity {
 	float _x, _y;
@@ -94,6 +96,8 @@ class Component3 {
 	Entity3* _entity;
 
 public:
+	virtual ~Component3() { }
+
 	virtual void update() = 0;
 
 	inline Entity3& getEntity() { return *_entity; }
@@ -111,7 +115,7 @@ public:
 		: _x(x), _y(y)
 	{ }
 
-	~Entity3() {
+	virtual ~Entity3() {
 		for (std::size_t i = 0; i < _components.size(); i++)
 			delete _components[i];
 	}
@@ -141,6 +145,11 @@ public:
 		getEntity().setX(std::max(getEntity().getX() - 0.1f, 0.0f));
 		getEntity().setY(std::max(getEntity().getY() - 0.1f, 0.0f));
 	}
+
+	virtual ~Physics3() 
+	{
+		std::cout << "Physics::dtor()" << std::endl;
+	}
 };
 
 class MyEntity3 : public Entity3 {
@@ -166,7 +175,10 @@ void demo3() {
 	while (true) {
 		entity.update();
 		entity.print();
-		std::cin.get();
+		std::string input;
+		std::getline(std::cin, input);
+		if (input == "exit")
+			break;
 	}
 }
 
@@ -177,3 +189,4 @@ void main() {
 
 	// demo1();
 }
+
