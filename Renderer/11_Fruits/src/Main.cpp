@@ -394,11 +394,152 @@ void demo6() {
 	}
 }
 
+class Entity;
+
+class Component {
+	Entity* _entity;
+
+protected:
+	inline Entity& getEntity() const { return *_entity; };
+
+public:
+	virtual ~Component() { };
+
+	virtual void update(float ds = 0) = 0;
+
+	inline void setEntity(Entity &entity) { _entity = &entity; }
+};
+
+class Entity {
+	std::vector<Component*> _components;
+
+public:
+	virtual ~Entity() { 
+		for (std::size_t i = 0; i < _components.size(); i++)
+			delete _components[i];
+	}
+
+	inline void addComponent(Component* component) { _components.push_back(component); }
+};
+
+class Fruit2 : public sb::Drawable {
+	sb::Sprite sprite;
+	bool debug;
+	DebugCircle boundingCircle;
+
+public:
+	Fruit2()
+		: debug(true), boundingCircle(50, 0.1f)
+	{
+		boundingCircle.setScale(0.5f, 0.5f);
+	}
+
+	inline void setTexture(sb::Texture* texture) { sprite.setTexture(texture); }
+
+	inline void isDebug(bool enable) { debug = enable; }
+
+	void update(float ds) {
+	}
+
+	virtual void draw(sb::DrawTarget& target, sb::DrawStates drawStates = sb::DrawStates::getDefault()) {
+		drawStates.transform *= getTransform();
+		target.draw(sprite, drawStates);
+		if (debug)
+			target.draw(boundingCircle, drawStates);
+	}
+};
+
+class Scene7 : public sb::Drawable {
+	sb::DrawBatch _batch;
+	std::vector<Fruit2> _fruits;
+	std::vector<sb::Texture> _textures;
+	sb::Vector2f _scaleRange;
+	float _aspect;
+	float _inverseAspect;
+
+protected:
+	void initTextures() {
+		_textures[0].loadFromAsset("Textures/apple.png");
+		_textures[1].loadFromAsset("Textures/bananas.png");
+		_textures[2].loadFromAsset("Textures/carrot.png");
+		_textures[3].loadFromAsset("Textures/grapefruit.png");
+		_textures[4].loadFromAsset("Textures/lemon.png");
+		_textures[5].loadFromAsset("Textures/pumpkin.png");
+		_textures[6].loadFromAsset("Textures/pineapple.png");
+		_textures[7].loadFromAsset("Textures/strawberry.png");
+		_textures[8].loadFromAsset("Textures/watermelon.png");
+	}
+
+	void initFruits() {
+		std::size_t textureIndex = 0;
+		for (std::size_t i = 0; i < _fruits.size(); i++) {
+			_fruits[i].setPosition(sb::random(-1, 1), _inverseAspect * sb::random(-1, 1));
+			float scale = sb::random(_scaleRange.x, _scaleRange.y);
+			_fruits[i].setScale(scale, scale);
+			_fruits[i].setRotation(sb::random(2.0f * sb::Pi));
+			_fruits[i].setTexture(&_textures[textureIndex]);
+			textureIndex = ++textureIndex % _textures.size();
+		}
+	}
+
+	void input(sb::Window& window) {
+		if (sb::Input::isTouchDown(1)) {
+			sb::Vector2f touch = normalizePixelCoordinates(sb::Input::getTouchPosition(window.getResolution()), window.getResolution(), _aspect);
+			_fruits[0].setPosition(touch);
+		}
+
+	}
+
+public:
+	Scene7(const sb::Vector2f& scaleRange, float aspect) 
+		: _batch(8192), _fruits(2), _textures(9), _scaleRange(scaleRange), _aspect(aspect), _inverseAspect(1 / aspect)
+	{
+		initTextures();
+		initFruits();
+	}
+
+	void update(float ds, sb::Window& window) {
+		input(window);
+	}
+
+	virtual void draw(sb::DrawTarget& target, sb::DrawStates drawStates = sb::DrawStates::getDefault()) {
+		drawStates.transform *= getTransform();
+
+		for (std::size_t i = 0; i < _fruits.size(); i++)
+			_batch.draw(_fruits[i], drawStates);
+		target.draw(_batch);
+	}
+};
+
+void demo7() {
+	float width = 400;
+	float height = 400;
+	float aspect = width / height;
+	sb::Window window(width, height);
+	Scene7 scene(sb::Vector2f(0.2f, 0.3f), aspect);
+	scene.setScale(1, aspect);
+
+	while (window.isOpen()) {
+		float ds = getDeltaSeconds();
+		sb::Input::update();
+		window.update();
+		scene.update(ds, window);
+
+		window.clear(sb::Color(1, 1, 1, 1));
+		window.draw(scene);
+		window.display();
+	}
+}
+
 int main(int argc, char* args[])
 {
 	SDL_Log("Fruits Renderer: Build %s %s", __DATE__, __TIME__);
 
-	demo6();
+	srand(987654321);
+
+	 demo7();
+
+	//demo6();
 
 	// demo5();
 
