@@ -399,15 +399,14 @@ class Entity;
 class Component {
 	Entity* _entity;
 
-protected:
-	inline Entity& getEntity() const { return *_entity; };
-
 public:
 	virtual ~Component() { };
 
-	virtual void update(float ds = 0) = 0;
+	inline Entity& getEntity() const { return *_entity; };
 
 	inline void setEntity(Entity &entity) { _entity = &entity; }
+
+	virtual void update(float ds = 0) { }
 };
 
 class Entity {
@@ -420,6 +419,41 @@ public:
 	}
 
 	inline void addComponent(Component* component) { _components.push_back(component); }
+};
+
+class Collider {
+public:
+	
+};
+
+class Physics {
+	std::vector<std::pair<sb::Transformable*, Collider*>> _transformables;
+	std::vector<sb::Vector2f> _forces;
+	std::vector<sb::Vector2f> _velocities;
+
+protected:
+	void add(sb::Transformable& transformable, Collider* collider) {
+		_transformables.push_back(std::make_pair(&transformable, (Collider*)NULL));
+		_forces.push_back(sb::Vector2f());
+		_velocities.push_back(sb::Vector2f());
+	}
+
+	void updateCollisionForces(float ds) {
+
+	}
+
+public:
+	void add(sb::Transformable& transformable) {
+		add(transformable, NULL);
+	}
+
+	void add(sb::Transformable& transformable, Collider& collider) {
+		add(transformable, collider);
+	}
+
+	void update(float ds) {
+		updateCollisionForces(ds);
+	}
 };
 
 class Fruit2 : public sb::Drawable {
@@ -460,14 +494,6 @@ class Scene7 : public sb::Drawable {
 protected:
 	void initTextures() {
 		_textures[0].loadFromAsset("Textures/apple.png");
-		_textures[1].loadFromAsset("Textures/bananas.png");
-		_textures[2].loadFromAsset("Textures/carrot.png");
-		_textures[3].loadFromAsset("Textures/grapefruit.png");
-		_textures[4].loadFromAsset("Textures/lemon.png");
-		_textures[5].loadFromAsset("Textures/pumpkin.png");
-		_textures[6].loadFromAsset("Textures/pineapple.png");
-		_textures[7].loadFromAsset("Textures/strawberry.png");
-		_textures[8].loadFromAsset("Textures/watermelon.png");
 	}
 
 	void initFruits() {
@@ -492,7 +518,7 @@ protected:
 
 public:
 	Scene7(const sb::Vector2f& scaleRange, float aspect) 
-		: _batch(8192), _fruits(2), _textures(9), _scaleRange(scaleRange), _aspect(aspect), _inverseAspect(1 / aspect)
+		: _batch(8192), _fruits(2), _textures(1), _scaleRange(scaleRange), _aspect(aspect), _inverseAspect(1 / aspect)
 	{
 		initTextures();
 		initFruits();
@@ -515,13 +541,15 @@ void demo7() {
 	float width = 400;
 	float height = 400;
 	float aspect = width / height;
-	sb::Window window(width, height);
+	
+	sb::Window window((int)width, (int)height);
 	Scene7 scene(sb::Vector2f(0.2f, 0.3f), aspect);
 	scene.setScale(1, aspect);
 
 	while (window.isOpen()) {
 		float ds = getDeltaSeconds();
 		sb::Input::update();
+
 		window.update();
 		scene.update(ds, window);
 
@@ -537,7 +565,7 @@ int main(int argc, char* args[])
 
 	srand(987654321);
 
-	 demo7();
+	demo7();
 
 	//demo6();
 
