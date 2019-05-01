@@ -421,25 +421,20 @@ public:
 	inline void addComponent(Component* component) { _components.push_back(component); }
 };
 
-class Collider {
-public:
-	
-};
-
 class Physics {
-	std::vector<std::pair<sb::Transformable*, Collider*>> _transformables;
+	std::vector<sb::Transformable*> _transformables;
 	std::vector<sb::Vector2f> _forces;
 	std::vector<sb::Vector2f> _velocities;
 
 protected:
-	void add(sb::Transformable& transformable, Collider* collider) {
-		_transformables.push_back(std::make_pair(&transformable, (Collider*)NULL));
+	void add(sb::Transformable& transformable) {
+		_transformables.push_back(&transformable);
 		_forces.push_back(sb::Vector2f());
 		_velocities.push_back(sb::Vector2f());
 	}
 
 	void updateCollisionForces(float ds) {
-
+		
 	}
 
 public:
@@ -447,7 +442,7 @@ public:
 		add(transformable, NULL);
 	}
 
-	void add(sb::Transformable& transformable, Collider& collider) {
+	void add(sb::Transformable& transformable) {
 		add(transformable, collider);
 	}
 
