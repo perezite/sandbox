@@ -14,8 +14,6 @@ namespace sb
 
 	void DrawBatch::draw(DrawTarget& target, DrawStates states) 
 	{
-		states.transform *= getTransform();
-
 		m_buffer.setTarget(target);
 		 for (std::size_t i = 0; i < m_drawCommands.size(); i++) 
 			 m_buffer.draw(m_drawCommands[i].drawable, m_drawCommands[i].states);

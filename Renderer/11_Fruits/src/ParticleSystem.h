@@ -1,8 +1,9 @@
 #include "Drawable.h"
+#include "Transformable.h"
 
 namespace sb
 {
-	class ParticleSystem : public Drawable 
+	class ParticleSystem : public Drawable, public Transformable 
 	{
 	public:
 		ParticleSystem(std::size_t numParticles, float timeOffset = 0);

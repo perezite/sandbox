@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Drawable.h"
+#include "Transformable.h"
 
 namespace sb
 {
-	class Quad : public Drawable
+	class Quad : public Drawable, public Transformable
 	{
 	public:
 		Quad() 

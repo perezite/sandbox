@@ -18,7 +18,7 @@ float getDeltaSeconds()
 	return delta;
 }
 
-class DebugCircle : public sb::Drawable {
+class DebugCircle : public sb::Drawable, public sb::Transformable {
 	sb::Mesh mesh;
 
 protected:
@@ -72,7 +72,7 @@ void demo0() {
 	}
 }
 
-class Fruit : public sb::Drawable {
+class Fruit : public sb::Drawable, public sb::Transformable {
 	sb::Sprite sprite;
 	bool debug;
 	DebugCircle boundingCircle;
@@ -117,7 +117,7 @@ void demo1() {
 	}
 }
 
-class Scene2 : public sb::Drawable {
+class Scene2 : public sb::Drawable, public sb::Transformable {
 	sb::DrawBatch batch;
 	std::vector<sb::Texture> textures;
 	std::vector<Fruit> fruits;
@@ -394,71 +394,128 @@ void demo6() {
 	}
 }
 
-class Entity;
-
-class Component {
-	Entity* _entity;
-
-public:
-	virtual ~Component() { };
-
-	inline Entity& getEntity() const { return *_entity; };
-
-	inline void setEntity(Entity &entity) { _entity = &entity; }
-
-	virtual void update(float ds = 0) { }
-};
-
-class Entity {
-	std::vector<Component*> _components;
-
-public:
-	virtual ~Entity() { 
-		for (std::size_t i = 0; i < _components.size(); i++)
-			delete _components[i];
-	}
-
-	inline void addComponent(Component* component) { _components.push_back(component); }
+struct Body : public sb::Transformable {
+	sb::Vector2f velocity;
 };
 
 class Physics {
-	std::vector<sb::Transformable*> _transformables;
+	float _aspect;
+	float _inverseAspect;
+	float _dragCoefficient;
+	std::vector<Body*> _bodies;
 	std::vector<sb::Vector2f> _forces;
-	std::vector<sb::Vector2f> _velocities;
 
 protected:
-	void add(sb::Transformable& transformable) {
-		_transformables.push_back(&transformable);
-		_forces.push_back(sb::Vector2f());
-		_velocities.push_back(sb::Vector2f());
+	void prepare() {
+		_forces.clear();
+		_forces.resize(_bodies.size());
+	}
+	
+	const sb::Vector2f computeCollisionForce(const Body& current, const Body& other) {
+		const sb::Vector2f currentScale = current.getScale();
+		const sb::Vector2f otherScale = other.getScale();
+		const float leftRadius = (currentScale.x + currentScale.y) / 4.0f;
+		const float rightRadius = (otherScale.x + otherScale.y) / 4.0f;
+		sb::Vector2f distance = other.getPosition() - current.getPosition();
+		float distanceLength = distance.getLength();
+		float collisionDistance = distanceLength - leftRadius - rightRadius;
+
+		return collisionDistance < 0 ?
+			collisionDistance * 1000 * distance.normalized() :
+			sb::Vector2f(0, 0);
 	}
 
-	void updateCollisionForces(float ds) {
+	void computeCollisionForces() {
+		for (std::size_t i = 0; i < _bodies.size(); i++) {
+			for (std::size_t j = i + 1; j < _bodies.size(); j++) {
+				const Body& current = *_bodies[i];
+				const Body& other = *_bodies[j];
+				const sb::Vector2f& force = computeCollisionForce(current, other);
+				_forces[i] += force;
+				_forces[j] += -force;
+			}
+		}
+	}
+
+	sb::Vector2f computeBoundaryForce(const Body& fruit) {
+		const float radius = (fruit.getScale().x + fruit.getScale().y) / 4.0f;
+		const sb::Vector2f position = fruit.getPosition();
+		sb::Vector2f force;
+
+		float left = position.x - radius;
+		float top = position.y + radius;
+		float right = position.x + radius;
+		float bottom = position.y - radius;
+
+		if (left < -1)
+			force += (-1 - left) * sb::Vector2f(1, 0);
+		if (top > 1 * _inverseAspect)
+			force += (top - 1 * _inverseAspect) * sb::Vector2f(0, -1);
+		if (right > 1)
+			force += (right - 1) * sb::Vector2f(-1, 0);
+		if (bottom < -1 * _inverseAspect)
+			force += (-1 * _inverseAspect - bottom) * sb::Vector2f(0, 1);
+
+		return 1000 * force;
+	}
+
+	void computeBoundaryForces() {
+		for (std::size_t i = 0; i < _bodies.size(); i++)
+			_forces[i] += computeBoundaryForce(*_bodies[i]);
+	}
+
+
+	void computeDragForces() {
+		for (std::size_t i = 0; i < _bodies.size(); i++)
+			_forces[i] -= _dragCoefficient * _bodies[i]->velocity;
+	}
+
+	void computeForces() {
+		computeCollisionForces();
+		computeBoundaryForces();
+		computeDragForces();
+	}
+
+	void moveBody(Body& body, const sb::Vector2f& force, float ds) {
+		body.velocity += ds * force;
+		sb::Vector2f position = body.getPosition();
+		position += ds * body.velocity;
+		body.setPosition(position);
+	}
+
+	void moveBodies(float ds) {
+		for (std::size_t i = 0; i < _bodies.size(); i++)
+			moveBody(*_bodies[i], _forces[i], ds);
 		
 	}
 
 public:
-	void add(sb::Transformable& transformable) {
-		add(transformable, NULL);
+	Physics(float aspect)
+		: _aspect(aspect), _inverseAspect(1 / aspect), _dragCoefficient(10)
+	{ }
+
+	inline void setDragCoefficient(float drag) { _dragCoefficient = drag; }
+
+	void addBody(Body& body) {
+		_bodies.push_back(&body);
 	}
 
-	void add(sb::Transformable& transformable) {
-		add(transformable, collider);
-	}
-
-	void update(float ds) {
-		updateCollisionForces(ds);
+	void simulate(float ds) {
+		prepare();
+		computeForces();
+		moveBodies(ds);
+		_bodies.clear();
 	}
 };
 
-class Fruit2 : public sb::Drawable {
+class Fruit2 : public sb::Drawable, public Body {
 	sb::Sprite sprite;
 	bool debug;
 	DebugCircle boundingCircle;
 
 public:
 	Fruit2()
-		: debug(true), boundingCircle(50, 0.1f)
+		: debug(false), boundingCircle(50, 0.1f)
 	{
 		boundingCircle.setScale(0.5f, 0.5f);
 	}
@@ -478,14 +535,23 @@ public:
 	}
 };
 
-void update7(std::vector<Fruit>& fruits, float ds, sb::Window& window) {
+void init7(std::vector<Fruit2>& fruits, std::vector<sb::Texture>& textures) {
+	fruits[0].setPosition(-0.5f, -0.5f);
+	fruits[0].setScale(0.3f, 0.3f);
+	fruits[0].setTexture(&textures[0]);
+	fruits[1].setPosition(0.5f, 0.5f);
+	fruits[1].setScale(0.3f, 0.3f);
+	fruits[1].setTexture(&textures[1]);
+}
+
+void update7(std::vector<Fruit2>& fruits, sb::Window& window) {
 	if (sb::Input::isTouchDown(1)) {
 		sb::Vector2f touch = normalizePixelCoordinates(sb::Input::getTouchPosition(window.getResolution()), window.getResolution(), 1);
 		fruits[0].setPosition(touch);
 	}
 }
 
-void draw7(std::vector<Fruit>& fruits, sb::Window& window) {
+void draw7(std::vector<Fruit2>& fruits, sb::Window& window) {
 	for (std::size_t i = 0; i < fruits.size(); i++)
 		window.draw(fruits[i]);
 }
@@ -495,22 +561,22 @@ void demo7() {
 	float height = 400;
 	float aspect = width / height;
 	sb::Window window((int)width, (int)height);
+	Physics physics(aspect);
 
-	sb::Texture texture;
-	texture.loadFromAsset("Textures/apple.png");
-	std::vector<Fruit> fruits(2);
-	fruits[0].setPosition(-0.5f, -0.5f);
-	fruits[0].setScale(0.3f, 0.3f);
-	fruits[0].setTexture(&texture);
-	fruits[1].setPosition(0.5f, 0.5f);
-	fruits[1].setScale(0.3f, 0.3f);
-	fruits[1].setTexture(&texture);
+	std::vector<sb::Texture> textures(2);
+	std::vector<Fruit2> fruits(2);
+	textures[0].loadFromAsset("Textures/apple.png");
+	textures[1].loadFromAsset("Textures/bananas.png");
+	init7(fruits, textures);
 
 	while (window.isOpen()) {
 		float ds = getDeltaSeconds();
 		sb::Input::update();
 		window.update();
-		update7(fruits, ds, window);
+		update7(fruits, window);
+		for (std::size_t i = 0; i < fruits.size(); i++)
+			physics.addBody(fruits[i]);
+		physics.simulate(ds);
 
 		window.clear(sb::Color(1, 1, 1, 1));
 		draw7(fruits, window);
@@ -540,3 +606,16 @@ int main(int argc, char* args[])
 
 	// demo0();
 }
+
+/*
+int main() {
+	Physics physics;
+
+	while (window.isOpen()) {
+		for (std::size_t i = 0; i < fruits.size(); i++) 
+			physics.collide(fruits[i]);
+		for (std::size_t i = 0; i < frutis.size(); i++)
+			physics.simulate(fruits[i]);
+	}
+}
+*/
