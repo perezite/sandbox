@@ -597,15 +597,107 @@ void demo7() {
 	}
 }
 
+class Scene8 : public sb::Drawable, public sb::Transformable {
+	sb::DrawBatch batch;
+	Physics physics;
+	std::vector<sb::Texture> textures;
+	std::vector<Fruit2> fruits;
+	float inverseAspect;
+
+protected:
+	void initTextures() {
+		textures[0].loadFromAsset("Textures/apple.png");
+		textures[1].loadFromAsset("Textures/bananas.png");
+		textures[2].loadFromAsset("Textures/carrot.png");
+		textures[3].loadFromAsset("Textures/grapefruit.png");
+		textures[4].loadFromAsset("Textures/lemon.png");
+		textures[5].loadFromAsset("Textures/pumpkin.png");
+		textures[6].loadFromAsset("Textures/pineapple.png");
+		textures[7].loadFromAsset("Textures/strawberry.png");
+		textures[8].loadFromAsset("Textures/watermelon.png");
+	}
+
+	void initFruits(std::size_t numFruits, const sb::Vector2f& scaleRange) {
+		std::size_t textureIndex = 0;
+		for (std::size_t i = 0; i < numFruits; i++) {
+			fruits[i].setPosition(sb::random(-1, 1), inverseAspect * sb::random(-1, 1));
+			float scale = sb::random(scaleRange.x, scaleRange.y);
+			fruits[i].setScale(scale, scale);
+			fruits[i].setRotation(sb::random(2.0f * sb::Pi));
+			fruits[i].setTexture(&textures[textureIndex]);
+			textureIndex = ++textureIndex % textures.size();
+		}
+	}
+
+public:
+	Scene8(Physics& physics_, std::size_t numFruits, const sb::Vector2f& fruitScaleRange, float aspect_)
+		: batch(8192), physics(physics_), textures(9), fruits(numFruits), inverseAspect(1 / aspect_)
+	{
+		initTextures();
+		initFruits(numFruits, fruitScaleRange);
+	}
+
+	inline std::vector<Fruit2>& getFruits() { return fruits; };
+
+	void isDebug(bool debug) {
+		for (std::size_t i = 0; i < fruits.size(); i++)
+			fruits[i].isDebug(debug);
+	}
+
+	void update(float ds) {
+		for (std::size_t i = 0; i < fruits.size(); i++)
+			physics.addBody(fruits[i]);
+		physics.simulate(ds);
+	}
+
+	virtual void draw(sb::DrawTarget& target, sb::DrawStates drawStates = sb::DrawStates::getDefault()) {
+		drawStates.transform *= getTransform();
+
+		for (std::size_t i = 0; i < fruits.size(); i++)
+			batch.draw(fruits[i], drawStates);
+		target.draw(batch);
+	}
+};
+
+void demo8() {
+	float width = 360 * 1.2f;
+	float height = 640 * 1.2f;
+	float aspect = width / height;
+	sb::Window window((int)width, (int)height);
+
+	Physics physics(aspect);
+	physics.setDragCoefficient(8);
+	Scene8 scene(physics, 100, sb::Vector2f(0.05f, 0.3f), aspect);
+	scene.getFruits()[0].setScale(0.35f, 0.35f);
+	scene.setScale(1, aspect);
+
+	while (window.isOpen()) {
+		float ds = getDeltaSeconds();
+		sb::Input::update();
+		window.update();
+		scene.update(ds);
+		if (sb::Input::isTouchDown(1)) {
+			sb::Vector2f touch = normalizePixelCoordinates(sb::Input::getTouchPosition(window.getResolution()), window.getResolution(), aspect);
+			scene.getFruits()[0].setPosition(touch);
+		}
+
+		window.clear(sb::Color(1, 1, 1, 1));
+		window.draw(scene);
+		window.display();
+	}
+}
+
 int main(int argc, char* args[])
 {
 	SDL_Log("Fruits Renderer: Build %s %s", __DATE__, __TIME__);
 
 	srand(987654321);
 
-	demo7();
+	demo8();
 
-	//demo6();
+	// demo7();
+
+	// demo6();
 
 	// demo5();
 
