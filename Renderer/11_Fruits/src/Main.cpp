@@ -6,6 +6,7 @@
 #include "Stopwatch.h"
 #include "Quad.h"
 #include "Math.h"
+#include "Physics.h"
 #include <vector>
 #include <algorithm>
 
@@ -395,16 +396,12 @@ void demo6() {
 	}
 }
 
-struct Body : public sb::Transformable {
-	sb::Vector2f velocity;
-};
-
 class Physics {
 	float _aspect;
 	float _inverseAspect;
 	float _dragCoefficient;
 	float _fixedDeltaSeconds;
-	std::vector<Body*> _bodies;
+	std::vector<sb::Body*> _bodies;
 	std::vector<sb::Vector2f> _forces;
 
 protected:
@@ -413,7 +410,7 @@ protected:
 		_forces.resize(_bodies.size());
 	}
 	
-	const sb::Vector2f computeCollisionForce(const Body& current, const Body& other) {
+	const sb::Vector2f computeCollisionForce(const sb::Body& current, const sb::Body& other) {
 		const sb::Vector2f currentScale = current.getScale();
 		const sb::Vector2f otherScale = other.getScale();
 		const float leftRadius = (currentScale.x + currentScale.y) / 4.0f;
@@ -430,8 +427,8 @@ protected:
 	void computeCollisionForces() {
 		for (std::size_t i = 0; i < _bodies.size(); i++) {
 			for (std::size_t j = i + 1; j < _bodies.size(); j++) {
-				const Body& current = *_bodies[i];
-				const Body& other = *_bodies[j];
+				const sb::Body& current = *_bodies[i];
+				const sb::Body& other = *_bodies[j];
 				const sb::Vector2f& force = computeCollisionForce(current, other);
 				_forces[i] += force;
 				_forces[j] += -force;
@@ -439,7 +436,7 @@ protected:
 		}
 	}
 
-	sb::Vector2f computeBoundaryForce(const Body& fruit) {
+	sb::Vector2f computeBoundaryForce(const sb::Body& fruit) {
 		const float radius = (fruit.getScale().x + fruit.getScale().y) / 4.0f;
 		const sb::Vector2f position = fruit.getPosition();
 		sb::Vector2f force;
@@ -478,7 +475,7 @@ protected:
 		computeDragForces();
 	}
 
-	void moveBodies(Body& body, const sb::Vector2f& force, float ds) {
+	void moveBodies(sb::Body& body, const sb::Vector2f& force, float ds) {
 		body.velocity += ds * force;
 		sb::Vector2f position = body.getPosition();
 		position += ds * body.velocity;
@@ -504,7 +501,7 @@ public:
 
 	inline void setDragCoefficient(float drag) { _dragCoefficient = drag; }
 
-	void addBody(Body& body) {
+	void addBody(sb::Body& body) {
 		_bodies.push_back(&body);
 	}
 
@@ -520,7 +517,7 @@ public:
 	}
 };
 
-class Fruit2 : public sb::Drawable, public Body {
+class Fruit2 : public sb::Drawable, public sb::Body {
 	sb::Sprite sprite;
 	bool debug;
 	DebugCircle boundingCircle;
@@ -599,7 +596,7 @@ void demo7() {
 
 class Scene8 : public sb::Drawable, public sb::Transformable {
 	sb::DrawBatch batch;
-	Physics physics;
+	sb::Physics physics;
 	std::vector<sb::Texture> textures;
 	std::vector<Fruit2> fruits;
 	float inverseAspect;
@@ -630,7 +627,7 @@ protected:
 	}
 
 public:
-	Scene8(Physics& physics_, std::size_t numFruits, const sb::Vector2f& fruitScaleRange, float aspect_)
+	Scene8(sb::Physics& physics_, std::size_t numFruits, const sb::Vector2f& fruitScaleRange, float aspect_)
 		: batch(8192), physics(physics_), textures(9), fruits(numFruits), inverseAspect(1 / aspect_)
 	{
 		initTextures();
@@ -665,7 +662,7 @@ void demo8() {
 	float aspect = width / height;
 	sb::Window window((int)width, (int)height);
 
-	Physics physics(aspect);
+	sb::Physics physics(aspect);
 	physics.setDragCoefficient(8);
 	Scene8 scene(physics, 100, sb::Vector2f(0.05f, 0.3f), aspect);
 	scene.getFruits()[0].setScale(0.35f, 0.35f);
