@@ -7,6 +7,7 @@
 #include "Quad.h"
 #include "Math.h"
 #include <vector>
+#include <algorithm>
 
 float getDeltaSeconds()
 {
@@ -402,6 +403,7 @@ class Physics {
 	float _aspect;
 	float _inverseAspect;
 	float _dragCoefficient;
+	float _fixedDeltaSeconds;
 	std::vector<Body*> _bodies;
 	std::vector<sb::Vector2f> _forces;
 
@@ -476,7 +478,7 @@ protected:
 		computeDragForces();
 	}
 
-	void moveBody(Body& body, const sb::Vector2f& force, float ds) {
+	void moveBodies(Body& body, const sb::Vector2f& force, float ds) {
 		body.velocity += ds * force;
 		sb::Vector2f position = body.getPosition();
 		position += ds * body.velocity;
@@ -485,13 +487,19 @@ protected:
 
 	void moveBodies(float ds) {
 		for (std::size_t i = 0; i < _bodies.size(); i++)
-			moveBody(*_bodies[i], _forces[i], ds);
-		
+			moveBodies(*_bodies[i], _forces[i], ds);
+	}
+
+	void step(float ds) {
+		prepare();
+		computeForces();
+		moveBodies(ds);
+		_bodies.clear();
 	}
 
 public:
 	Physics(float aspect)
-		: _aspect(aspect), _inverseAspect(1 / aspect), _dragCoefficient(10)
+		: _aspect(aspect), _inverseAspect(1 / aspect), _dragCoefficient(10), _fixedDeltaSeconds(0.02f)
 	{ }
 
 	inline void setDragCoefficient(float drag) { _dragCoefficient = drag; }
@@ -501,10 +509,14 @@ public:
 	}
 
 	void simulate(float ds) {
-		prepare();
-		computeForces();
-		moveBodies(ds);
-		_bodies.clear();
+		float sum = 0;
+		float remaining = ds;
+		do {
+			float timestep = std::min(remaining, _fixedDeltaSeconds);
+			step(timestep);
+			remaining -= _fixedDeltaSeconds;
+			sum += timestep;
+		} while (remaining > 0);
 	}
 };
 
@@ -562,6 +574,7 @@ void demo7() {
 	float aspect = width / height;
 	sb::Window window((int)width, (int)height);
 	Physics physics(aspect);
+	physics.setDragCoefficient(8);
 
 	std::vector<sb::Texture> textures(2);
 	std::vector<Fruit2> fruits(2);
@@ -576,7 +589,7 @@ void demo7() {
 		update7(fruits, window);
 		for (std::size_t i = 0; i < fruits.size(); i++)
 			physics.addBody(fruits[i]);
-		physics.simulate(ds);
+		 physics.simulate(ds);
 
 		window.clear(sb::Color(1, 1, 1, 1));
 		draw7(fruits, window);
@@ -606,16 +619,3 @@ int main(int argc, char* args[])
 
 	// demo0();
 }
-
-/*
-int main() {
-	Physics physics;
-
-	while (window.isOpen()) {
-		for (std::size_t i = 0; i < fruits.size(); i++) 
-			physics.collide(fruits[i]);
-		for (std::size_t i = 0; i < frutis.size(); i++)
-			physics.simulate(fruits[i]);
-	}
-}
-*/
