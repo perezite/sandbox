@@ -38,7 +38,7 @@ namespace sb {
 		}
 	}
 
-	sb::Vector2f Physics::computeBoundaryForce(const Body& fruit) 
+	sb::Vector2f Physics::computeBoundaryForce(const Body& fruit, sb::Window& window)
 	{
 		const float radius = (fruit.getScale().x + fruit.getScale().y) / 4.0f;
 		const sb::Vector2f position = fruit.getPosition();
@@ -61,10 +61,10 @@ namespace sb {
 		return 1000 * force;
 	}
 
-	void Physics::computeBoundaryForces() 
+	void Physics::computeBoundaryForces(sb::Window& window)
 	{
 		for (std::size_t i = 0; i < _bodies.size(); i++)
-			_forces[i] += computeBoundaryForce(*_bodies[i]);
+			_forces[i] += computeBoundaryForce(*_bodies[i], window);
 	}
 
 
@@ -74,10 +74,10 @@ namespace sb {
 			_forces[i] -= _dragCoefficient * _bodies[i]->velocity;
 	}
 
-	void Physics::computeForces() 
+	void Physics::computeForces(sb::Window& window) 
 	{
 		computeCollisionForces();
-		computeBoundaryForces();
+		computeBoundaryForces(window);
 		computeDragForces();
 	}
 
@@ -93,9 +93,9 @@ namespace sb {
 			moveBodies(*_bodies[i], _forces[i], ds);
 	}
 
-	void Physics::step(float ds) {
+	void Physics::step(float ds, sb::Window& window) {
 		prepare();
-		computeForces();
+		computeForces(window);
 		moveBodies(ds);
 		_bodies.clear();
 	}
@@ -105,13 +105,13 @@ namespace sb {
 		_bodies.push_back(&body);
 	}
 
-	void Physics::simulate(float ds) 
+	void Physics::simulate(float ds, sb::Window& window) 
 	{
 		float sum = 0;
 		float remaining = ds;
 		do {
 			float timestep = std::min(remaining, _fixedDeltaSeconds);
-			step(timestep);
+			step(timestep, window);
 			remaining -= _fixedDeltaSeconds;
 			sum += timestep;
 		} while (remaining > 0);

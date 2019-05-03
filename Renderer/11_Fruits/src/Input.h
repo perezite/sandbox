@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vector2f.h"
+#include "Window.h"
 #include <SDL2/SDL.h>
 #include <set>
 
@@ -23,10 +24,10 @@ namespace sb
 
 		inline static bool isTouchGoingDown(const int index) { return m_touchesGoingDown.count(index) > 0; }
 
-		static sb::Vector2f getTouchPosition(const sb::Vector2f& windowResolution);
+		static const sb::Vector2f getTouchPosition(const sb::Window& window);
 
 	protected:
-		static sb::Vector2f fingerToPixelCoordinates(const sb::Vector2f& position);
+		static const sb::Vector2f getPixelTouchPosition(const sb::Window& window);
 
 	private:
 		static bool m_hasQuitEvent;

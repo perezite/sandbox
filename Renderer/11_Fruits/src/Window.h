@@ -15,6 +15,10 @@ namespace sb
 
 		inline const sb::Vector2f& getResolution() const { return m_resolution; }
 
+		inline const float getAspect() const { return m_aspect; }
+
+		inline const float getInverseAspect() const { return m_inverseAspect; }
+
 		bool isOpen() { return m_isOpen; }
 
 		void update();
@@ -37,5 +41,9 @@ namespace sb
 		Renderer* m_renderer;
 
 		Vector2f m_resolution;
+
+		float m_aspect;
+
+		float m_inverseAspect;
 	};
 }

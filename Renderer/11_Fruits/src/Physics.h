@@ -1,6 +1,7 @@
 #include "Vector2f.h"
 #include "Transformable.h"
 #include "Body.h"
+#include "Window.h"
 
 namespace sb
 {
@@ -15,7 +16,7 @@ namespace sb
 
 		void addBody(Body& body);
 
-		void simulate(float ds);
+		void simulate(float ds, sb::Window& window);
 
 	protected:
 		void prepare();
@@ -24,19 +25,19 @@ namespace sb
 
 		void computeCollisionForces();
 
-		sb::Vector2f computeBoundaryForce(const Body& fruit);
+		sb::Vector2f computeBoundaryForce(const Body& fruit, sb::Window& window);
 
-		void computeBoundaryForces();
+		void computeBoundaryForces(sb::Window& window);
 
 		void computeDragForces();
 
-		void computeForces();
+		void computeForces(sb::Window& window);
 
 		void moveBodies(Body& body, const sb::Vector2f& force, float ds);
 
 		void moveBodies(float ds);
 
-		void step(float ds);
+		void step(float ds, sb::Window& window);
 
 	private:
 		std::vector<Body*> _bodies;

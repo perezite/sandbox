@@ -68,20 +68,25 @@ namespace sb
 		}
 	}
 
-	sb::Vector2f Input::getTouchPosition(const sb::Vector2f& windowResolution)
+	const sb::Vector2f Input::getTouchPosition(const sb::Window& window)
+	{
+		sb::Vector2f pixelTouch = getPixelTouchPosition(window);
+
+		return sb::Vector2f(pixelTouch.x * 2 / window.getResolution().x - 1, 
+			pixelTouch.y * 2 * window.getInverseAspect() / window.getResolution().y - window.getInverseAspect());
+	}
+
+	const sb::Vector2f Input::getPixelTouchPosition(const sb::Window& window)
 	{
 		#ifdef WIN32
-			return sb::Vector2f(m_mousePosition.x, -m_mousePosition.y + windowResolution.y);
+			sb::Vector2f pixelTouch(m_mousePosition.x, -m_mousePosition.y + window.getResolution().y);
 		#elif defined(__ANDROID__)
 			float y = -m_fingerPosition.y + 1;
-			return sb::Vector2f(windowResolution.x * m_fingerPosition.x, windowResolution.y * y);
+			sb::Vector2f pixelTouch(window.getResolution().x * m_fingerPosition.x, window.getResolution().y * y);
 		#else	
 			#error os not supported
 		#endif
-	}
 
-	sb::Vector2f Input::fingerToPixelCoordinates(const sb::Vector2f & position)
-	{
-		return sb::Vector2f();
+		return pixelTouch;
 	}
 }
