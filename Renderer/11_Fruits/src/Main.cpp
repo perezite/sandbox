@@ -392,7 +392,6 @@ void demo6() {
 }
 
 class Physics {
-	float _aspect;
 	float _inverseAspect;
 	float _dragCoefficient;
 	float _fixedDeltaSeconds;
@@ -491,7 +490,7 @@ protected:
 
 public:
 	Physics(float aspect)
-		: _aspect(aspect), _inverseAspect(1 / aspect), _dragCoefficient(10), _fixedDeltaSeconds(0.02f)
+		: _inverseAspect(1 / aspect), _dragCoefficient(10), _fixedDeltaSeconds(0.02f)
 	{ }
 
 	inline void setDragCoefficient(float drag) { _dragCoefficient = drag; }
