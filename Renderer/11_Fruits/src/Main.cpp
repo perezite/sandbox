@@ -130,15 +130,15 @@ class Scene2 : public sb::Drawable, public sb::Transformable {
 
 protected:
 	void initTextures() {
-		textures[0].loadFromAsset("Textures/apple.png");
-		textures[1].loadFromAsset("Textures/bananas.png");
-		textures[2].loadFromAsset("Textures/carrot.png");
-		textures[3].loadFromAsset("Textures/grapefruit.png");
+		textures[0].loadFromAsset("Textures/coconut.png");
+		textures[1].loadFromAsset("Textures/garlic.png");
+		textures[2].loadFromAsset("Textures/grape.png");
+		textures[3].loadFromAsset("Textures/kiwi.png");
 		textures[4].loadFromAsset("Textures/lemon.png");
-		textures[5].loadFromAsset("Textures/pumpkin.png");
-		textures[6].loadFromAsset("Textures/pineapple.png");
-		textures[7].loadFromAsset("Textures/strawberry.png");
-		textures[8].loadFromAsset("Textures/watermelon.png");
+		textures[5].loadFromAsset("Textures/lettuce.png");
+		textures[6].loadFromAsset("Textures/peach.png");
+		textures[7].loadFromAsset("Textures/raspberry.png");
+		textures[8].loadFromAsset("Textures/tomato.png");
 	}
 
 	void initFruits(std::size_t numFruits, const sb::Vector2f& scaleRange) {
@@ -575,8 +575,8 @@ void demo7() {
 
 	std::vector<sb::Texture> textures(2);
 	std::vector<Fruit2> fruits(2);
-	textures[0].loadFromAsset("Textures/apple.png");
-	textures[1].loadFromAsset("Textures/bananas.png");
+	textures[0].loadFromAsset("Textures/coconut.png");
+	textures[1].loadFromAsset("Textures/garlic.png");
 	init7(fruits, textures);
 
 	while (window.isOpen()) {
@@ -603,15 +603,15 @@ class Scene8 : public sb::Drawable, public sb::Transformable {
 
 protected:
 	void initTextures() {
-		textures[0].loadFromAsset("Textures/apple.png");
-		textures[1].loadFromAsset("Textures/bananas.png");
-		textures[2].loadFromAsset("Textures/carrot.png");
-		textures[3].loadFromAsset("Textures/grapefruit.png");
+		textures[0].loadFromAsset("Textures/coconut.png");
+		textures[1].loadFromAsset("Textures/garlic.png");
+		textures[2].loadFromAsset("Textures/grape.png");
+		textures[3].loadFromAsset("Textures/kiwi.png");
 		textures[4].loadFromAsset("Textures/lemon.png");
-		textures[5].loadFromAsset("Textures/pumpkin.png");
-		textures[6].loadFromAsset("Textures/pineapple.png");
-		textures[7].loadFromAsset("Textures/strawberry.png");
-		textures[8].loadFromAsset("Textures/watermelon.png");
+		textures[5].loadFromAsset("Textures/lettuce.png");
+		textures[6].loadFromAsset("Textures/peach.png");
+		textures[7].loadFromAsset("Textures/raspberry.png");
+		textures[8].loadFromAsset("Textures/tomato.png");
 	}
 
 	void initFruits(std::size_t numFruits, const sb::Vector2f& scaleRange) {

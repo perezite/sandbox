@@ -1,9 +1,0 @@
-apple.png: Icon made by Freepik from www.flaticon.com 
-bananas.png: Icon made by Freepik from www.flaticon.com  
-carrot.png: Icon made by Freepik from www.flaticon.com 
-grapefruit.png: Icon made by Freepik from www.flaticon.com 
-lemon.png: Icon made by Freepik from www.flaticon.com 
-pineapple.png: Icon made by Freepik from www.flaticon.com 
-pumpkin.png: Icon made by Freepik from www.flaticon.com 
-strawberry.png: Icon made by Freepik from www.flaticon.com 
-watermelon.png: Icon made by Freepik from www.flaticon.com 
