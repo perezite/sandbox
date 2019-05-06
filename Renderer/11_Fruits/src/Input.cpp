@@ -70,23 +70,23 @@ namespace sb
 
 	const sb::Vector2f Input::getTouchPosition(const sb::Window& window)
 	{
-		sb::Vector2f pixelTouch = getPixelTouchPosition(window);
+		sb::Vector2f pixelPosition = getTouchPixelPosition(window);
 
-		return sb::Vector2f(pixelTouch.x * 2 / window.getResolution().x - 1, 
-			pixelTouch.y * 2 * window.getInverseAspect() / window.getResolution().y - window.getInverseAspect());
+		return sb::Vector2f(pixelPosition.x * 2 / window.getResolution().x - 1, 
+			pixelPosition.y * 2 * window.getInverseAspect() / window.getResolution().y - window.getInverseAspect());
 	}
 
-	const sb::Vector2f Input::getPixelTouchPosition(const sb::Window& window)
+	const sb::Vector2f Input::getTouchPixelPosition(const sb::Window& window)
 	{
 		#ifdef WIN32
-			sb::Vector2f pixelTouch(m_mousePosition.x, -m_mousePosition.y + window.getResolution().y);
+			sb::Vector2f pixelPosition(m_mousePosition.x, -m_mousePosition.y + window.getResolution().y);
 		#elif defined(__ANDROID__)
 			float y = -m_fingerPosition.y + 1;
-			sb::Vector2f pixelTouch(window.getResolution().x * m_fingerPosition.x, window.getResolution().y * y);
+			sb::Vector2f pixelPosition(window.getResolution().x * m_fingerPosition.x, window.getResolution().y * y);
 		#else	
 			#error os not supported
 		#endif
 
-		return pixelTouch;
+		return pixelPosition;
 	}
 }

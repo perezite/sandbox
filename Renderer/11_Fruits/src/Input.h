@@ -27,7 +27,7 @@ namespace sb
 		static const sb::Vector2f getTouchPosition(const sb::Window& window);
 
 	protected:
-		static const sb::Vector2f getPixelTouchPosition(const sb::Window& window);
+		static const sb::Vector2f getTouchPixelPosition(const sb::Window& window);
 
 	private:
 		static bool m_hasQuitEvent;

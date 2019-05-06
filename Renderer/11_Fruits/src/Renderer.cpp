@@ -13,7 +13,7 @@ namespace sb
 			return;
 
 		setup(vertices, states);
-		glDraw(vertices, primitiveType);
+		drawGl(vertices, primitiveType);
 		cleanup(states);
 	}
 
@@ -70,7 +70,7 @@ namespace sb
 		GL_CHECK(glEnableVertexAttribArray(index));
 	}
 
-	void Renderer::glDraw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType)
+	void Renderer::drawGl(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType)
 	{	
 		GL_CHECK(glDrawArrays((GLenum)primitiveType, 0, vertices.size()));
 

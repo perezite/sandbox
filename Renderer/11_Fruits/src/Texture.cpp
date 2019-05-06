@@ -11,7 +11,7 @@ namespace sb
 	}
 
 	Texture::~Texture() {
-		glDeleteTextures(1, &m_handle);
+		GL_CHECK(glDeleteTextures(1, &m_handle));
 		SDL_FreeSurface(m_surface);
 	}
 
