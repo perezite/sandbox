@@ -18,6 +18,67 @@ namespace sb
 	static std::ostream NullStream(&NullBuf);
 }
 
+namespace sb {
+	void logMessage(std::stringstream& stream);
+
+	void logError(std::stringstream& stream);
+
+	void logWarning(std::stringstream& stream);
+}
+
+#define SB_MESSAGE(stream) do {						\
+	std::stringstream out;							\
+	out << stream << std::endl;						\
+	sb::logMessage(out);							\
+} while (false)
+
+#define SB_MESSAGE_IF(condition, stream) do {		\
+	if (condition)									\
+		SB_MESSAGE(stream);							\
+} while (false)
+
+#define SB_ERROR2(stream) do {						\
+	std::stringstream out;							\
+	out << stream << std::endl;						\
+	sb::logError(out);								\
+} while (false)
+
+#define SB_ERROR_IF2(condition, stream) do {		\
+	if (condition)									\
+		SB_ERROR2(stream);							\
+} while (false)
+
+#define SB_WARNING2(stream) do {					\
+	std::stringstream out;							\
+	out << stream << std::endl;						\
+	sb::logWarning(out);							\
+} while (false)	
+
+#define SB_WARNING_IF2(condition, stream) do {		\
+	if (condition)									\
+		SB_WARNING2(stream);						\
+} while (false)	
+
+#ifndef _DEBUG
+	#define SB_DEBUG(stream)			
+#else
+	#define SB_DEBUG(stream) do {					\
+		std::stringstream out;						\
+		out << stream << std::endl;					\
+		sb::logMessage(out);						\
+	} while (false)
+#endif
+
+#ifndef _DEBUG
+#define SB_DEBUG_IF(condition, stream)			
+#else
+#define SB_DEBUG_IF(condition, stream) do {			\
+		if (condition)								\
+			SB_DEBUG(stream);						\
+	} while (false)
+#endif
+
+
 #define SB_ERROR() sb::Logger().error()
 
 #define SB_ERROR_IF(condition) (condition ? sb::Logger().error() : sb::NullStream)
@@ -25,8 +86,6 @@ namespace sb
 #define SB_WARNING() sb::Logger().warning()
 
 #define SB_WARNING_IF(condition) (condition ? sb::Logger().warning() : sb::NullStream)
-
-#define SB_WARNING_IF2(condition, errorInDebugMode) (condition ? sb::Logger().warning(errorInDebugMode) : sb::NullStream)
 
 namespace sb
 {

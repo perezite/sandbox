@@ -49,6 +49,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Asset.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawStates.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\GL.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Logger.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\ParticleSystem.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Physics.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Sprite.cpp" />
