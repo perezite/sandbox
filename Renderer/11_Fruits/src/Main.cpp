@@ -694,17 +694,24 @@ void demo10() {
 	SB_MESSAGE("just some " << "message");
 	SB_MESSAGE_IF(false, "this message should not" << " be logged");
 	SB_MESSAGE_IF(true, "this message " << "should be logged");
-	SB_ERROR2("ohoh " << "an error!");
-	SB_ERROR_IF2(false, "this error should not be " << "logged");
-	SB_ERROR_IF2(true, "this error should be" << " logged");
-	SB_WARNING2("uhhh, " << " danger!");
-	SB_WARNING_IF2(false, "this " << "warning should not be logged");
-	SB_WARNING_IF2(true, "this " << "warning should be logged");
 	SB_DEBUG("this" << " should only be logged in debug mode");
 	SB_DEBUG_IF(false, "this" << " debug message should never be logged");
 	SB_DEBUG_IF(true, "this" << " debug message should only be logged in debug mode");
+	SB_WARNING2("uhhh, " << " danger!");
+	SB_WARNING_IF2(false, "this " << "warning should not be logged");
+	SB_WARNING_IF2(true, "this " << "warning should be logged");
+	SB_ERROR_IF2(false, "this error should not be " << "logged");
+	SB_ERROR_IF2(true, "this error should be" << " logged");
+	SB_ERROR2("ohoh " << "an error!");
 
 	std::cin.get();
+}
+
+void demo11() {
+	// provoke error
+	sb::Window window;
+	sb::Texture texture;
+	texture.loadFromAsset("this_file_does_not_exist.png");
 }
 
 int main(int argc, char* args[])
@@ -713,11 +720,13 @@ int main(int argc, char* args[])
 
 	srand(987654321);
 
+	//demo11();
+
 	demo10();
 
 	//demo9();
 
-	// demo8();
+	 //demo8();
 
 	// demo7();
 
