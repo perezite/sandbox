@@ -2,7 +2,7 @@
 
 #include "Vector2f.h"
 #include "Window.h"
-#include <SDL2/SDL.h>
+#include "SDL.h"
 #include <set>
 
 namespace sb 

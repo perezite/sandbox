@@ -41,7 +41,7 @@ namespace sb
 	SDL_Surface* Texture::convertPixelFormat(SDL_Surface* surface, Uint32 pixelFormat)
 	{
 		SDL_Surface* converted = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ABGR8888, SDL_SWSURFACE);
-		SB_ERROR_IF(converted == NULL) << SDL_GetError() << std::endl;
+		SDL_CHECK(converted);
 		SDL_FreeSurface(surface);
 		return converted;
 	}
@@ -54,8 +54,7 @@ namespace sb
 
 		// lock
 		if (SDL_MUSTLOCK(flipped)) {
-			int result = SDL_LockSurface(flipped);
-			SB_ERROR_IF(result < 0) << SDL_GetError() << std::endl;
+			if (SDL_LockSurface(flipped) < 0) SB_ERROR() << SDL_GetError() << std::endl;
 		}
 
 		// flip

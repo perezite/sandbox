@@ -14,7 +14,7 @@ namespace sb
 	{
 		std::string filePath = getFilePath(assetPath);
 		SDL_RWops* reader = SDL_RWFromFile(filePath.c_str(), "r");
-		SB_ERROR_IF(reader == NULL) << "Opening file " << filePath << " failed: " << SDL_GetError() << std::endl;
+		SDL_CHECK(reader);
 
 		Sint64 fileSize = SDL_RWsize(reader);
 		char* text = (char*)malloc((size_t)fileSize + 1);
@@ -27,9 +27,8 @@ namespace sb
 			totalSize += lastSize;
 		} while (totalSize < fileSize && lastSize != 0);
 		text[totalSize] = '\0';
-		SDL_RWclose(reader);
-
-		SB_ERROR_IF(totalSize != fileSize) << "Reading file " << filePath << " failed: " << SDL_GetError() << std::endl;
+		SDL_CHECK(SDL_RWclose(reader) == 0);
+		SDL_CHECK(totalSize == fileSize); 
 
 		return text;
 	}

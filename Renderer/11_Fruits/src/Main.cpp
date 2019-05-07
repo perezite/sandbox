@@ -674,13 +674,31 @@ void demo8() {
 	}
 }
 
+void testLog(std::stringstream& stream) {
+	std::cout << stream.rdbuf();
+}
+
+#define TEST_LOG(stream) do {						\
+	std::stringstream test;							\
+	test << stream << std::endl;					\
+	testLog(test);									\
+} while (false)
+
+void demo9() {
+	TEST_LOG("test" << " " << "test2");
+	TEST_LOG("test3");
+	std::cin.get();
+}
+
 int main(int argc, char* args[])
 {
 	SDL_Log("Fruits Renderer: Build %s %s", __DATE__, __TIME__);
 
 	srand(987654321);
 
-	demo8();
+	demo9();
+
+	// demo8();
 
 	// demo7();
 
