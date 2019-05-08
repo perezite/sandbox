@@ -46,6 +46,6 @@ namespace sb
 			description = "Unknown GL error";
 		}
 
-		SB_ERROR2("GL Error " << code << " :" << description);
+		SB_ERROR("GL Error " << code << " :" << description);
 	}
 }

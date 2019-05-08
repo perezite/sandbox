@@ -20,7 +20,7 @@ namespace sb
 		// create SDL surface
 		std::string filePath = Asset::getFilePath(assetPath);
 		m_surface = IMG_Load(filePath.c_str());
-		SB_ERROR_IF2(m_surface == NULL, IMG_GetError());
+		SB_ERROR_IF(m_surface == NULL, IMG_GetError());
 		m_surface = convertPixelFormat(m_surface, SDL_PIXELFORMAT_ABGR8888);
 		if (flipVertically)
 			m_surface = flipSurfaceVertically(m_surface);
@@ -50,7 +50,7 @@ namespace sb
 	{
 		SDL_Surface *flipped = SDL_CreateRGBSurface(SDL_SWSURFACE, surface->w, surface->h, surface->format->BitsPerPixel,
 			surface->format->Rmask, surface->format->Gmask, surface->format->Bmask, surface->format->Amask);
-		SB_ERROR_IF2(flipped == NULL, SDL_GetError());
+		SB_ERROR_IF(flipped == NULL, SDL_GetError());
 
 		// lock
 		if (SDL_MUSTLOCK(flipped)) 

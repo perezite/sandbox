@@ -48,7 +48,7 @@ namespace sb
 
 	inline void DrawBatch::Buffer::assertBufferCapacity(const std::vector<Vertex>& vertices)
 	{
-		SB_ERROR_IF2(vertices.size() > m_vertices.capacity(), 
+		SB_ERROR_IF(vertices.size() > m_vertices.capacity(), 
 			"The DrawBatch buffer size is too small for the given drawable. Please specify a larger buffer size in the constructor");
 	}
 
@@ -75,7 +75,7 @@ namespace sb
 		else if (primitiveType == PrimitiveType::TriangleStrip)
 			insertTriangleStrip(transformedVertices);
 		else
-			SB_ERROR2("The primitive type " << (int)primitiveType << " is not eligible for batching");
+			SB_ERROR("The primitive type " << (int)primitiveType << " is not eligible for batching");
 	}
 
 	inline void DrawBatch::Buffer::transformVertices(std::vector<Vertex>& vertices, const Transform& transform)

@@ -9,11 +9,11 @@ namespace sb
 	Window::Window(int width, int height) 
 		: m_isOpen(true), m_resolution((float)width, (float)height), m_aspect((float)width/(float)height), m_inverseAspect((float)height/(float)width)
 	{
-		SB_ERROR_IF2(SDL_Init(SDL_INIT_VIDEO) < 0, SDL_GetError());
+		SB_ERROR_IF(SDL_Init(SDL_INIT_VIDEO) < 0, SDL_GetError());
 
 		int flags = IMG_INIT_PNG && IMG_INIT_JPG;
 		int imgResult = IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG) & flags;
-		SB_ERROR_IF2(imgResult != flags, IMG_GetError());
+		SB_ERROR_IF(imgResult != flags, IMG_GetError());
 
 		#ifdef WIN32
 			SDL_CHECK(SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3) == 0);

@@ -697,12 +697,12 @@ void demo10() {
 	SB_DEBUG("this" << " should only be logged in debug mode");
 	SB_DEBUG_IF(false, "this" << " debug message should never be logged");
 	SB_DEBUG_IF(true, "this" << " debug message should only be logged in debug mode");
-	SB_WARNING2("uhhh, " << " danger!");
-	SB_WARNING_IF2(false, "this " << "warning should not be logged");
-	SB_WARNING_IF2(true, "this " << "warning should be logged");
-	SB_ERROR_IF2(false, "this error should not be " << "logged");
-	SB_ERROR_IF2(true, "this error should be" << " logged");
-	SB_ERROR2("ohoh " << "an error!");
+	SB_WARNING("uhhh, " << " danger!");
+	SB_WARNING_IF(false, "this " << "warning should not be logged");
+	SB_WARNING_IF(true, "this " << "warning should be logged");
+	SB_ERROR_IF(false, "this error should not be " << "logged");
+	SB_ERROR_IF(true, "this error should be" << " logged");
+	SB_ERROR("ohoh " << "an error!");
 
 	std::cin.get();
 }

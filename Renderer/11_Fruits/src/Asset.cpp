@@ -73,7 +73,7 @@ namespace sb
 
 			// get executable file path
 			HMODULE hModule = GetModuleHandle(NULL);
-			SB_ERROR_IF2(hModule == NULL, "GetModuleHandle() failed");
+			SB_ERROR_IF(hModule == NULL, "GetModuleHandle() failed");
 			GetModuleFileName(hModule, filePath, (sizeof(filePath)));
 
 			// get file path as string

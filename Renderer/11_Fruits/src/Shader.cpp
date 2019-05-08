@@ -36,7 +36,7 @@ namespace sb
 		if (m_attributeLocations.find(attribute) == m_attributeLocations.end()) {
 			GLint location;
 			GL_CHECK(location = glGetAttribLocation(m_handle, attribute.c_str()));
-			SB_ERROR_IF2(location < 0, "Requested shader attribute " << attribute << " is not available");
+			SB_ERROR_IF(location < 0, "Requested shader attribute " << attribute << " is not available");
 			m_attributeLocations[attribute] = location;
 			return location;
 		}
@@ -72,7 +72,7 @@ namespace sb
 	void Shader::loadFromMemory(const std::string& vertexShaderCode, const std::string& fragmentShaderCode) 
 	{
 		GL_CHECK(m_handle = glCreateProgram());
-		SB_ERROR_IF2(m_handle == 0, "Creating shader program failed");
+		SB_ERROR_IF(m_handle == 0, "Creating shader program failed");
 
 		GLuint vertexShader = compile(vertexShaderCode, GL_VERTEX_SHADER);
 		GLuint fragmentShader = compile(fragmentShaderCode, GL_FRAGMENT_SHADER);
@@ -120,7 +120,7 @@ namespace sb
 				if (infoLen > 1) {
 					char* infoLog = new char[infoLen];
 					GL_CHECK(glGetShaderInfoLog(shader, infoLen, NULL, infoLog));
-					SB_ERROR2("error compiling shader: " << infoLog);
+					SB_ERROR("error compiling shader: " << infoLog);
 					delete[] infoLog;
 				}
 				GL_CHECK(glDeleteShader(shader));
@@ -143,7 +143,7 @@ namespace sb
 			if (infoLen > 1) {
 				char* infoLog = new char[infoLen];
 				GL_CHECK(glGetProgramInfoLog(m_handle, infoLen, NULL, infoLog));
-				SB_ERROR2("Error linking shader program: " << std::endl << infoLog);
+				SB_ERROR("Error linking shader program: " << std::endl << infoLog);
 				delete[] infoLog;
 			}
 

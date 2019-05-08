@@ -25,26 +25,26 @@ namespace sb {
 		SB_MESSAGE(stream);							\
 } while (false)
 
-#define SB_ERROR2(stream) do {						\
+#define SB_ERROR(stream) do {						\
 	std::stringstream out;							\
 	out << stream << std::endl;						\
 	sb::logError(out);								\
 } while (false)
 
-#define SB_ERROR_IF2(condition, stream) do {		\
+#define SB_ERROR_IF(condition, stream) do {		\
 	if (condition)									\
-		SB_ERROR2(stream);							\
+		SB_ERROR(stream);							\
 } while (false)
 
-#define SB_WARNING2(stream) do {					\
+#define SB_WARNING(stream) do {					\
 	std::stringstream out;							\
 	out << stream << std::endl;						\
 	sb::logWarning(out);							\
 } while (false)	
 
-#define SB_WARNING_IF2(condition, stream) do {		\
+#define SB_WARNING_IF(condition, stream) do {		\
 	if (condition)									\
-		SB_WARNING2(stream);						\
+		SB_WARNING(stream);						\
 } while (false)	
 
 #ifndef _DEBUG
