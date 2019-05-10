@@ -45,7 +45,7 @@ void update1b(sb::Transformable& block, float ds) {
 }
 
 void demo1() {
-	sb::Window window(300, 300);
+	sb::Window window(300, 600);
 
 	sb::Texture texture;
 	texture.enableMipmaps(true);

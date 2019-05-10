@@ -7,7 +7,7 @@
 namespace sb 
 {
 	Window::Window(int width, int height) 
-		: m_isOpen(true), m_resolution((float)width, (float)height), m_aspect((float)width/(float)height), m_inverseAspect((float)height/(float)width)
+		: m_isOpen(true), m_resolution((float)width, (float)height), m_aspect((float)width/(float)height), m_inverseAspect((float)height/(float)width), m_camera(m_aspect)
 	{
 		SB_ERROR_IF(SDL_Init(SDL_INIT_VIDEO) < 0, SDL_GetError());
 
@@ -67,12 +67,10 @@ namespace sb
 
 	void Window::draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawStates& states)
 	{
-		sb::Vector2f inverseCameraScale(2 / m_camera.getWidth(), getAspect() * 2 / m_camera.getWidth());
 		Transform cameraTransform;
-		computeCameraTransform(cameraTransform, -getCamera().getPosition(), inverseCameraScale, -getCamera().getRotation());
 
 		DrawStates fullStates = states;
-		fullStates.transform = cameraTransform * fullStates.transform;
+		fullStates.transform = m_camera.getTransform() * fullStates.transform;
 
 		m_renderer->render(vertices, primitiveType, fullStates);
 	}
@@ -82,15 +80,5 @@ namespace sb
 		SDL_GL_SwapWindow(m_sdlWindow);
 	}
 
-	void Window::computeCameraTransform(Transform& result, const sb::Vector2f& position, const sb::Vector2f& scale, float rotation)
-	{
-		float* m = result.getMatrix();
-		float c = cosf(rotation);
-		float s = sinf(rotation);
-
-		m[0] = c * scale.x;	m[3] = -s * scale.x;	m[6] = position.x;
-		m[1] = s * scale.y;	m[4] = c * scale.y;		m[7] = position.y;
-		m[2] = 0;			m[5] = 0;				m[8] = 1;
-	}
 
 }

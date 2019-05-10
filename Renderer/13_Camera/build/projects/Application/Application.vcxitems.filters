@@ -119,5 +119,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\ParticleSystem.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Physics.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Logger.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Camera.cpp" />
   </ItemGroup>
 </Project>

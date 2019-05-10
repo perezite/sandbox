@@ -1,14 +1,17 @@
 #pragma once
 #include "Vector2f.h"
+#include "Transform.h"
 
 namespace sb 
 {
 	class Camera
 	{
 	public:
-		Camera()
-			: m_width(1), m_rotation(0)
+		Camera(float aspectRatio)
+			: m_width(1), m_aspectRatio(aspectRatio), m_rotation(0), m_transformNeedsUpdate(true)
 		{ }
+
+		Transform& getTransform();
 
 		inline const sb::Vector2f& getPosition() const { return m_position; }
 
@@ -16,21 +19,30 @@ namespace sb
 
 		inline float getRotation() const { return m_rotation; }
 
-		inline void setPosition(const sb::Vector2f& position) { m_position = position; }
+		void setPosition(const sb::Vector2f& position);
 
-		inline void setWidth(float width) { m_width = width; }
+		inline void translate(const sb::Vector2f& translation) { setPosition(getPosition() + translation); }
 
-		inline void setRotation(float rotation) { m_rotation = rotation; }
+		void setWidth(float width);
 
-		inline void translate(const sb::Vector2f& translate) { m_position += translate; }
+		void setRotation(float rotation);
 
-		inline void rotate(float angle) { m_rotation += angle; }
+		inline void rotate(float angle) { setRotation(getRotation() + angle); }
+
+	protected:
+		void updateTransform();
 
 	private:
 		sb::Vector2f m_position;
 
 		float m_width;
 
+		float m_aspectRatio;
+
 		float m_rotation;
+
+		Transform m_transform;
+
+		bool m_transformNeedsUpdate;
 	};
 }
