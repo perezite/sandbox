@@ -41,7 +41,7 @@ namespace sb
 			SDL_CHECK(m_glContext);
 		#endif
 
-		// the renderer expects an opened opengl context, so make sure it is created in the proper place!
+		// the renderer expects an opened opengl context, so make sure it is created in the proper place, i.e.: here!
 		m_renderer = new Renderer();		
 		
 		GL_CHECK(glDisable(GL_DEPTH_TEST));
@@ -67,7 +67,13 @@ namespace sb
 
 	void Window::draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawStates& states)
 	{
-		m_renderer->render(vertices, primitiveType, states);
+		sb::Vector2f cameraScale(2 / m_camera.getWidth(), getAspect() * 2 / m_camera.getWidth());
+		Transform cameraTransform(m_camera.getPosition(), cameraScale, m_camera.getRotation());
+
+		DrawStates fullStates = states;
+		fullStates.transform = cameraTransform * fullStates.transform;
+
+		m_renderer->render(vertices, primitiveType, fullStates);
 	}
 
 	void Window::display()
@@ -75,3 +81,6 @@ namespace sb
 		SDL_GL_SwapWindow(m_sdlWindow);
 	}
 }
+
+
+// 200 400 -> aspect = 1/2

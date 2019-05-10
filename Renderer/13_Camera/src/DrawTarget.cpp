@@ -13,4 +13,3 @@ namespace sb
 		drawable.draw(*this, states);
 	}
 }
-

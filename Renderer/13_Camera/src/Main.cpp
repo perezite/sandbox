@@ -15,13 +15,22 @@ float getDeltaSeconds()
 }
 
 void demo0() {
-	sb::Window window(400, 600);
+	sb::Window window(300, 600);
+	window.getCamera().setWidth(0.75f);
+
+	sb::Texture texture;
+	texture.enableMipmaps(true);
+	texture.loadFromAsset("Textures/CoordinateSystem.png");
+
+	sb::Sprite greenBlock;
+	greenBlock.setTexture(&texture);
 
 	while (window.isOpen()) {
 		float ds = getDeltaSeconds();
 		sb::Input::update();
 
 		window.clear(sb::Color(1, 1, 1, 1));
+		window.draw(greenBlock);
 		window.display();
 	}
 }
@@ -29,5 +38,4 @@ void demo0() {
 int main(int argc, char* args[])
 {
 	demo0();
-
 }

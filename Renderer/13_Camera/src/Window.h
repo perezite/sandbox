@@ -3,6 +3,7 @@
 #include "Drawable.h"
 #include "Renderer.h"
 #include "DrawTarget.h"
+#include "Camera.h"
 
 namespace sb
 {
@@ -19,7 +20,9 @@ namespace sb
 
 		inline const float getInverseAspect() const { return m_inverseAspect; }
 
-		bool isOpen() { return m_isOpen; }
+		inline bool isOpen() { return m_isOpen; }
+
+		inline Camera& getCamera() { return m_camera; }
 
 		void update();
 
@@ -45,5 +48,7 @@ namespace sb
 		float m_aspect;
 
 		float m_inverseAspect;
+
+		Camera m_camera;
 	};
 }
