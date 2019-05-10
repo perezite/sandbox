@@ -3,6 +3,7 @@
 #include "Sprite.h"
 #include "Stopwatch.h"
 #include "Logger.h"
+#include "Math.h"
 
 float getDeltaSeconds()
 {
@@ -35,7 +36,40 @@ void demo0() {
 	}
 }
 
+void update1(sb::Window& window, float ds) {
+	window.getCamera().rotate(ds);
+}
+
+void update1b(sb::Transformable& block, float ds) {
+	block.rotate(ds);
+}
+
+void demo1() {
+	sb::Window window(300, 300);
+
+	sb::Texture texture;
+	texture.enableMipmaps(true);
+	texture.loadFromAsset("Textures/ControlQuad.png");
+
+	sb::Sprite greenBlock;
+	greenBlock.setTexture(&texture);
+	greenBlock.setScale(0.5f, 1);
+
+	while (window.isOpen()) {
+		float ds = getDeltaSeconds();
+		sb::Input::update();
+		update1(window, ds);
+		// update1b(greenBlock, ds);
+
+		window.clear(sb::Color(1, 1, 1, 1));
+		window.draw(greenBlock);
+		window.display();
+	}
+}
+
 int main(int argc, char* args[])
 {
-	demo0();
+	demo1();
+
+	// demo0();
 }

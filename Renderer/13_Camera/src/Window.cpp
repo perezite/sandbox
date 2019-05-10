@@ -67,8 +67,9 @@ namespace sb
 
 	void Window::draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawStates& states)
 	{
-		sb::Vector2f cameraScale(2 / m_camera.getWidth(), getAspect() * 2 / m_camera.getWidth());
-		Transform cameraTransform(m_camera.getPosition(), cameraScale, m_camera.getRotation());
+		sb::Vector2f inverseCameraScale(2 / m_camera.getWidth(), getAspect() * 2 / m_camera.getWidth());
+		Transform cameraTransform;
+		computeCameraTransform(cameraTransform, -getCamera().getPosition(), inverseCameraScale, -getCamera().getRotation());
 
 		DrawStates fullStates = states;
 		fullStates.transform = cameraTransform * fullStates.transform;
@@ -80,7 +81,16 @@ namespace sb
 	{
 		SDL_GL_SwapWindow(m_sdlWindow);
 	}
+
+	void Window::computeCameraTransform(Transform& result, const sb::Vector2f& position, const sb::Vector2f& scale, float rotation)
+	{
+		float* m = result.getMatrix();
+		float c = cosf(rotation);
+		float s = sinf(rotation);
+
+		m[0] = c * scale.x;	m[3] = -s * scale.x;	m[6] = position.x;
+		m[1] = s * scale.y;	m[4] = c * scale.y;		m[7] = position.y;
+		m[2] = 0;			m[5] = 0;				m[8] = 1;
+	}
+
 }
-
-
-// 200 400 -> aspect = 1/2

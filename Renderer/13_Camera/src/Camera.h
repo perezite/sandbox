@@ -22,6 +22,10 @@ namespace sb
 
 		inline void setRotation(float rotation) { m_rotation = rotation; }
 
+		inline void translate(const sb::Vector2f& translate) { m_position += translate; }
+
+		inline void rotate(float angle) { m_rotation += angle; }
+
 	private:
 		sb::Vector2f m_position;
 

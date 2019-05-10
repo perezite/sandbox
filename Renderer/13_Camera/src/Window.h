@@ -34,6 +34,9 @@ namespace sb
 
 		void display();
 
+	protected:
+		void computeCameraTransform(Transform& result, const sb::Vector2f& position, const sb::Vector2f& scale, float rotation);
+
 	private:
 		bool m_isOpen;
 

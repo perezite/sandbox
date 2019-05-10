@@ -33,7 +33,13 @@ namespace sb
 
 		void setScale(const sb::Vector2f& scale);
 
+		inline void scale(const sb::Vector2f& scale) { setScale(getScale() + scale); }
+
+		inline void scale(float x, float y) { setScale(getScale() + Vector2f(x, y)); }
+
 		void setRotation(float radians);
+
+		inline void rotate(float angle) { setRotation(getRotation() + angle); }
 
 	protected:
 		void updateTransform();
