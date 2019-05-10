@@ -29,9 +29,8 @@ namespace sb
 		GL_CHECK(glGenTextures(1, &m_handle));
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_handle));
 		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
+		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
 		GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_surface->w, m_surface->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_surface->pixels));
-		GL_CHECK(glGenerateMipmap(GL_TEXTURE_2D));
 	}
 
 	void Texture::bind() const
@@ -77,5 +76,31 @@ namespace sb
 
 		SDL_FreeSurface(surface);
 		return flipped;
+	}
+
+	void Texture::enableMipmaps(bool enable) {
+		if (!mipmapsEnabled() && enable)
+			enableMipmaps();
+		else if (mipmapsEnabled() && !enable)
+			disableMipmaps();
+	}
+
+	void Texture::enableMipmaps()
+	{
+		if (!m_mipmapsGenerated) {
+			GL_CHECK(glGenerateMipmap(GL_TEXTURE_2D));
+			m_mipmapsGenerated = true;
+		}
+
+		GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_handle));
+		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST));
+		m_mipmapsEnabled = true;
+	}
+
+	void Texture::disableMipmaps()
+	{
+		GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_handle));
+		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+		m_mipmapsEnabled = false;
 	}
 }
