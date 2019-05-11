@@ -65,10 +65,10 @@ void patrol(sb::Transformable& entity, std::size_t& currentTargetIndex, const st
 	entity.setPosition(position);
 }
 
-void patrolBlock(sb::Transformable& block, float ds) {
+void patrolEntity(sb::Transformable& entity, float ds) {
 	static std::vector<sb::Vector2f> targets = { sb::Vector2f(-0.5f, -0.5f), sb::Vector2f(0.5f, 0.5f) };
 	static std::size_t currentTarget = 0;
-	patrol(block, currentTarget, targets, ds);
+	patrol(entity, currentTarget, targets, ds);
 }
 
 void patrolCamera(sb::Camera& camera, std::size_t& currentTargetIndex, const std::vector<sb::Vector2f>& targets, float ds) {
@@ -92,9 +92,9 @@ void demo1() {
 	texture.enableMipmaps(true);
 	texture.loadFromAsset("Textures/ControlQuad.png");
 
-	sb::Sprite greenBlock;
-	greenBlock.setTexture(&texture);
-	greenBlock.setScale(0.5f, 1);
+	sb::Sprite entity;
+	entity.setTexture(&texture);
+	entity.setScale(0.5f, 1);
 
 	while (window.isOpen()) {
 		float ds = getDeltaSeconds();
@@ -102,14 +102,52 @@ void demo1() {
 		update1(window, ds);
 
 		window.clear(sb::Color(1, 1, 1, 1));
-		window.draw(greenBlock);
+		window.draw(entity);
+		window.display();
+	}
+}
+
+void update2(sb::Window& window, float ds) {
+	static const float MinWidth = 0.25f;
+	static const float MaxWidth = 4;
+	static bool isGrowing = true;
+
+	float delta = isGrowing ? ds : -ds;
+	float newWidth = window.getCamera().getWidth() + delta;
+	window.getCamera().setWidth(newWidth);
+
+	if (isGrowing && newWidth > MaxWidth)
+		isGrowing = false;
+	else if (!isGrowing && newWidth < MinWidth)
+		isGrowing = true;
+}
+
+void demo2() {
+	sb::Window window(300, 600);
+
+	sb::Texture texture;
+	texture.enableMipmaps(true);
+	texture.loadFromAsset("Textures/CoordinateSystem.png");
+
+	sb::Sprite entity;
+	entity.setTexture(&texture);
+
+	while (window.isOpen()) {
+		float ds = getDeltaSeconds();
+		sb::Input::update();
+		update2(window, ds);
+
+		window.clear(sb::Color(1, 1, 1, 1));
+		window.draw(entity);
 		window.display();
 	}
 }
 
 int main(int argc, char* args[])
 {
-	demo1();
+	demo2();
+
+	// demo1();
 
 	// demo0();
 }
