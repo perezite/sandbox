@@ -30,7 +30,6 @@ void demo0() {
 	greenBlock.setTexture(&texture);
 
 	while (window.isOpen()) {
-		float ds = getDeltaSeconds();
 		sb::Input::update();
 
 		window.clear(sb::Color(1, 1, 1, 1));
@@ -144,6 +143,21 @@ void demo2() {
 	}
 }
 
+void scaleCamera(sb::Camera& camera, float ds) {
+	static const float MinWidth = 0.25f;
+	static const float MaxWidth = 4;
+	static bool isGrowing = false;
+
+	float delta = isGrowing ? ds : -ds;
+	float newWidth = camera.getWidth() + delta;
+	camera.setWidth(newWidth);
+
+	if (isGrowing && newWidth > MaxWidth)
+		isGrowing = false;
+	else if (!isGrowing && newWidth < MinWidth)
+		isGrowing = true;
+}
+
 void update3(sb::Window& window, float ds) {
 	static int state = 0;
 
@@ -151,12 +165,15 @@ void update3(sb::Window& window, float ds) {
 		state = (state + 1) % 3;
 
 	if (state == 0) {
-		window.getCamera().rotate(ds);
-	}
-	else if (state == 1) {
-		static std::vector<sb::Vector2f> targets = { sb::Vector2f(-0.5f, 0), sb::Vector2f(0.5f, 0) };
+		static std::vector<sb::Vector2f> targets = { sb::Vector2f(-1, 0), sb::Vector2f(1, 0) };
 		static std::size_t currentTarget = 0;
 		patrolCamera(window.getCamera(), currentTarget, targets, ds);
+	}
+	else if (state == 1) {
+		scaleCamera(window.getCamera(), ds);
+	}
+	else if (state == 2) {
+		window.getCamera().rotate(ds);
 	}
 }
 
