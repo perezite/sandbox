@@ -4,6 +4,8 @@
 #include "Stopwatch.h"
 #include "Logger.h"
 #include "Math.h"
+#include <vector>
+#include <algorithm>
 
 float getDeltaSeconds()
 {
@@ -36,8 +38,51 @@ void demo0() {
 	}
 }
 
+bool nearby(const sb::Vector2f& first, const sb::Vector2f& second) {
+	return (first - second).getLength() < 0.001f;
+}
+
+sb::Vector2f moveTowards(const sb::Vector2f& current, const sb::Vector2f& target, float ds) {
+	sb::Vector2f distance = target - current;
+	float distanceLength = distance.getLength();
+
+	if (ds > distanceLength)
+		return target;
+
+	return current + ds * distance.normalized();
+}
+
+void patrol(sb::Vector2f& currentPosition, std::size_t& currentTargetIndex, const std::vector<sb::Vector2f>& targets, float ds) {
+	if (nearby(currentPosition, targets[currentTargetIndex]))
+		currentTargetIndex = (currentTargetIndex + 1) % targets.size();
+
+	currentPosition = moveTowards(currentPosition, targets[currentTargetIndex], ds);
+}
+
+void patrol(sb::Transformable& entity, std::size_t& currentTargetIndex, const std::vector<sb::Vector2f>& targets, float ds) {
+	sb::Vector2f position = entity.getPosition();
+	patrol(position, currentTargetIndex, targets, ds);
+	entity.setPosition(position);
+}
+
+void patrolBlock(sb::Transformable& block, float ds) {
+	static std::vector<sb::Vector2f> targets = { sb::Vector2f(-0.5f, -0.5f), sb::Vector2f(0.5f, 0.5f) };
+	static std::size_t currentTarget = 0;
+	patrol(block, currentTarget, targets, ds);
+}
+
+void patrolCamera(sb::Camera& camera, std::size_t& currentTargetIndex, const std::vector<sb::Vector2f>& targets, float ds) {
+	sb::Vector2f position = camera.getPosition();
+	patrol(position, currentTargetIndex, targets, ds);
+	camera.setPosition(position);
+}
+
 void update1(sb::Window& window, float ds) {
 	window.getCamera().rotate(ds);
+
+	static std::vector<sb::Vector2f> targets = { sb::Vector2f(-0.5f, -0.5f), sb::Vector2f(0.5f, 0.5f) };
+	static std::size_t currentTarget = 0;
+	patrolCamera(window.getCamera(), currentTarget, targets, ds);
 }
 
 void demo1() {
