@@ -40,10 +40,6 @@ void update1(sb::Window& window, float ds) {
 	window.getCamera().rotate(ds);
 }
 
-void update1b(sb::Transformable& block, float ds) {
-	block.rotate(ds);
-}
-
 void demo1() {
 	sb::Window window(300, 600);
 
@@ -59,7 +55,6 @@ void demo1() {
 		float ds = getDeltaSeconds();
 		sb::Input::update();
 		update1(window, ds);
-		// update1b(greenBlock, ds);
 
 		window.clear(sb::Color(1, 1, 1, 1));
 		window.draw(greenBlock);
