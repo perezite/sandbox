@@ -1,3 +1,4 @@
+#include "DrawBatch.h"
 #include "Window.h"
 #include "Input.h"
 #include "Sprite.h"
@@ -90,7 +91,7 @@ void demo1() {
 
 	sb::Texture texture;
 	texture.enableMipmaps(true);
-	texture.loadFromAsset("Textures/ControlQuad.png");
+	texture.loadFromAsset("Textures/ReferenceQuad.png");
 
 	sb::Sprite entity;
 	entity.setTexture(&texture);
@@ -143,9 +144,64 @@ void demo2() {
 	}
 }
 
+void update3(sb::Window& window, float ds) {
+	static int state = 0;
+
+	if (sb::Input::isTouchGoingDown(1))
+		state = (state + 1) % 3;
+
+	if (state == 0) {
+		window.getCamera().rotate(ds);
+	}
+	else if (state == 1) {
+		static std::vector<sb::Vector2f> targets = { sb::Vector2f(-0.5f, 0), sb::Vector2f(0.5f, 0) };
+		static std::size_t currentTarget = 0;
+		patrolCamera(window.getCamera(), currentTarget, targets, ds);
+	}
+}
+
+void demo3() {
+	sb::DrawBatch batch;
+	sb::Window window(300, 600);
+
+	sb::Texture referenceTex;
+	sb::Texture blockTex;
+	sb::Sprite referenceQuad;
+	std::vector<sb::Sprite> entities(4);
+
+	referenceTex.loadFromAsset("Textures/ReferenceQuad.png");
+	blockTex.enableMipmaps(true);
+	blockTex.loadFromAsset("Textures/GreenBlock.png");
+
+	referenceQuad.setTexture(&referenceTex);
+	std::vector<sb::Vector2f> positions =
+		{ sb::Vector2f(-0.25f, -0.25f), sb::Vector2f( 0.25f, -0.25f), 
+		  sb::Vector2f(-0.25f,  0.25f), sb::Vector2f( 0.25f,  0.25f) };
+	for (std::size_t i = 0; i < entities.size(); i++) {
+		entities[i].setTexture(&blockTex);
+		entities[i].setScale(0.3f, 0.3f);
+		entities[i].setPosition(positions[i]);
+	}
+
+	while (window.isOpen()) {
+		float ds = getDeltaSeconds();
+		sb::Input::update();
+		update3(window, ds);
+
+		window.clear(sb::Color(1, 1, 1, 1));
+		window.draw(referenceQuad);
+		for (std::size_t i = 0; i < entities.size(); i++)
+			batch.draw(entities[i]);
+		window.draw(batch);
+		window.display();
+	}
+}
+
 int main(int argc, char* args[])
 {
-	demo2();
+	demo3();
+
+	// demo2();
 
 	// demo1();
 

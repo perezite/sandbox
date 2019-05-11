@@ -31,13 +31,19 @@ namespace sb
 	void Camera::updateTransform()
 	{
 		float* m = m_transform.getMatrix();
-		float c = cosf(-m_rotation);
-		float s = sinf(-m_rotation);
+		float cf = cosf(-m_rotation);
+		float sf = sinf(-m_rotation);
 
 		sb::Vector2f inverseScale(2 / m_width, m_aspectRatio * 2 / m_width);
+		float a = cf * inverseScale.x;
+		float b = -sf * inverseScale.x;
+		float c = sf * inverseScale.y;
+		float d = cf * inverseScale.y;
+		float tx = -m_position.x;
+		float ty = -m_position.y;
 
-		m[0] = c * inverseScale.x;	m[3] = -s * inverseScale.x;		m[6] = -m_position.x;
-		m[1] = s * inverseScale.y;	m[4] = c * inverseScale.y;		m[7] = -m_position.y;
-		m[2] = 0;					m[5] = 0;						m[8] = 1;
+		m[0] = a;	m[3] = b;	m[6] = a * tx + b * ty;
+		m[1] = c;	m[4] = d;	m[7] = c * tx + d * ty;
+		m[2] = 0;	m[5] = 0;	m[8] = 1;
 	}
 }
