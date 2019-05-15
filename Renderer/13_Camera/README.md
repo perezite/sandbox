@@ -1,2 +1,2 @@
 # Content
-Some fruits in a box, with DIY physics
+Windows with a proper camera. The camera supports transforms and renders the window contents with the correct aspect ratio.
