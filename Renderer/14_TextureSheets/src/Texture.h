@@ -2,6 +2,7 @@
 #include "SDL.h"
 #include "GL.h"
 #include "Color.h"
+#include "Vector2.h"
 #include <string>
 
 namespace sb 
@@ -17,14 +18,15 @@ namespace sb
 
 		Texture(const std::string filePath, bool flipVertically = true);
 		
-		inline const bool mipmapsEnabled() const { return m_mipmapsEnabled; }
-		
-		void enableMipmaps(bool enable);
+		inline const bool areMipmapsEnabled() const { return m_mipmapsEnabled; }
 
-		// void loadFromAsset(const std::string& assetPath, const Vector2i& offset = Vector2i(0, 0), bool flipVertically = true);
+		inline const float* getTexTransform() const { return m_texTransform; }
+		
 		void loadFromAsset(const std::string& assetPath, bool flipVertically = true);
 
-		void createEmpty(int width, int height, const Color& color);
+		void createEmpty(int width, int height, const Color& color = sb::Color(0, 0, 0, 0));
+
+		void enableMipmaps(bool enable);
 
 		void bind() const;
 
@@ -35,18 +37,33 @@ namespace sb
 
 		void flipPixelsVertically(SDL_Surface* destination, SDL_Surface* target);
 
+		void createGlTexture(int width, int height, void* pixels);
+
 		void activateMipmaps();
 
 		void deactivateMipmaps();
 
-		void createGlTexture(int width, int height, void* pixels);
+		int getNextPowerOfTwo(int number);
+
+		void createEmptyTexture(int width, int height, const Color& color);
+
+		void storeSize(int visibleWidth, int visibleHeight, int interalWidth, int internalHeight);
+
+		void createSurface(const std::string& assetPath, bool flipVertically);
+
 	private:
 		SDL_Surface* m_surface;
 
 		GLuint m_handle;
 
+		Vector2i m_visibleSize;
+
+		Vector2i m_internalSize;
+
 		bool m_mipmapsEnabled;
 
 		bool m_mipmapsGenerated;
+
+		float m_texTransform[9];
 	};
 }

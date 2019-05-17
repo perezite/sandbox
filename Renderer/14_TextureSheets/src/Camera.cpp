@@ -22,6 +22,13 @@ namespace sb
 		m_transformNeedsUpdate = true;
 	}
 
+	void Camera::setAspectRatio(float aspect)
+	{
+		m_aspectRatio = aspect;
+		m_inverseAspectRatio = 1 / aspect;
+		m_transformNeedsUpdate = true;
+	}
+
 	void Camera::setRotation(float rotation)
 	{
 		m_rotation = rotation;

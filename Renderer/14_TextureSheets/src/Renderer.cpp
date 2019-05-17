@@ -36,11 +36,11 @@ namespace sb
 		Shader* shader = selectShader(states);
 		shader->use();
 
-		if (states.texture)
+		if (states.texture) 
 			states.texture->bind();
 
 		GLvoid* position = (GLvoid*) &(vertices[0].position);
-		GLvoid* color = (GLvoid*) &(vertices[0].color);
+		GLvoid* color = (GLvoid*) &(vertices[0].color); 
 		GLvoid* texCoords = (GLvoid*) &(vertices[0].texCoords);
 		setVertexAttribPointer(shader->getAttributeLocation("position"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), position);
 		setVertexAttribPointer(shader->getAttributeLocation("color"), 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), color);
@@ -48,8 +48,10 @@ namespace sb
 			setVertexAttribPointer(shader->getAttributeLocation("texCoords"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), texCoords);
 
 		shader->setMatrix3("transform", states.transform.getMatrix());
-		if (states.texture)
+		if (states.texture) {
 			shader->setInteger("texture", 0);
+			shader->setMatrix3("texTransform", states.texture->getTexTransform());
+		}
 	}
 
 	Shader* Renderer::selectShader(const DrawStates& states) 

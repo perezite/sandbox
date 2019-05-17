@@ -7,9 +7,9 @@
 #include <iostream>
 #include <vector>
 
-// TODO
-// implement templated vectors
-// implement texture sheet class
+// TODO: 
+	// Refactor Texture.cpp
+	// Refactor Renderer.cpp
 
 void drawSprites(sb::DrawBatch& batch, std::vector<sb::Sprite>& sprites) {
 	for (std::size_t i = 0; i < sprites.size(); i++)
@@ -43,35 +43,25 @@ void concept0() {
 	}
 }
 
-void demo1() {
+void demo0() {
 	sb::Window window;
-	sb::Texture flatTexture;
-	sb::Texture blockTexture;
-	sb::Sprite flatSprite;
-	sb::Sprite blockSprite;
+	sb::Texture texture;
+	sb::Sprite sprite;
 
-	flatTexture.createEmpty(100, 100, sb::Color(0, 0, 0, 1));
-	blockTexture.loadFromAsset("Textures/GreenBlock.png");
-	blockTexture.enableMipmaps(true);
-
-	flatSprite.setTexture(&flatTexture);
-	flatSprite.setScale(0.5f, 0.5f);
-	blockSprite.setTexture(&blockTexture);
-	blockSprite.setScale(0.2f, 0.2f);
-	blockSprite.setPosition(0.3f, 0.3f);
+	texture.loadFromAsset("Textures/CyanBlock.png");	
+	sprite.setTexture(&texture);
 
 	while (window.isOpen()) {
 		sb::Input::update();
 		window.update();
 
-		window.clear(sb::Color(1, 1, 1 , 1));
-		window.draw(flatSprite);
-		window.draw(blockSprite);
+		window.clear();
+		window.draw(sprite);
 		window.display();
 	}
 }
 
-void demo0() {
+void demo1() {
 	sb::Window window;
 	sb::Vector2i v1(1, 2);
 	sb::Vector2i v2(3, 4);
@@ -81,7 +71,6 @@ void demo0() {
 	std::cout << v3.x << " " << v3.y << std::endl;
 	std::cout << test.normalized().x << " " << test.normalized().y << std::endl;
 	
-
 	while (window.isOpen()) {
 		sb::Input::update();
 		window.update();
@@ -89,10 +78,34 @@ void demo0() {
 	}
 }
 
-int main() {
-	// demo1();
+void demo2() {
+	sb::Window window(300, 600);
+	sb::Texture texture;
+	sb::Sprite sprite;
+	
+	texture.loadFromAsset("Textures/48x48Frame.png");
+	sprite.setTexture(&texture);
 
-	demo0();
+	while (window.isOpen()) {
+		sb::Input::update();
+		if (sb::Input::isTouchGoingDown(1))
+			texture.enableMipmaps(!texture.areMipmapsEnabled());
+
+		window.update();
+
+		window.clear();
+		window.draw(sprite);
+		window.display();
+	}
+}
+
+int main() {
+	
+	demo2();
+
+	//demo1();
+
+	// demo0();
 
 	// concept0();
 

@@ -201,14 +201,17 @@ namespace sb
 	std::string Shader::getDefaultTexturedFragmentShaderCode()
 	{
 		return
-			"#version 100														\n"
-			"precision mediump float;											\n"
-			"varying vec4 v_color;												\n"
-			"varying vec2 v_texCoords;											\n"
-			"uniform sampler2D texture;											\n"
-			"void main()														\n"
-			"{																	\n"
-			"	gl_FragColor = texture2D(texture, v_texCoords) * v_color;		\n"
-			"}																	\n";
+			"#version 100																		\n"
+			"precision mediump float;															\n"
+			"varying vec4 v_color;																\n"
+			"varying vec2 v_texCoords;															\n"
+			"uniform sampler2D texture;															\n"
+			"uniform mat3 texTransform;															\n"
+			"vec3 transformedTexCoords;															\n"
+			"void main()																		\n"
+			"{																					\n"
+			"	transformedTexCoords = texTransform * vec3(v_texCoords.x, v_texCoords.y, 1);	\n"
+			"	gl_FragColor = texture2D(texture, transformedTexCoords.xy) * v_color;			\n"
+			"}																					\n";
 	}
 }

@@ -7,7 +7,7 @@
 namespace sb 
 {
 	Window::Window(int width, int height) 
-		: m_isOpen(true), m_resolution((float)width, (float)height), m_aspect((float)width/(float)height), m_inverseAspect((float)height/(float)width), m_camera(m_aspect)
+		: m_isOpen(true)
 	{
 		SB_ERROR_IF(SDL_Init(SDL_INIT_VIDEO) < 0, SDL_GetError());
 
@@ -35,11 +35,15 @@ namespace sb
 			SDL_CHECK(SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1) == 0);
 			SDL_CHECK(SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24) == 0);
 			SDL_CHECK(SDL_GetDisplayMode(0, 0, &mode) == 0);
-			m_sdlWindow = SDL_CreateWindow("Sandbox", 0, 0, mode.w, mode.h, SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN | SDL_WINDOW_SHOWN);
+			width = mode.w; height = mode.h;
+			m_sdlWindow = SDL_CreateWindow("Sandbox", 0, 0, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN | SDL_WINDOW_SHOWN);
 			SDL_CHECK(m_sdlWindow);
 			m_glContext = SDL_GL_CreateContext(m_sdlWindow);
 			SDL_CHECK(m_glContext);
 		#endif
+
+		m_resolution = sb::Vector2f((float)width, (float)height);
+		m_camera.setAspectRatio((float)width / (float)height);
 
 		// the renderer expects an opened opengl context, so make sure it is created in the proper place, i.e.: here!
 		m_renderer = new Renderer();		
