@@ -83,7 +83,8 @@ void demo2() {
 	sb::Texture texture;
 	sb::Sprite sprite;
 	
-	texture.loadFromAsset("Textures/48x48Frame.png");
+	//texture.loadFromAsset("Textures/48x48Frame.png");
+	texture.loadFromAsset("Textures/GreenBlock.png");
 	sprite.setTexture(&texture);
 
 	while (window.isOpen()) {

@@ -12,14 +12,10 @@ namespace sb
 		if (vertices.empty())
 			return;
 
-		setup(vertices, states);
+		Shader* shader = selectShader(states);
+		setup(shader, vertices, states);
 		drawVertices(vertices, primitiveType);
-		cleanup(states);
-	}
-
-	void Renderer::resetStatistics() 
-	{
-		m_numDrawCalls = 0;
+		cleanup(shader, states);
 	}
 
 	std::size_t Renderer::getNumDrawCalls()
@@ -27,34 +23,24 @@ namespace sb
 		return m_numDrawCalls;
 	}
 
-	void Renderer::setup(const std::vector<Vertex>& vertices, const DrawStates& states)
+	void Renderer::resetStatistics() 
+	{
+		m_numDrawCalls = 0;
+	}
+
+	void Renderer::setup(Shader* shader, const std::vector<Vertex>& vertices, const DrawStates& states)
 	{
 		GL_CHECK(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 		GL_CHECK(glEnable(GL_BLEND));
 		GL_CHECK(glActiveTexture(GL_TEXTURE0));
 
-		Shader* shader = selectShader(states);
 		shader->use();
 
-		if (states.texture) 
-			states.texture->bind();
-
-		GLvoid* position = (GLvoid*) &(vertices[0].position);
-		GLvoid* color = (GLvoid*) &(vertices[0].color); 
-		GLvoid* texCoords = (GLvoid*) &(vertices[0].texCoords);
-		setVertexAttribPointer(shader->getAttributeLocation("position"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), position);
-		setVertexAttribPointer(shader->getAttributeLocation("color"), 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), color);
-		if (states.texture)
-			setVertexAttribPointer(shader->getAttributeLocation("texCoords"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), texCoords);
-
-		shader->setMatrix3("transform", states.transform.getMatrix());
-		if (states.texture) {
-			shader->setInteger("texture", 0);
-			shader->setMatrix3("texTransform", states.texture->getTexTransform());
-		}
+		setupShaderUniforms(shader, states);
+		setupShaderAttributes(shader, vertices, states);
 	}
 
-	Shader* Renderer::selectShader(const DrawStates& states) 
+	Shader* Renderer::selectShader(const DrawStates& states)
 	{
 		if (states.shader)
 			return states.shader;
@@ -64,6 +50,27 @@ namespace sb
 
 		else
 			return &Shader::getDefault();
+	}
+
+	void Renderer::setupShaderUniforms(Shader* shader, const DrawStates & states)
+	{
+		shader->setMatrix3("transform", states.transform.getMatrix());
+		if (states.texture) {
+			shader->setInteger("texture", 0);
+			shader->setMatrix3("texTransform", states.texture->getTexTransform());
+			states.texture->bind();
+		}
+	}
+
+	void Renderer::setupShaderAttributes(Shader * shader, const std::vector<Vertex>& vertices, const DrawStates & states)
+	{
+		GLvoid* position = (GLvoid*) &(vertices[0].position);
+		GLvoid* color = (GLvoid*) &(vertices[0].color);
+		GLvoid* texCoords = (GLvoid*) &(vertices[0].texCoords);
+		setVertexAttribPointer(shader->getAttributeLocation("position"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), position);
+		setVertexAttribPointer(shader->getAttributeLocation("color"), 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), color);
+		if (states.texture)
+			setVertexAttribPointer(shader->getAttributeLocation("texCoords"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), texCoords);
 	}
 
 	void Renderer::setVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer)
@@ -79,10 +86,8 @@ namespace sb
 		m_numDrawCalls++;
 	}
 
-	void Renderer::cleanup(const DrawStates& states)
+	void Renderer::cleanup(Shader* shader, const DrawStates& states)
 	{
-		Shader* shader = selectShader(states);
-
 		if (states.texture)
 			GL_CHECK(glDisableVertexAttribArray(shader->getAttributeLocation("texCoords")));
 		GL_CHECK(glDisableVertexAttribArray(shader->getAttributeLocation("color")));

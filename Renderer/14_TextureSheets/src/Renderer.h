@@ -14,23 +14,26 @@ namespace sb
 	public:
 		void render(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawStates& states);
 
+		static std::size_t getNumDrawCalls();
+		
 		static void resetStatistics();
 
-		static std::size_t getNumDrawCalls();
-
 	protected:
-		void setup(const std::vector<Vertex>& vertices, const DrawStates& states);
+		void setup(Shader* shader, const std::vector<Vertex>& vertices, const DrawStates& states);
 
 		Shader* selectShader(const DrawStates& states);
+
+		void setupShaderUniforms(Shader* shader, const DrawStates& states);
+
+		void setupShaderAttributes(Shader* shader, const std::vector<Vertex>& vertices, const DrawStates& states);
 
 		void setVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer);
 
 		void drawVertices(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType);
 
-		void cleanup(const DrawStates& states);
+		void cleanup(Shader* shader, const DrawStates& states);
 
 	private:
-
 		static std::size_t m_numDrawCalls;
 	};
 }
