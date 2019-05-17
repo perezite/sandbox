@@ -1,6 +1,7 @@
 #pragma once
 #include "SDL.h"
 #include "GL.h"
+#include "Color.h"
 #include <string>
 
 namespace sb 
@@ -15,25 +16,29 @@ namespace sb
 		~Texture();
 
 		Texture(const std::string filePath, bool flipVertically = true);
-
+		
 		inline const bool mipmapsEnabled() const { return m_mipmapsEnabled; }
+		
+		void enableMipmaps(bool enable);
 
 		void loadFromAsset(const std::string filePath, bool flipVertically = true);
 
+		void createFromColor(int width, int height, const Color& color);
+
 		void bind() const;
-
-		void enableMipmaps(bool enable);
-
-	private:
-		void enableMipmaps();
-
-		void disableMipmaps();
 
 	protected:
 		SDL_Surface* convertPixelFormat(SDL_Surface* surface, Uint32 pixelFormat);
 
 		SDL_Surface* flipSurfaceVertically(SDL_Surface* surface);
-		
+
+		void flipPixelsVertically(SDL_Surface* destination, SDL_Surface* target);
+
+		void activateMipmaps();
+
+		void deactivateMipmaps();
+
+		void createGlTexture(int width, int height, void* pixels);
 	private:
 		SDL_Surface* m_surface;
 

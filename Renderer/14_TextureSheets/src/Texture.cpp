@@ -15,9 +15,15 @@ namespace sb
 		SDL_FreeSurface(m_surface);
 	}
 
+	void Texture::enableMipmaps(bool enable) {
+		if (!mipmapsEnabled() && enable)
+			activateMipmaps();
+		else if (mipmapsEnabled() && !enable)
+			deactivateMipmaps();
+	}
+
 	void Texture::loadFromAsset(const std::string assetPath, bool flipVertically)
 	{
-		// create SDL surface
 		std::string filePath = Asset::getFilePath(assetPath);
 		m_surface = IMG_Load(filePath.c_str());
 		SB_ERROR_IF(m_surface == NULL, IMG_GetError());
@@ -25,17 +31,43 @@ namespace sb
 		if (flipVertically)
 			m_surface = flipSurfaceVertically(m_surface);
 
-		// create opengl texture
-		GL_CHECK(glGenTextures(1, &m_handle));
-		GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_handle));
-		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-		GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_surface->w, m_surface->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_surface->pixels));
+		createGlTexture(m_surface->w, m_surface->h, m_surface->pixels);
+	}
+
+	void Texture::createFromColor(int width, int height, const Color& color) {
+		std::vector<GLubyte> pixels(4 * width * height);
+		for (std::size_t i = 0; i < pixels.size(); i += 4) {
+			pixels[i + 0] = int(color.r * 255);
+			pixels[i + 1] = int(color.g * 255);
+			pixels[i + 2] = int(color.b * 255);
+			pixels[i + 3] = int(color.a * 255);
+		}
+		
+		createGlTexture(width, height, pixels.data());
 	}
 
 	void Texture::bind() const
 	{
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_handle));
+	}
+
+	void Texture::activateMipmaps()
+	{
+		if (!m_mipmapsGenerated) {
+			GL_CHECK(glGenerateMipmap(GL_TEXTURE_2D));
+			m_mipmapsGenerated = true;
+		}
+
+		GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_handle));
+		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST));
+		m_mipmapsEnabled = true;
+	}
+
+	void Texture::deactivateMipmaps()
+	{
+		GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_handle));
+		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+		m_mipmapsEnabled = false;
 	}
 
 	SDL_Surface* Texture::convertPixelFormat(SDL_Surface* surface, Uint32 pixelFormat)
@@ -52,55 +84,38 @@ namespace sb
 			surface->format->Rmask, surface->format->Gmask, surface->format->Bmask, surface->format->Amask);
 		SB_ERROR_IF(flipped == NULL, SDL_GetError());
 
-		// lock
-		if (SDL_MUSTLOCK(flipped)) 
-			SDL_CHECK(SDL_LockSurface(flipped) < 0);
+		if (SDL_MUSTLOCK(flipped)) SDL_CHECK(SDL_LockSurface(flipped) < 0);
 
-		// flip
-		for (int row = surface->h - 1; row >= 0; row--)
-		{
-			for (int col = 0; col < surface->w; col++)
-			{
-				size_t sourceOffset = row * surface->w + col;
-				size_t sourceOffsetBytes = sourceOffset * surface->format->BytesPerPixel;
-				size_t destOffset = (surface->h - row - 1) * surface->w + col;
-				size_t destOffsetBytes = destOffset * surface->format->BytesPerPixel;
+		flipPixelsVertically(surface, flipped);
 
-				memcpy((char*)flipped->pixels + destOffsetBytes, (char*)surface->pixels + sourceOffsetBytes, surface->format->BytesPerPixel);
-			}
-		}
-
-		// unlock
-		if (SDL_MUSTLOCK(flipped)) 
-			SDL_UnlockSurface(flipped);
+		if (SDL_MUSTLOCK(flipped)) SDL_UnlockSurface(flipped);
 
 		SDL_FreeSurface(surface);
 		return flipped;
 	}
 
-	void Texture::enableMipmaps(bool enable) {
-		if (!mipmapsEnabled() && enable)
-			enableMipmaps();
-		else if (mipmapsEnabled() && !enable)
-			disableMipmaps();
-	}
-
-	void Texture::enableMipmaps()
+	void Texture::flipPixelsVertically(SDL_Surface* destination, SDL_Surface* target) 
 	{
-		if (!m_mipmapsGenerated) {
-			GL_CHECK(glGenerateMipmap(GL_TEXTURE_2D));
-			m_mipmapsGenerated = true;
+		for (int row = destination->h - 1; row >= 0; row--)
+		{
+			for (int col = 0; col < destination->w; col++)
+			{
+				size_t sourceOffset = row * destination->w + col;
+				size_t sourceOffsetBytes = sourceOffset * destination->format->BytesPerPixel;
+				size_t destOffset = (destination->h - row - 1) * destination->w + col;
+				size_t destOffsetBytes = destOffset * destination->format->BytesPerPixel;
+
+				memcpy((char*)target->pixels + destOffsetBytes, (char*)destination->pixels + sourceOffsetBytes, destination->format->BytesPerPixel);
+			}
 		}
-
-		GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_handle));
-		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST));
-		m_mipmapsEnabled = true;
 	}
 
-	void Texture::disableMipmaps()
+	void Texture::createGlTexture(int width, int height, void* pixels)
 	{
+		GL_CHECK(glGenTextures(1, &m_handle));
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_handle));
+		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-		m_mipmapsEnabled = false;
+		GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels));
 	}
 }

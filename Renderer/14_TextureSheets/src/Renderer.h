@@ -25,7 +25,7 @@ namespace sb
 
 		void setVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer);
 
-		void drawGl(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType);
+		void drawVertices(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType);
 
 		void cleanup(const DrawStates& states);
 
