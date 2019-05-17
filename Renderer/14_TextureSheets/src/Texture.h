@@ -21,9 +21,10 @@ namespace sb
 		
 		void enableMipmaps(bool enable);
 
-		void loadFromAsset(const std::string filePath, bool flipVertically = true);
+		// void loadFromAsset(const std::string& assetPath, const Vector2i& offset = Vector2i(0, 0), bool flipVertically = true);
+		void loadFromAsset(const std::string& assetPath, bool flipVertically = true);
 
-		void createFromColor(int width, int height, const Color& color);
+		void createEmpty(int width, int height, const Color& color);
 
 		void bind() const;
 

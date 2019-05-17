@@ -8,7 +8,7 @@ namespace sb
 		if (!allowOversize)
 			checkSize(width, height);
 
-		
+		m_texture.createEmpty(width, height, sb::Color(0, 0, 0, 0));
 	}
 
 	void TextureSheet::checkSize(int width, int height)

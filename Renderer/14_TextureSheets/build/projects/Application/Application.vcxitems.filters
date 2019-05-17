@@ -21,9 +21,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Transform.h">
       <Filter>headers</Filter>
     </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Vector2f.h">
-      <Filter>headers</Filter>
-    </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Vertex.h">
       <Filter>headers</Filter>
     </ClInclude>
@@ -102,6 +99,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\TextureSheet.h">
       <Filter>headers</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Vector2.h">
+      <Filter>headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Main.cpp" />
@@ -115,7 +115,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawBatch.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawTarget.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Input.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Vector2f.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Transformable.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Texture.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Asset.cpp" />
@@ -127,5 +126,8 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Logger.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Camera.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\TextureSheet.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)..\..\..\src\Vector.inl" />
   </ItemGroup>
 </Project>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Vector2f.h"
+#include "Vector2.h"
 #include "Window.h"
 #include "SDL.h"
 #include <set>

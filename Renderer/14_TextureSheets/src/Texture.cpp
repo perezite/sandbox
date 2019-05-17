@@ -22,7 +22,7 @@ namespace sb
 			deactivateMipmaps();
 	}
 
-	void Texture::loadFromAsset(const std::string assetPath, bool flipVertically)
+	void Texture::loadFromAsset(const std::string& assetPath, bool flipVertically)
 	{
 		std::string filePath = Asset::getFilePath(assetPath);
 		m_surface = IMG_Load(filePath.c_str());
@@ -34,7 +34,7 @@ namespace sb
 		createGlTexture(m_surface->w, m_surface->h, m_surface->pixels);
 	}
 
-	void Texture::createFromColor(int width, int height, const Color& color) {
+	void Texture::createEmpty(int width, int height, const Color& color) {
 		std::vector<GLubyte> pixels(4 * width * height);
 		for (std::size_t i = 0; i < pixels.size(); i += 4) {
 			pixels[i + 0] = int(color.r * 255);

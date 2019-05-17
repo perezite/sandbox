@@ -1,5 +1,5 @@
 #include "Physics.h"
-#include "Vector2f.h"
+#include "Vector2.h"
 #include <vector>
 #include <algorithm>
 
@@ -58,7 +58,7 @@ namespace sb {
 		if (bottom < -1 * window.getInverseAspect())
 			force += (-1 * window.getInverseAspect() - bottom) * sb::Vector2f(0, 1);
 
-		return 1000 * force;
+		return 1000.0f * force;
 	}
 
 	void Physics::computeBoundaryForces(sb::Window& window)
