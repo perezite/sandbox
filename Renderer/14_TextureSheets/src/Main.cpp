@@ -7,10 +7,6 @@
 #include <iostream>
 #include <vector>
 
-// TODO: 
-	// Refactor Texture.cpp
-	// Refactor Renderer.cpp
-
 void drawSprites(sb::DrawBatch& batch, std::vector<sb::Sprite>& sprites) {
 	for (std::size_t i = 0; i < sprites.size(); i++)
 		batch.draw(sprites[i]);
@@ -84,13 +80,14 @@ void demo2() {
 	sb::Sprite sprite;
 	
 	//texture.loadFromAsset("Textures/48x48Frame.png");
+	//texture.createEmpty(100, 100, sb::Color(1, 1, 0, 0.8f));
 	texture.loadFromAsset("Textures/GreenBlock.png");
 	sprite.setTexture(&texture);
 
 	while (window.isOpen()) {
 		sb::Input::update();
 		if (sb::Input::isTouchGoingDown(1))
-			texture.enableMipmaps(!texture.areMipmapsEnabled());
+			texture.enableMipmaps(!texture.hasMipmaps());
 
 		window.update();
 

@@ -35,7 +35,6 @@ namespace sb
 		GL_CHECK(glActiveTexture(GL_TEXTURE0));
 
 		shader->use();
-
 		setupShaderUniforms(shader, states);
 		setupShaderAttributes(shader, vertices, states);
 	}

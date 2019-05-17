@@ -21,4 +21,12 @@ namespace sb
 	inline sb::Vector2f random2D(float min, float max) {
 		return sb::Vector2f(random(min, max), random(min, max));
 	}
+
+	inline int nextPowerOfTwo(int number) {
+		int power = 1;
+		while (power < number)
+			power *= 2;
+
+		return power;
+	}
 }
