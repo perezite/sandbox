@@ -87,7 +87,7 @@ void demo2() {
 	while (window.isOpen()) {
 		sb::Input::update();
 		if (sb::Input::isTouchGoingDown(1))
-			texture.enableMipmaps(!texture.hasMipmaps());
+			texture.enableMipmaps(!texture.areMipmapsEnabled());
 
 		window.update();
 
