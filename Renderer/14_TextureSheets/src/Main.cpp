@@ -45,7 +45,7 @@ void demo0() {
 	sb::Sprite sprite;
 
 	texture.loadFromAsset("Textures/CyanBlock.png");	
-	sprite.setTexture(&texture);
+	sprite.setTexture(texture);
 
 	while (window.isOpen()) {
 		sb::Input::update();
@@ -80,7 +80,7 @@ void demo2() {
 	sb::Sprite sprite;
 	
 	texture.loadFromAsset("Textures/GreenBlock.png");
-	sprite.setTexture(&texture);
+	sprite.setTexture(texture);
 
 	while (window.isOpen()) {
 		sb::Input::update();
@@ -102,7 +102,7 @@ void demo3() {
 
 	texture.loadFromAsset("Textures/48x48.png");
 	texture.loadFromAssetIntoSubArea("Textures/32x32.png", sb::Vector2i(10, 10));
-	sprite.setTexture(&texture);
+	sprite.setTexture(texture);
 
 	while (window.isOpen()) {
 		sb::Input::update();
@@ -116,19 +116,27 @@ void demo3() {
 
 void demo4() {
 	sb::Window window(300, 600);
-	sb::Texture texture;
-	sb::Sprite sprite;
+	sb::Texture referenceTexture;
+	sb::Texture blockTexture;
+	sb::Sprite referenceSprite;
+	sb::Sprite blockSprite;
 
-	texture.loadFromAsset("Textures/48x48.png");
-	texture.loadFromAssetIntoSubArea("Textures/32x32.png", sb::Vector2i(5, 10));
-	sprite.setTexture(&texture, sb::IntRect(10, 15, 32, 32));
-	
+	referenceTexture.loadFromAsset("Textures/48x48.png");
+	referenceTexture.loadFromAssetIntoSubArea("Textures/32x32.png", sb::Vector2i(5, 10));
+	blockTexture.loadFromAsset("Textures/GreenBlock.png");
+	referenceSprite.setTexture(referenceTexture, sb::IntRect(4, 11, 32, 32));
+	blockSprite.setTexture(blockTexture);
+	blockSprite.setScale(0.2f, 0.2f);
+	blockSprite.setPosition(-0.2f, -0.2f);
+
+
 	while (window.isOpen()) {
 		sb::Input::update();
 		window.update();
 
 		window.clear();
-		window.draw(sprite);
+		 window.draw(referenceSprite);
+		window.draw(blockSprite);
 		window.display();
 	}
 }
@@ -141,7 +149,7 @@ int main() {
 
 	// demo2();
 
-	//demo1();
+	// demo1();
 
 	// demo0();
 

@@ -3,12 +3,12 @@
 
 namespace sb
 {
-	TextureSheet::TextureSheet(int width, int height, bool allowOversize)
+	TextureSheet::TextureSheet(const sb::Vector2i& size, bool allowOversize)
 	{
 		if (!allowOversize)
-			checkSize(width, height);
+			checkSize(size);
 
-		m_texture.createEmpty(width, height, sb::Color(0, 0, 0, 0));
+		m_texture.createEmpty(size, sb::Color(0, 0, 0, 0));
 	}
 
 	void TextureSheet::loadFromAsset(const std::string& assetPath, const sb::Vector2i& targetBottomLeft, bool flipVertically)
@@ -16,11 +16,11 @@ namespace sb
 		m_texture.loadFromAssetIntoSubArea(assetPath, targetBottomLeft, flipVertically);
 	}
 
-	void TextureSheet::checkSize(int width, int height)
+	void TextureSheet::checkSize(const sb::Vector2i& size)
 	{
 		static int maxEntent = 1024;
 
-		if (width > maxEntent || height > maxEntent)
+		if (size.x > maxEntent || size.y > maxEntent)
 			SB_ERROR("The specified texture sheet size is too large. The maximum allowed width/height is " << maxEntent << " pixels");
 	}
 }

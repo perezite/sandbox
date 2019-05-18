@@ -7,28 +7,29 @@ namespace sb
 {
 	struct DrawStates
 	{
-		Transform transform;
+		Transform transform = Transform::Identity;
 
-		Transform textureTransform;
+		bool hasCustomTextureTransform = false;
 
-		const Texture* texture;
+		Transform customTextureTransform = Transform::Identity; 
 
-		Shader* shader;
+		const Texture* texture = NULL;
+
+		Shader* shader = NULL;
 
 		DrawStates()
-			: transform(Transform::Identity), texture(NULL), shader(NULL)
 		{ }
 
 		DrawStates(const Transform& transform_)
-			: transform(transform_), texture(NULL), shader(NULL)
+			: transform(transform_)
 		{ }
 
 		DrawStates(const Texture& texture_)
-			: transform(Transform::Identity), texture(&texture_), shader(NULL)
+			: texture(&texture_)
 		{ }
 
 		DrawStates(Shader& shader_)
-			: transform(Transform::Identity), texture(NULL), shader(&shader_)
+			: shader(&shader_)
 		{ }
 
 		DrawStates(const Transform& transform_, const Texture& texture_, Shader& shader_)
@@ -39,5 +40,6 @@ namespace sb
 	};
 
 	const bool operator ==(const DrawStates& left, const DrawStates& right);
+
 	inline const bool operator !=(const DrawStates& left, const DrawStates& right) { return !(left == right); }
 }

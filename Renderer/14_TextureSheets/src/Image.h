@@ -1,5 +1,6 @@
 #pragma once
 #include "SDL.h"
+#include "Vector2.h"
 #include <string>
 
 namespace sb
@@ -13,9 +14,11 @@ namespace sb
 
 		inline void* getPixels() { return m_surface->pixels;  }
 
-		inline int getWidth() { return m_surface->w; }
+		inline const sb::Vector2i getSize() { return sb::Vector2i(m_surface->w, m_surface->h); }
 
-		inline int getHeight() { return m_surface->h; }
+		inline const int getWidth() { return m_surface->w; }
+
+		inline const int getHeight() { return m_surface->h; }
 
 	protected:
 		SDL_Surface* convertPixelFormat(SDL_Surface* surface, Uint32 pixelFormat);

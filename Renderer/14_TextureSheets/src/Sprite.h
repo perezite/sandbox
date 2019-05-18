@@ -11,16 +11,18 @@ namespace sb
 	{
 	public:
 		Sprite() 
-			: m_texture(NULL)
+			: m_texture(NULL), m_hasCustomTextureTransform(false)
 		{ }
 
 		Sprite(Texture& texture)
 			: m_texture(&texture)
 		{ }
-
+		
 		inline Texture* getTexture() { return m_texture; }
 
-		void setTexture(Texture* texture, const IntRect& subArea = IntRect());
+		void setTexture(Texture& texture);
+
+		void setTexture(Texture& texture, const IntRect& textureArea);
 
 		inline Mesh& getMesh() { return SpriteMesh; }
 		
@@ -32,5 +34,7 @@ namespace sb
 		Texture* m_texture;
 
 		Transform m_textureTransform;
+
+		bool m_hasCustomTextureTransform;
 	};
 }

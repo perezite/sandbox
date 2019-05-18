@@ -22,11 +22,13 @@ namespace sb
 		
 		inline const bool isMipmapEnabled() const { return m_isMipmapEnabled; }
 		
-		inline const Transform& getTransform() const { return m_transform; }
+		inline const Transform& getDefaultTransform() const { return m_defaultTransform; }
+
+		void computeTransform(const IntRect& area, Transform& result) const;
 
 		void loadFromAsset(const std::string& assetPath, bool flipVertically = true);
 		
-		void createEmpty(int width, int height, const Color& color = sb::Color(0, 0, 0, 0));
+		void createEmpty(const sb::Vector2i& size, const Color& color = sb::Color(0, 0, 0, 0));
 		
 		void loadFromAssetIntoSubArea(const std::string& assetPath, const sb::Vector2i& subAreaBottomLeft, bool flipVertically = true);
 
@@ -34,14 +36,12 @@ namespace sb
 
 		void bind() const;
 
-		void computeAreaTransform(const IntRect* area, Transform& result) const;
-
 	protected:
-		void createEmptyTexture(int width, int height, const Color& color);
+		void createEmptyTexture(const sb::Vector2i& size, const Color& color);
 
-		void createGlTexture(int width, int height, void* pixels);
+		void createGlTexture(const sb::Vector2i& size, void* pixels);
 
-		void updateTransform(int visibleWidth, int visibleHeight, int interalWidth, int internalHeight);
+		void updateDefaultTransform(const sb::Vector2i& visibleSize, const sb::Vector2i& internalSize);
 		
 		void activateMipmap();
 
@@ -58,6 +58,6 @@ namespace sb
 
 		Vector2i m_internalSize;
 
-		Transform m_transform;
+		Transform m_defaultTransform;
 	};
 }
