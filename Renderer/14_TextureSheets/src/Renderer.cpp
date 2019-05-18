@@ -58,7 +58,7 @@ namespace sb
 			shader->setInteger("texture", 0);
 			const Transform& transform = states.hasCustomTextureTransform ? 
 				states.customTextureTransform : states.texture->getDefaultTransform();
-			shader->setMatrix3("texTransform", states.customTextureTransform.getMatrix());
+			shader->setMatrix3("texTransform", transform.getMatrix());
 			states.texture->bind();
 		}
 	}

@@ -12,13 +12,13 @@ namespace sb
 
 		virtual ~Image();
 
-		inline void* getPixels() { return m_surface->pixels;  }
+		inline void* getPixels() const { return m_surface->pixels;  }
 
-		inline const sb::Vector2i getSize() { return sb::Vector2i(m_surface->w, m_surface->h); }
+		inline const sb::Vector2i getSize() const { return sb::Vector2i(m_surface->w, m_surface->h); }
 
-		inline const int getWidth() { return m_surface->w; }
+		inline const int getWidth() const { return m_surface->w; }
 
-		inline const int getHeight() { return m_surface->h; }
+		inline const int getHeight() const { return m_surface->h; }
 
 	protected:
 		SDL_Surface* convertPixelFormat(SDL_Surface* surface, Uint32 pixelFormat);

@@ -2,6 +2,7 @@
 #include "Window.h"
 #include "Input.h"
 #include "Sprite.h"
+#include "TextureSheet.h"
 #include "Color.h"
 #include "Vector2.h"
 #include <iostream>
@@ -129,21 +130,62 @@ void demo4() {
 	blockSprite.setScale(0.2f, 0.2f);
 	blockSprite.setPosition(-0.2f, -0.2f);
 
-
 	while (window.isOpen()) {
 		sb::Input::update();
 		window.update();
 
 		window.clear();
-		 window.draw(referenceSprite);
+		window.draw(referenceSprite);
 		window.draw(blockSprite);
+		window.display();
+	}
+}
+
+void demo5() {
+	sb::DrawBatch batch;
+	sb::Window window(300, 600);
+	sb::TextureSheet sheet(sb::Vector2i(242, 242));
+	sb::Sprite greenSprite;
+	sb::Sprite yellowSprite;
+	sb::Sprite purpleSprite;
+	sb::Sprite redSprite;
+
+	sheet.loadFromAsset("Textures/GreenBlock.png", sb::Vector2i(0, 0));
+	sheet.loadFromAsset("Textures/YellowBlock.png", sb::Vector2i(121, 0));
+	sheet.loadFromAsset("Textures/PurpleBlock.png", sb::Vector2i(0, 121));
+	sheet.loadFromAsset("Textures/RedBlock.png", sb::Vector2i(121, 121));
+
+	greenSprite.setTexture(sheet.getTexture(), sheet.getArea(0));
+	greenSprite.setScale(0.2f);
+	greenSprite.setPosition(-0.2f, -0.2f);
+	yellowSprite.setTexture(sheet.getTexture(), sheet.getArea(1));
+	yellowSprite.setScale(0.2f);
+	yellowSprite.setPosition(0.2f, -0.2f);
+	purpleSprite.setTexture(sheet.getTexture(), sheet.getArea(2));
+	purpleSprite.setScale(0.2f);
+	purpleSprite.setPosition(-0.2f, 0.2f);
+	redSprite.setTexture(sheet.getTexture(), sheet.getArea(3));
+	redSprite.setScale(0.2f);
+	redSprite.setPosition(0.2f, 0.2f);
+
+	while (window.isOpen()) {
+		sb::Input::update();
+		window.update();
+
+		window.clear(sb::Color(1, 1, 1, 1));
+		window.draw(greenSprite);
+		window.draw(yellowSprite);
+		window.draw(purpleSprite);
+		window.draw(redSprite);
 		window.display();
 	}
 }
 
 int main() {
 	
-	demo4();
+	demo5();
+
+	//demo4();
 
 	// demo3();
 

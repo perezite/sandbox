@@ -11,9 +11,12 @@ namespace sb
 		m_texture.createEmpty(size, sb::Color(0, 0, 0, 0));
 	}
 
-	void TextureSheet::loadFromAsset(const std::string& assetPath, const sb::Vector2i& targetBottomLeft, bool flipVertically)
+	void TextureSheet::loadFromAsset(const std::string& assetPath, const sb::Vector2i& targetLeftBottom, bool flipVertically)
 	{
-		m_texture.loadFromAssetIntoSubArea(assetPath, targetBottomLeft, flipVertically);
+		Image image(assetPath, flipVertically);
+		m_texture.loadFromImageIntoSubArea(image, targetLeftBottom);
+
+		m_areas.push_back(IntRect(targetLeftBottom.x, targetLeftBottom.y, image.getWidth(), image.getHeight()));
 	}
 
 	void TextureSheet::checkSize(const sb::Vector2i& size)

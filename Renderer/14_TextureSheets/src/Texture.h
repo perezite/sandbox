@@ -5,6 +5,7 @@
 #include "Vector2.h"
 #include "Transform.h"
 #include "IntRect.h"
+#include "Image.h"
 #include <string>
 
 namespace sb
@@ -28,20 +29,22 @@ namespace sb
 
 		void loadFromAsset(const std::string& assetPath, bool flipVertically = true);
 		
-		void createEmpty(const sb::Vector2i& size, const Color& color = sb::Color(0, 0, 0, 0));
+		void createEmpty(const Vector2i& size, const Color& color = Color(0, 0, 0, 0));
 		
-		void loadFromAssetIntoSubArea(const std::string& assetPath, const sb::Vector2i& subAreaBottomLeft, bool flipVertically = true);
+		void loadFromImageIntoSubArea(const Image& image, const Vector2i& subAreaBottomLeft);
+
+		void loadFromAssetIntoSubArea(const std::string& assetPath, const Vector2i& subAreaBottomLeft, bool flipVertically = true);
 
 		void enableMipmap(bool enable);
 
 		void bind() const;
 
 	protected:
-		void createEmptyTexture(const sb::Vector2i& size, const Color& color);
+		void createEmptyTexture(const Vector2i& size, const Color& color);
 
-		void createGlTexture(const sb::Vector2i& size, void* pixels);
+		void createGlTexture(const Vector2i& size, void* pixels);
 
-		void updateDefaultTransform(const sb::Vector2i& visibleSize, const sb::Vector2i& internalSize);
+		void updateDefaultTransform(const Vector2i& visibleSize, const Vector2i& internalSize);
 		
 		void activateMipmap();
 

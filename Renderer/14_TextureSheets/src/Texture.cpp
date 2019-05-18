@@ -1,7 +1,6 @@
 #include "Texture.h"
 #include "Asset.h"
 #include "Math.h"
-#include "Image.h"
 #include <algorithm>
 
 namespace sb
@@ -51,20 +50,24 @@ namespace sb
 		updateDefaultTransform(size, powerOfTwoSize);
 	}
 
-	void Texture::loadFromAssetIntoSubArea(const std::string & assetPath, const sb::Vector2i & bottomLeft, bool flipVertically)
+	void Texture::loadFromImageIntoSubArea(const Image& image, const Vector2i& bottomLeft)
 	{
-		SB_ERROR_IF(m_handle == 0, 
+		SB_ERROR_IF(m_handle == 0,
 			"This function can only be called on an already initialized texture");
-
-		Image image(assetPath, flipVertically);
 
 		bool outsideVisibleArea = bottomLeft.x + image.getWidth() > m_visibleSize.x ||
 			bottomLeft.y + image.getHeight() > m_visibleSize.y;
-		SB_ERROR_IF(outsideVisibleArea, 
+		SB_ERROR_IF(outsideVisibleArea,
 			"The existing texture is too small for the loaded image at the given position");
 
 		GL_CHECK(glTexSubImage2D(GL_TEXTURE_2D, 0, bottomLeft.x, bottomLeft.y, image.getWidth(),
 			image.getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, image.getPixels()));
+	}
+
+	void Texture::loadFromAssetIntoSubArea(const std::string & assetPath, const sb::Vector2i& bottomLeft, bool flipVertically)
+	{
+		Image image(assetPath, flipVertically);
+		loadFromImageIntoSubArea(image, bottomLeft);
 	}
 
 	void Texture::enableMipmap(bool enable) {
