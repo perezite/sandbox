@@ -11,24 +11,24 @@ namespace sb
 	{
 	public:
 		Texture()
-		: m_handle(0), m_areMipmapsEnabled(false), m_areMipmapsGenerated(false)
+		: m_handle(0), m_isMipmapEnabled(false), m_isMipmapGenerated(false)
 		{ }
 
 		~Texture();
 
 		Texture(const std::string filePath, bool flipVertically = true);
 		
-		inline const bool areMipmapsEnabled() const { return m_areMipmapsEnabled; }
+		inline const bool isMipmapEnabled() const { return m_isMipmapEnabled; }
 
 		inline const float* getTexTransform() const { return m_texTransform; }
 		
 		void loadFromAsset(const std::string& assetPath, bool flipVertically = true);
 		
-		// void loadFromAssetIntoSubArea(const std::string& assetPath, const sb::Vector2i& areaBottomLeft, bool flipVertically = true);
-
 		void createEmpty(int width, int height, const Color& color = sb::Color(0, 0, 0, 0));
+		
+		void loadFromAssetIntoSubArea(const std::string& assetPath, const sb::Vector2i& subAreaBottomLeft, bool flipVertically = true);
 
-		void enableMipmaps(bool enable);
+		void enableMipmap(bool enable);
 
 		void bind() const;
 
@@ -39,20 +39,18 @@ namespace sb
 
 		void updateTexTransform(int visibleWidth, int visibleHeight, int interalWidth, int internalHeight);
 		
-		void activateMipmaps();
+		void activateMipmap();
 
-		void deactivateMipmaps();
+		void deactivateMipmap();
 
 	private:
 		GLuint m_handle;
 
-		Vector2i m_visibleSize;
+		bool m_isMipmapEnabled;
 
-		Vector2i m_internalSize;
+		bool m_isMipmapGenerated;
 
-		bool m_areMipmapsEnabled;
-
-		bool m_areMipmapsGenerated;
+		sb::Vector2i m_visibleSize;
 
 		float m_texTransform[9];
 	};

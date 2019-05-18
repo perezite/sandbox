@@ -79,16 +79,33 @@ void demo2() {
 	sb::Texture texture;
 	sb::Sprite sprite;
 	
-	//texture.loadFromAsset("Textures/48x48Frame.png");
-	//texture.createEmpty(100, 100, sb::Color(1, 1, 0, 0.8f));
 	texture.loadFromAsset("Textures/GreenBlock.png");
 	sprite.setTexture(&texture);
 
 	while (window.isOpen()) {
 		sb::Input::update();
 		if (sb::Input::isTouchGoingDown(1))
-			texture.enableMipmaps(!texture.areMipmapsEnabled());
+			texture.enableMipmap(!texture.isMipmapEnabled());
 
+		window.update();
+
+		window.clear();
+		window.draw(sprite);
+		window.display();
+	}
+}
+
+void demo3() {
+	sb::Window window(300, 600);
+	sb::Texture texture;
+	sb::Sprite sprite;
+
+	texture.loadFromAsset("Textures/48x48.png");
+	texture.loadFromAssetIntoSubArea("Textures/32x32.png", sb::Vector2i(10, 17));
+	sprite.setTexture(&texture);
+
+	while (window.isOpen()) {
+		sb::Input::update();
 		window.update();
 
 		window.clear();
@@ -99,7 +116,9 @@ void demo2() {
 
 int main() {
 	
-	demo2();
+	demo3();
+
+	// demo2();
 
 	//demo1();
 
