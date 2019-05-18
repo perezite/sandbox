@@ -9,6 +9,8 @@ namespace sb
 	{
 		Transform transform;
 
+		Transform textureTransform;
+
 		const Texture* texture;
 
 		Shader* shader;

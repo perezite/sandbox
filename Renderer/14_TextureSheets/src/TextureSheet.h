@@ -6,9 +6,9 @@ namespace sb
 	class TextureSheet 
 	{
 	public:
-		// the default maximum allowed size is 1024 x 1024
-		// This setting can be overridden by setting allowOversize = true
 		TextureSheet(int width, int height, bool allowOversize = true);
+
+		void loadFromAsset(const std::string& assetPath, const sb::Vector2i& targetBottomLeft = sb::Vector2i(0, 0), bool flipVertically = true);
 
 	protected:
 		void checkSize(int width, int height);

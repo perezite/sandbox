@@ -3,6 +3,7 @@
 #include "Drawable.h"
 #include "Transformable.h"
 #include "Texture.h"
+#include "IntRect.h"
 
 namespace sb
 {
@@ -19,16 +20,17 @@ namespace sb
 
 		inline Texture* getTexture() { return m_texture; }
 
-		inline void setTexture(Texture* texture) { m_texture = texture; }
+		void setTexture(Texture* texture, const IntRect& subArea = IntRect());
 
 		inline Mesh& getMesh() { return SpriteMesh; }
 		
 		virtual void draw(DrawTarget& window, DrawStates states = DrawStates::getDefault());
 
-
 	private:
 		static Mesh SpriteMesh;
 
 		Texture* m_texture;
+
+		Transform m_textureTransform;
 	};
 }

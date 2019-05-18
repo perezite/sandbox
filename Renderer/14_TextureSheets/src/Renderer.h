@@ -19,9 +19,9 @@ namespace sb
 		static void resetStatistics();
 
 	protected:
-		void setup(Shader* shader, const std::vector<Vertex>& vertices, const DrawStates& states);
-
 		Shader* selectShader(const DrawStates& states);
+		
+		void setup(Shader* shader, const std::vector<Vertex>& vertices, const DrawStates& states);
 
 		void setupShaderUniforms(Shader* shader, const DrawStates& states);
 

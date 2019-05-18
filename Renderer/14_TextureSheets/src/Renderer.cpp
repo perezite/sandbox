@@ -28,17 +28,6 @@ namespace sb
 		m_numDrawCalls = 0;
 	}
 
-	void Renderer::setup(Shader* shader, const std::vector<Vertex>& vertices, const DrawStates& states)
-	{
-		GL_CHECK(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-		GL_CHECK(glEnable(GL_BLEND));
-		GL_CHECK(glActiveTexture(GL_TEXTURE0));
-
-		shader->use();
-		setupShaderUniforms(shader, states);
-		setupShaderAttributes(shader, vertices, states);
-	}
-
 	Shader* Renderer::selectShader(const DrawStates& states)
 	{
 		if (states.shader)
@@ -51,12 +40,23 @@ namespace sb
 			return &Shader::getDefault();
 	}
 
+	void Renderer::setup(Shader* shader, const std::vector<Vertex>& vertices, const DrawStates& states)
+	{
+		GL_CHECK(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+		GL_CHECK(glEnable(GL_BLEND));
+		GL_CHECK(glActiveTexture(GL_TEXTURE0));
+
+		shader->use();
+		setupShaderUniforms(shader, states);
+		setupShaderAttributes(shader, vertices, states);
+	}
+
 	void Renderer::setupShaderUniforms(Shader* shader, const DrawStates & states)
 	{
 		shader->setMatrix3("transform", states.transform.getMatrix());
 		if (states.texture) {
 			shader->setInteger("texture", 0);
-			shader->setMatrix3("texTransform", states.texture->getTexTransform());
+			shader->setMatrix3("texTransform", states.textureTransform.getMatrix());
 			states.texture->bind();
 		}
 	}

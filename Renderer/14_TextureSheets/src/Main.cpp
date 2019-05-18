@@ -17,10 +17,10 @@ void concept0() {
 	sb::Window window;
 
 	// sb::TextureSheet blockSheet(242, 242); // default = max size = 1024 * 1024
-	// blockSheet.addFromAsset("Textures/CyanBlock.png", 0, 0);		
-	// blockSheet.addFromAsset("Textures/GreenBlock.png", sb::Vector2i(121, 0));
-	// blockSheet.addFromAsset("Textures/PurpleBlock.png", 0, 121);		
-	// blockSheet.addFromAsset("Textures/RedBlock.png", sb::Vector2i(121, 121));
+	// blockSheet.loadFromAsset("Textures/CyanBlock.png", 0, 0);		
+	// blockSheet.loadFromAsset("Textures/GreenBlock.png", sb::Vector2i(121, 0));
+	// blockSheet.loadFromAsset("Textures/PurpleBlock.png", 0, 121);		
+	// blockSheet.loadFromAsset("Textures/RedBlock.png", sb::Vector2i(121, 121));
 
 	std::vector<sb::Sprite> sprites(4);
 	// sprites[0].setTexture(blockSheet.getTexture(), 0, 0, 121, 121);
@@ -101,7 +101,7 @@ void demo3() {
 	sb::Sprite sprite;
 
 	texture.loadFromAsset("Textures/48x48.png");
-	texture.loadFromAssetIntoSubArea("Textures/32x32.png", sb::Vector2i(10, 17));
+	texture.loadFromAssetIntoSubArea("Textures/32x32.png", sb::Vector2i(10, 10));
 	sprite.setTexture(&texture);
 
 	while (window.isOpen()) {
@@ -114,9 +114,30 @@ void demo3() {
 	}
 }
 
+void demo4() {
+	sb::Window window(300, 600);
+	sb::Texture texture;
+	sb::Sprite sprite;
+
+	texture.loadFromAsset("Textures/48x48.png");
+	texture.loadFromAssetIntoSubArea("Textures/32x32.png", sb::Vector2i(5, 10));
+	sprite.setTexture(&texture, sb::IntRect(10, 15, 32, 32));
+	
+	while (window.isOpen()) {
+		sb::Input::update();
+		window.update();
+
+		window.clear();
+		window.draw(sprite);
+		window.display();
+	}
+}
+
 int main() {
 	
-	demo3();
+	demo4();
+
+	// demo3();
 
 	// demo2();
 
