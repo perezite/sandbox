@@ -9,9 +9,7 @@ namespace sb
 	{
 		Transform transform = Transform::Identity;
 
-		bool hasCustomTextureTransform = false;
-
-		Transform customTextureTransform = Transform::Identity; 
+		Transform textureTransform = Transform::Identity; 
 
 		const Texture* texture = NULL;
 

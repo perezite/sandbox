@@ -102,7 +102,7 @@ void demo3() {
 	sb::Sprite sprite;
 
 	texture.loadFromAsset("Textures/48x48.png");
-	texture.loadFromAssetIntoSubArea("Textures/32x32.png", sb::Vector2i(10, 10));
+	texture.loadFromAssetIntoSubArea("Textures/32x32.png", sb::Vector2i(5, 10));
 	sprite.setTexture(texture);
 
 	while (window.isOpen()) {
@@ -178,16 +178,145 @@ void demo5() {
 		window.draw(purpleSprite);
 		window.draw(redSprite);
 		window.display();
+
+		SB_MESSAGE("Draw calls: " << sb::Renderer::getNumDrawCalls());
+		sb::Renderer::resetStatistics();
+	}
+}
+
+void demo6() {
+	sb::DrawBatch batch;
+	sb::Window window(300, 600);
+	sb::TextureSheet sheet(sb::Vector2i(242, 242));
+	sb::Texture cyanTexture;
+	sb::Sprite greenSprite;
+	sb::Sprite yellowSprite;
+	sb::Sprite purpleSprite;
+	sb::Sprite redSprite;
+	sb::Sprite cyanSprite;
+
+	sheet.loadFromAsset("Textures/GreenBlock.png", sb::Vector2i(0, 0));
+	sheet.loadFromAsset("Textures/YellowBlock.png", sb::Vector2i(121, 0));
+	sheet.loadFromAsset("Textures/PurpleBlock.png", sb::Vector2i(0, 121));
+	sheet.loadFromAsset("Textures/RedBlock.png", sb::Vector2i(121, 121));
+	cyanTexture.loadFromAsset("Textures/CyanBlock.png");
+
+
+	greenSprite.setTexture(sheet.getTexture(), sheet.getArea(0));
+	greenSprite.setScale(0.2f);
+	greenSprite.setPosition(-0.2f, -0.2f);
+	yellowSprite.setTexture(sheet.getTexture(), sheet.getArea(1));
+	yellowSprite.setScale(0.2f);
+	yellowSprite.setPosition(0.2f, -0.2f);
+	purpleSprite.setTexture(sheet.getTexture(), sheet.getArea(2));
+	purpleSprite.setScale(0.2f);
+	purpleSprite.setPosition(-0.2f, 0.2f);
+	redSprite.setTexture(sheet.getTexture(), sheet.getArea(3));
+	redSprite.setScale(0.2f);
+	redSprite.setPosition(0.2f, 0.2f);
+	cyanSprite.setTexture(cyanTexture);
+	cyanSprite.setScale(0.3f, 0.3f);
+	cyanSprite.setRotation(30 * sb::ToRadian);
+
+	while (window.isOpen()) {
+		sb::Input::update();
+		window.update();
+
+		window.clear(sb::Color(1, 1, 1, 1));
+		batch.draw(greenSprite);
+		batch.draw(yellowSprite);
+		batch.draw(purpleSprite);
+		batch.draw(redSprite);
+		batch.draw(cyanSprite);
+		batch.draw(cyanSprite);
+		window.draw(batch);
+		window.display();
+
+		SB_MESSAGE("Draw calls: " << sb::Renderer::getNumDrawCalls());
+		sb::Renderer::resetStatistics();
+	}
+}
+
+void demo7() {
+	sb::DrawBatch batch;
+	sb::Window window(300, 600);
+	sb::TextureSheet sheet(sb::Vector2i(172, 104));
+	std::vector<sb::Texture> textures(4);
+	std::vector<sb::Sprite> sprites(4);
+	std::vector<sb::Sprite> referenceSprites(4);
+	sb::Sprite debugSprite;
+	std::size_t index = -1;
+
+	// TODO: If I load the single textures first, I get a GL error :/
+	//textures[0].loadFromAsset("Textures/BleedingTestBlue.png");
+	//textures[1].loadFromAsset("Textures/BleedingTestRed.bmp");
+	//textures[2].loadFromAsset("Textures/BleedingTestGreen.png");
+	//textures[3].loadFromAsset("Textures/BleedingTestYellow.bmp");
+	sheet.loadFromAsset("Textures/BleedingTestBlue.png", sb::Vector2i(0, 0));
+	sheet.loadFromAsset("Textures/BleedingTestRed.bmp", sb::Vector2i(64, 0));
+	sheet.loadFromAsset("Textures/BleedingTestGreen.png", sb::Vector2i(0, 64));
+	sheet.loadFromAsset("Textures/BleedingTestYellow.bmp", sb::Vector2i(132, 64));
+	textures[0].loadFromAsset("Textures/BleedingTestBlue.png");
+	textures[1].loadFromAsset("Textures/BleedingTestRed.bmp");
+	textures[2].loadFromAsset("Textures/BleedingTestGreen.png");
+	textures[3].loadFromAsset("Textures/BleedingTestYellow.bmp");
+
+	sprites[0].setPosition(0, 0.5f);
+	sprites[0].setScale(0.9f);
+	sprites[0].setTexture(sheet.getTexture(), sheet.getArea(0));
+	sprites[1].setPosition(0, 0.5f);
+	sprites[1].setScale(0.9f);
+	sprites[1].setTexture(sheet.getTexture(), sheet.getArea(1));
+	sprites[2].setPosition(0, 0.5f);
+	sprites[2].setScale(0.9f);
+	sprites[2].setTexture(sheet.getTexture(), sheet.getArea(2));
+	sprites[3].setPosition(0, 0.5f);
+	sprites[3].setScale(0.9f);
+	sprites[3].setTexture(sheet.getTexture(), sheet.getArea(3));
+
+	referenceSprites[0].setPosition(0, -0.5f);
+	referenceSprites[0].setScale(0.9f);
+	referenceSprites[0].setTexture(textures[0]);
+	referenceSprites[1].setPosition(0, -0.5f);
+	referenceSprites[1].setScale(0.9f);
+	referenceSprites[1].setTexture(textures[1]);
+	referenceSprites[2].setPosition(0, -0.5f);
+	referenceSprites[2].setScale(0.9f);
+	referenceSprites[2].setTexture(textures[2]);
+	referenceSprites[3].setPosition(0, -0.5f);
+	referenceSprites[3].setScale(0.9f);
+	referenceSprites[3].setTexture(textures[3]);
+
+	debugSprite.setTexture(sheet.getTexture());
+	debugSprite.setScale(1, (float)sheet.getTexture().getSize().y / (float)sheet.getTexture().getSize().x);
+
+	while (window.isOpen()) {
+		sb::Input::update();
+		if (sb::Input::isTouchGoingDown(1)) 
+			index = (index + 1) % sprites.size();
+		window.update();
+
+		window.clear(sb::Color(1, 1, 1, 1));
+		if (index == -1) {
+			window.draw(debugSprite);
+		} else {
+			window.draw(sprites[index]);
+			window.draw(referenceSprites[index]);
+		}
+		window.display();
 	}
 }
 
 int main() {
-	
-	demo5();
+	demo7();
+
+	//demo6();
+
+	//demo5();
 
 	//demo4();
 
-	// demo3();
+	//demo3();
 
 	// demo2();
 

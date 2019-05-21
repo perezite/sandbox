@@ -33,21 +33,18 @@ namespace sb
 
 		Image image(assetPath, flipVertically);
 
-		sb::Vector2i powerOfTwoSize(nextPowerOfTwo(image.getWidth()), nextPowerOfTwo(image.getHeight()));
-		createEmptyTexture(powerOfTwoSize, sb::Color(0, 0, 0, 0));
+		setSize(image.getSize());
+		createEmptyTexture(m_internalSize, sb::Color(0, 0, 0, 0));
 		GL_CHECK(glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, image.getWidth(), 
 			image.getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, image.getPixels()));
 
-		updateDefaultTransform(image.getSize(), powerOfTwoSize);
 	}
 
 	void Texture::createEmpty(const sb::Vector2i& size, const Color& color) {
 		SB_ERROR_IF(m_handle != 0, "The texture has already been initialized");
 
-		sb::Vector2i powerOfTwoSize(nextPowerOfTwo(size.x), nextPowerOfTwo(size.y));
-		createEmptyTexture(powerOfTwoSize, color);
-
-		updateDefaultTransform(size, powerOfTwoSize);
+		setSize(size);
+		createEmptyTexture(m_internalSize, color);
 	}
 
 	void Texture::loadFromImageIntoSubArea(const Image& image, const Vector2i& bottomLeft)
@@ -55,8 +52,8 @@ namespace sb
 		SB_ERROR_IF(m_handle == 0,
 			"This function can only be called on an already initialized texture");
 
-		bool outsideVisibleArea = bottomLeft.x + image.getWidth() > m_visibleSize.x ||
-			bottomLeft.y + image.getHeight() > m_visibleSize.y;
+		bool outsideVisibleArea = bottomLeft.x + image.getWidth() > m_size.x ||
+			bottomLeft.y + image.getHeight() > m_size.y;
 		SB_ERROR_IF(outsideVisibleArea,
 			"The existing texture is too small for the loaded image at the given position");
 
@@ -82,6 +79,11 @@ namespace sb
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_handle));
 	}
 
+	void Texture::setSize(const sb::Vector2i& size) {
+		m_size = size;
+		m_internalSize = sb::Vector2i(nextPowerOfTwo(size.x), nextPowerOfTwo(size.y));
+	}
+
 	void Texture::createEmptyTexture(const sb::Vector2i& size, const Color& color)
 	{
 		std::vector<GLubyte> pixels(4 * size.x * size.y);
@@ -102,15 +104,6 @@ namespace sb
 		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 		GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
 		GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels));
-	}
-
-	void Texture::updateDefaultTransform(const sb::Vector2i& visibleSize, const sb::Vector2i& internalSize)
-	{
-		m_visibleSize = visibleSize;
-		m_internalSize = internalSize;
-
-		IntRect area = IntRect(0, 0, visibleSize.x, visibleSize.y);
-		computeTransform(area, m_defaultTransform);
 	}
 
 	void Texture::activateMipmap()

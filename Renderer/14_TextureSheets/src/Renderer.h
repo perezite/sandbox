@@ -27,7 +27,7 @@ namespace sb
 
 		void setupShaderAttributes(Shader* shader, const std::vector<Vertex>& vertices, const DrawStates& states);
 
-		void setVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer);
+		void setShaderAttribute(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer);
 
 		void drawVertices(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType);
 

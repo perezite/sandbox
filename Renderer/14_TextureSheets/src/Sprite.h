@@ -11,7 +11,7 @@ namespace sb
 	{
 	public:
 		Sprite() 
-			: m_texture(NULL), m_hasCustomTextureTransform(false)
+			: m_texture(NULL)
 		{ }
 
 		Sprite(Texture& texture)
@@ -34,7 +34,5 @@ namespace sb
 		Texture* m_texture;
 
 		Transform m_textureTransform;
-
-		bool m_hasCustomTextureTransform;
 	};
 }

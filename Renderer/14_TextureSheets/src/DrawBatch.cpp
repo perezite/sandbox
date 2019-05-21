@@ -42,6 +42,7 @@ namespace sb
 	{
 		DrawStates states = m_currentStates;
 		states.transform = Transform::Identity;
+		states.textureTransform = Transform::Identity;
 		m_target->draw(m_vertices, m_currentPrimitiveType, states);
 		m_vertices.clear();
 	}
@@ -68,7 +69,7 @@ namespace sb
 		const PrimitiveType& primitiveType, const DrawStates& states)
 	{
 		std::vector<Vertex> transformedVertices(vertices);
-		transformVertices(transformedVertices, states.transform);
+		transformVertices(transformedVertices, states);
 
 		if (primitiveType == PrimitiveType::Triangles)
 			insertTriangles(transformedVertices);
@@ -78,10 +79,12 @@ namespace sb
 			SB_ERROR("The primitive type " << (int)primitiveType << " is not eligible for batching");
 	}
 
-	inline void DrawBatch::Buffer::transformVertices(std::vector<Vertex>& vertices, const Transform& transform)
+	inline void DrawBatch::Buffer::transformVertices(std::vector<Vertex>& vertices, const DrawStates& states)
 	{
-		for (std::size_t i = 0; i < vertices.size(); i++) 
-			vertices[i].position *= transform;
+		for (std::size_t i = 0; i < vertices.size(); i++) {
+			vertices[i].position *= states.transform;
+			vertices[i].texCoords *= states.textureTransform;
+		}
 	}
 
 	inline void DrawBatch::Buffer::insertTriangles(const std::vector<Vertex>& vertices)

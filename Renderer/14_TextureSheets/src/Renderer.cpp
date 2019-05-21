@@ -56,9 +56,7 @@ namespace sb
 		shader->setMatrix3("transform", states.transform.getMatrix());
 		if (states.texture) {
 			shader->setInteger("texture", 0);
-			const Transform& transform = states.hasCustomTextureTransform ? 
-				states.customTextureTransform : states.texture->getDefaultTransform();
-			shader->setMatrix3("texTransform", transform.getMatrix());
+			shader->setMatrix3("texTransform", states.textureTransform.getMatrix());
 			states.texture->bind();
 		}
 	}
@@ -68,15 +66,15 @@ namespace sb
 		GLvoid* position = (GLvoid*) &(vertices[0].position);
 		GLvoid* color = (GLvoid*) &(vertices[0].color);
 		GLvoid* texCoords = (GLvoid*) &(vertices[0].texCoords);
-		setVertexAttribPointer(shader->getAttributeLocation("position"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), position);
-		setVertexAttribPointer(shader->getAttributeLocation("color"), 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), color);
+		setShaderAttribute(shader->getAttributeLocation("position"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), position);
+		setShaderAttribute(shader->getAttributeLocation("color"), 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), color);
 		if (states.texture)
-			setVertexAttribPointer(shader->getAttributeLocation("texCoords"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), texCoords);
+			setShaderAttribute(shader->getAttributeLocation("texCoords"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), texCoords);
 	}
 
-	void Renderer::setVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer)
+	void Renderer::setShaderAttribute(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* value)
 	{
-		GL_CHECK(glVertexAttribPointer(index, size, type, normalized, stride, pointer));
+		GL_CHECK(glVertexAttribPointer(index, size, type, normalized, stride, value));
 		GL_CHECK(glEnableVertexAttribArray(index));
 	}
 

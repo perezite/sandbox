@@ -12,23 +12,21 @@ namespace sb
 
 	void Sprite::setTexture(Texture& texture)
 	{
-		m_texture = &texture;
-		m_hasCustomTextureTransform = false;
+		const Vector2i size = texture.getSize();
+		setTexture(texture, IntRect(0, 0, size.x, size.y));
 	}
 
 	void Sprite::setTexture(Texture& texture, const IntRect& textureArea)
 	{
 		m_texture = &texture; 
 		texture.computeTransform(textureArea, m_textureTransform);
-		m_hasCustomTextureTransform = true;
 	}
 
 	void Sprite::draw(DrawTarget& target, DrawStates states)
 	{
 		states.transform *= getTransform();
 		states.texture = m_texture;
-		states.customTextureTransform = m_textureTransform;
-		states.hasCustomTextureTransform = m_hasCustomTextureTransform;
+		states.textureTransform = m_textureTransform;
 		target.draw(SpriteMesh.getVertices(), SpriteMesh.getPrimitiveType(), states);
 	}
 }

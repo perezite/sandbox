@@ -21,10 +21,10 @@ namespace sb
 
 		Texture(const std::string filePath, bool flipVertically = true);
 		
+		inline const Vector2i& getSize() { return m_size; }
+
 		inline const bool isMipmapEnabled() const { return m_isMipmapEnabled; }
 		
-		inline const Transform& getDefaultTransform() const { return m_defaultTransform; }
-
 		void computeTransform(const IntRect& area, Transform& result) const;
 
 		void loadFromAsset(const std::string& assetPath, bool flipVertically = true);
@@ -40,11 +40,11 @@ namespace sb
 		void bind() const;
 
 	protected:
+		void setSize(const sb::Vector2i & size);
+
 		void createEmptyTexture(const Vector2i& size, const Color& color);
 
 		void createGlTexture(const Vector2i& size, void* pixels);
-
-		void updateDefaultTransform(const Vector2i& visibleSize, const Vector2i& internalSize);
 		
 		void activateMipmap();
 
@@ -57,10 +57,8 @@ namespace sb
 
 		bool m_isMipmapGenerated;
 
-		Vector2i m_visibleSize;
+		Vector2i m_size;
 
 		Vector2i m_internalSize;
-
-		Transform m_defaultTransform;
 	};
 }

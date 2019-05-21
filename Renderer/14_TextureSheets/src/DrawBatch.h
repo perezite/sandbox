@@ -43,7 +43,7 @@ namespace sb
 			void insert(const std::vector<Vertex>& vertices, 
 				const PrimitiveType& primitiveType, const DrawStates& states);
 
-			inline void transformVertices(std::vector<Vertex>& vertices, const Transform& transform);
+			inline void transformVertices(std::vector<Vertex>& vertices, const DrawStates& states);
 
 			inline void insertTriangles(const std::vector<Vertex>& vertices);
 
