@@ -40,7 +40,7 @@ namespace sb
 		void bind() const;
 
 	protected:
-		void setSize(const sb::Vector2i & size);
+		void updateSize(const sb::Vector2i & size);
 
 		void createEmptyTexture(const Vector2i& size, const Color& color);
 

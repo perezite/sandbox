@@ -237,9 +237,14 @@ void demo6() {
 	}
 }
 
+int applyRatio(int value, float ratio) {
+	float result = float(value) * ratio;
+	return int(result);
+}
+
 void demo7() {
 	sb::DrawBatch batch;
-	sb::Window window(300, 600);
+	sb::Window window(300, applyRatio(300, 16.0f / 9.0f));
 	sb::TextureSheet sheet(sb::Vector2i(172, 104));
 	std::vector<sb::Texture> textures(4);
 	std::vector<sb::Sprite> sprites(4);
@@ -247,44 +252,40 @@ void demo7() {
 	sb::Sprite debugSprite;
 	std::size_t index = -1;
 
-	// TODO: If I load the single textures first, I get a GL error :/
-	//textures[0].loadFromAsset("Textures/BleedingTestBlue.png");
-	//textures[1].loadFromAsset("Textures/BleedingTestRed.bmp");
-	//textures[2].loadFromAsset("Textures/BleedingTestGreen.png");
-	//textures[3].loadFromAsset("Textures/BleedingTestYellow.bmp");
-	sheet.loadFromAsset("Textures/BleedingTestBlue.png", sb::Vector2i(0, 0));
-	sheet.loadFromAsset("Textures/BleedingTestRed.bmp", sb::Vector2i(64, 0));
-	sheet.loadFromAsset("Textures/BleedingTestGreen.png", sb::Vector2i(0, 64));
-	sheet.loadFromAsset("Textures/BleedingTestYellow.bmp", sb::Vector2i(132, 64));
 	textures[0].loadFromAsset("Textures/BleedingTestBlue.png");
-	textures[1].loadFromAsset("Textures/BleedingTestRed.bmp");
+	textures[1].loadFromAsset("Textures/BleedingTestRed.bmp");	
 	textures[2].loadFromAsset("Textures/BleedingTestGreen.png");
-	textures[3].loadFromAsset("Textures/BleedingTestYellow.bmp");
+	textures[3].loadFromAsset("Textures/BleedingTestYellow.bmp");	
+	sheet.loadFromAsset("Textures/BleedingTestBlue.png", sb::Vector2i(0, 0));
+	sheet.loadFromAsset("Textures/BleedingTestRed.bmp", sb::Vector2i(64, 0));	
+	sheet.loadFromAsset("Textures/BleedingTestGreen.png", sb::Vector2i(0, 64));
+	sheet.loadFromAsset("Textures/BleedingTestYellow.bmp", sb::Vector2i(132, 64)); 
 
+	float scale = 0.75f;
 	sprites[0].setPosition(0, 0.5f);
-	sprites[0].setScale(0.9f);
+	sprites[0].setScale(scale);
 	sprites[0].setTexture(sheet.getTexture(), sheet.getArea(0));
 	sprites[1].setPosition(0, 0.5f);
-	sprites[1].setScale(0.9f);
+	sprites[1].setScale(scale);
 	sprites[1].setTexture(sheet.getTexture(), sheet.getArea(1));
 	sprites[2].setPosition(0, 0.5f);
-	sprites[2].setScale(0.9f);
+	sprites[2].setScale(scale);
 	sprites[2].setTexture(sheet.getTexture(), sheet.getArea(2));
 	sprites[3].setPosition(0, 0.5f);
-	sprites[3].setScale(0.9f);
+	sprites[3].setScale(scale);
 	sprites[3].setTexture(sheet.getTexture(), sheet.getArea(3));
 
 	referenceSprites[0].setPosition(0, -0.5f);
-	referenceSprites[0].setScale(0.9f);
+	referenceSprites[0].setScale(scale);
 	referenceSprites[0].setTexture(textures[0]);
 	referenceSprites[1].setPosition(0, -0.5f);
-	referenceSprites[1].setScale(0.9f);
+	referenceSprites[1].setScale(scale);
 	referenceSprites[1].setTexture(textures[1]);
 	referenceSprites[2].setPosition(0, -0.5f);
-	referenceSprites[2].setScale(0.9f);
+	referenceSprites[2].setScale(scale);
 	referenceSprites[2].setTexture(textures[2]);
 	referenceSprites[3].setPosition(0, -0.5f);
-	referenceSprites[3].setScale(0.9f);
+	referenceSprites[3].setScale(scale);
 	referenceSprites[3].setTexture(textures[3]);
 
 	debugSprite.setTexture(sheet.getTexture());

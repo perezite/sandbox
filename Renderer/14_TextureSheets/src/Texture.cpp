@@ -32,8 +32,8 @@ namespace sb
 		SB_ERROR_IF(m_handle != 0, "The texture has already been initialized");
 
 		Image image(assetPath, flipVertically);
+		updateSize(image.getSize());
 
-		setSize(image.getSize());
 		createEmptyTexture(m_internalSize, sb::Color(0, 0, 0, 0));
 		GL_CHECK(glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, image.getWidth(), 
 			image.getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, image.getPixels()));
@@ -43,7 +43,7 @@ namespace sb
 	void Texture::createEmpty(const sb::Vector2i& size, const Color& color) {
 		SB_ERROR_IF(m_handle != 0, "The texture has already been initialized");
 
-		setSize(size);
+		updateSize(size);
 		createEmptyTexture(m_internalSize, color);
 	}
 
@@ -57,6 +57,7 @@ namespace sb
 		SB_ERROR_IF(outsideVisibleArea,
 			"The existing texture is too small for the loaded image at the given position");
 
+		bind();
 		GL_CHECK(glTexSubImage2D(GL_TEXTURE_2D, 0, bottomLeft.x, bottomLeft.y, image.getWidth(),
 			image.getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, image.getPixels()));
 	}
@@ -79,7 +80,7 @@ namespace sb
 		GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_handle));
 	}
 
-	void Texture::setSize(const sb::Vector2i& size) {
+	void Texture::updateSize(const sb::Vector2i& size) {
 		m_size = size;
 		m_internalSize = sb::Vector2i(nextPowerOfTwo(size.x), nextPowerOfTwo(size.y));
 	}
