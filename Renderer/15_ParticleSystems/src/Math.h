@@ -6,6 +6,8 @@ namespace sb
 {
 	const float Pi = (float)M_PI;
 
+	const float ToRadian = 0.01745329251f;
+
 	inline float random() {
 		return float(rand()) / float(RAND_MAX);
 	}

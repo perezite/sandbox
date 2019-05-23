@@ -15,7 +15,7 @@ The following particle parameters are currently relevant for me:
 * Dampening Threshold Speed (speed at which dampening is applied): float
 * Dampening coefficient: float
 * Color over lifetime: gradient
-* Size of lifetime: tween / spline
+* Size over lifetime: tween / spline
 * Angular velocity: float
 * Inherit velocity (inertia relative to the parent transform in percent): float
 * Sub-emitter on Death: function

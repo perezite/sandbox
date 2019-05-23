@@ -4,8 +4,6 @@ namespace sb
 {
 	Transform Transform::Identity = Transform();
 
-	float Transform::ToRadians = 0.01745329251f;		// (2 * PI) / 360
-
 	Transform::Transform()
 	{
 		m_matrix[0] = 1; m_matrix[3] = 0; m_matrix[6] = 0;

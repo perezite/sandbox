@@ -6,14 +6,10 @@
 
 namespace sb
 {
-	static float ToRadian = 2.0f * float(M_PI) / 360.0f;
-
 	class Transform
 	{
 	public:
 		static Transform Identity;
-
-		static float ToRadians;
 
 	public:
 		Transform();
