@@ -30,8 +30,21 @@ float computeBounceOut(float t, float b, float c, float d) {
 	}
 }
 
-inline float bounceOut(float t, float duration, float from, float to) {
-	return computeBounceOut(std::min(t, duration), from, to - from, duration);
+float computeQuintInOut(float t, float b, float c, float d) {
+	if ((t /= d / 2) < 1) return c / 2*t*t*t*t*t + b;
+	return c / 2 * ((t -= 2)*t*t*t*t + 2) + b;
+}
+
+inline float bounceOut(float t, float t0, float t1, float from, float to) {
+	float duration = t1 - t0;
+	float time = t < t0 ? t0 : t > t1 ? t1 : t;
+	return computeBounceOut(time - t0, from, to - from, duration);
+}
+
+inline float quintInOut(float t, float t0, float t1, float from, float to) {
+	float duration = t1 - t0;
+	float time = t < t0 ? t0 : t > t1 ? t1 : t;
+	return computeQuintInOut(time - t0, from, to - from, duration);
 }
 
 float getDeltaSeconds()
@@ -47,6 +60,7 @@ void concept0() {
 	sb::Window window;
 	sb::Quad quad;
 	
+	window.getCamera().setWidth(1.5f);
 	quad.setScale(0.3f);
 
 	while (window.isOpen()) {
@@ -54,7 +68,11 @@ void concept0() {
 		float ds = getDeltaSeconds();
 		sb::Input::update();
 		window.update();
-		float position = bounceOut(t, 2, -0.4f, 0.4f);
+		float position;
+		if (t < 2)
+			position = bounceOut(t, 1, 2, -0.4f, 0.4f);
+		else
+			position = quintInOut(t, 2.5f, 4.5f, 0.4f, -0.5f);
 		quad.setPosition(position, position);
 
 		window.clear(sb::Color(1, 1, 1, 1));
