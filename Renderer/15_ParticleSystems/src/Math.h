@@ -20,8 +20,13 @@ namespace sb
 		return random(0, max);
 	}
 
-	inline sb::Vector2f random2D(float min, float max) {
+	inline Vector2f random2D(float min, float max) {
 		return sb::Vector2f(random(min, max), random(min, max));
+	}
+
+	inline Vector2f randomOnCircle(float radius) {
+		float angle = random(0, 2 * Pi);
+		return sb::Vector2f(radius * cosf(angle), radius * sinf(angle));
 	}
 
 	inline int nextPowerOfTwo(int number) {
