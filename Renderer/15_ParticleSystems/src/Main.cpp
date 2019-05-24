@@ -3,6 +3,7 @@
 #include "Quad.h"
 #include "Stopwatch.h"
 #include "Math.h"
+#include "Body.h"
 #include <iostream>
 #include <vector>		
 #include <algorithm>
@@ -191,7 +192,7 @@ void demo1() {
 	}
 }
 
-class ParticleSystem : public sb::Drawable, public sb::Transformable {
+class ParticleSystem2 : public sb::Drawable, public sb::Transformable {
 	struct Particle {
 		float lifetime = 0;
 		float timeToLive;
@@ -258,8 +259,8 @@ protected:
 		transformParticles(ds);
 	}
 public:
-	ParticleSystem()
-		: _scaleRange(1, 1), _lifetimeRange(2, 2), _rotationRange(0, 2 * sb::Pi),
+	ParticleSystem2()
+		: _lifetimeRange(2, 2), _rotationRange(0, 2 * sb::Pi), _scaleRange(1, 1),
 		_scaleOverLifetime(Tween::None(1)), _emissionInterval(0.1f), _timeSinceLastEmission(0)
 	{
 	}
@@ -288,17 +289,17 @@ public:
 	}
 };
 
-void initParticleSystem2(ParticleSystem& system) {
+void initParticleSystem2(ParticleSystem2& system) {
 	system.setRotationRange(0, 360 * sb::ToRadian);
 	system.setSpeedRange(0.1f, 0.5f);
 	system.setScaleRange(0.05f, 0.1f);
-	Tween sizeOverLifetime = Tween().bounceOut(0, 1, 0.5f).quintInOut(1, 0, 0.5f);
+	Tween sizeOverLifetime = Tween().bounceOut(0, 1, 0.2f).quintInOut(1, 0, 0.8f);
 	system.setScaleOverLifetime(sizeOverLifetime);
 }
 
 void demo2() {
 	sb::Window window;
-	ParticleSystem particleSystem;
+	ParticleSystem2 particleSystem;
 
 	window.getCamera().setWidth(1.5f);
 	initParticleSystem2(particleSystem);
@@ -315,13 +316,179 @@ void demo2() {
 	}
 }
 
+class ParticleSystem : public sb::Drawable, public sb::Transformable {
+	struct Particle : public sb::Body {
+		float lifetime = 0;
+		float secondsSinceBirth = 0;
+		bool isActive = false;
+	};
+
+	sb::Mesh _mesh;
+	sb::Texture* _texture;
+
+	std::vector<Particle> _particles;
+	std::size_t _numActiveParticles;
+	float _secondsSinceLastEmission;
+
+	float _emissionRatePerSecond;
+	sb::Vector2f _lifetimeRange;
+	sb::Vector2f _scaleRange;
+	sb::Vector2f _speedRange;
+
+protected: 
+	static bool isParticleDead(const Particle& particle) {
+		return particle.secondsSinceBirth > particle.lifetime;
+	}
+
+	void deactivateParticleInMesh(std::size_t meshIndex) {
+		_mesh[meshIndex * 6 + 0].position = sb::Vector2f(0, 0);
+		_mesh[meshIndex * 6 + 1].position = sb::Vector2f(0, 0);
+		_mesh[meshIndex * 6 + 2].position = sb::Vector2f(0, 0);
+		_mesh[meshIndex * 6 + 3].position = sb::Vector2f(0, 0);
+		_mesh[meshIndex * 6 + 4].position = sb::Vector2f(0, 0);
+		_mesh[meshIndex * 6 + 5].position = sb::Vector2f(0, 0);
+	}
+
+	void deactivateDeadParticles() {
+		for (std::size_t i = 0; i < _particles.size(); i++) {
+			if (_particles[i].isActive && isParticleDead(_particles[i])) {
+				_particles[i].isActive = false;
+				deactivateParticleInMesh(i);
+				_numActiveParticles--;
+			}
+		}
+	}
+
+	static bool isParticleInactive(const Particle& particle) {
+		return !particle.isActive;
+	}
+
+	std::size_t findFreeIndex() {
+		std::vector<Particle>::iterator it =
+			std::find_if(_particles.begin(), _particles.end(), isParticleInactive);
+		return std::distance(_particles.begin(), it);
+	}
+
+	void initParticle(Particle& particle) {
+		particle.lifetime = sb::random(_lifetimeRange.x, _lifetimeRange.y);
+		particle.velocity = sb::random(_speedRange.x, _speedRange.y) * sb::randomOnCircle(1);
+		float scale = sb::random(_scaleRange.x, _scaleRange.y);
+		particle.setScale(scale, scale);
+		particle.isActive = true;
+	}
+
+	void emitParticle() {
+		if (_numActiveParticles == _particles.size())
+			return;
+
+		std::size_t freeIndex = findFreeIndex();
+		Particle particle;
+		initParticle(particle);
+		_particles[freeIndex] = particle;
+		_numActiveParticles++;
+	}
+
+	void emitParticles(float ds) {
+		_secondsSinceLastEmission += ds;
+		float emissionInterval = 1 / _emissionRatePerSecond;
+		while (_secondsSinceLastEmission > emissionInterval) {
+			emitParticle();
+			_secondsSinceLastEmission -= emissionInterval;
+		}
+	}
+
+	void updateParticle(Particle& particle, float ds) {
+		particle.secondsSinceBirth += ds;
+		particle.translate(ds * particle.velocity);
+	}
+
+	void updateParticles(float ds) {
+		for (std::size_t i = 0; i < _particles.size(); i++) {
+			if (_particles[i].isActive)
+				updateParticle(_particles[i], ds);
+		}
+	}
+
+	void updateParticleVertices(Particle& particle, std::size_t index) {
+		std::vector<sb::Vector2f> edges(4);
+		edges[0] = particle.getTransform() * sb::Vector2f(-0.5f, -0.5f);
+		edges[1] = particle.getTransform() * sb::Vector2f(0.5f, -0.5f);
+		edges[2] = particle.getTransform() * sb::Vector2f(-0.5f, 0.5f);
+		edges[3] = particle.getTransform() * sb::Vector2f(0.5f, 0.5f);
+
+		const sb::Color color(1, 0, 0, 1);
+		_mesh[index * 6 + 0] = sb::Vertex(edges[0], sb::Color(1, 0, 0, 1), sb::Vector2f(0, 0));
+		_mesh[index * 6 + 1] = sb::Vertex(edges[0], sb::Color(1, 0, 0, 1), sb::Vector2f(0, 0));
+		_mesh[index * 6 + 2] = sb::Vertex(edges[1], sb::Color(0, 1, 0, 1), sb::Vector2f(1, 0));
+		_mesh[index * 6 + 3] = sb::Vertex(edges[2], sb::Color(0, 0, 1, 1), sb::Vector2f(0, 1));
+		_mesh[index * 6 + 4] = sb::Vertex(edges[3], sb::Color(0, 1, 1, 1), sb::Vector2f(1, 1));
+		_mesh[index * 6 + 5] = sb::Vertex(edges[3], sb::Color(0, 1, 1, 1), sb::Vector2f(1, 1));
+	}
+
+	void updateMesh(float ds) {
+		for (std::size_t i = 0; i < _particles.size(); i++)
+			if (_particles[i].isActive)
+				updateParticleVertices(_particles[i], i);
+	}
+
+
+public:
+	ParticleSystem(std::size_t maxNumParticles)
+		: _mesh(maxNumParticles * 6, sb::PrimitiveType::TriangleStrip), _texture(NULL),
+		_particles(maxNumParticles), _numActiveParticles(0), _secondsSinceLastEmission(0),
+		_emissionRatePerSecond(1), _lifetimeRange(1, 1), _scaleRange(0.1f, 0.1f), _speedRange(1, 1)
+	{ }
+
+	inline void setEmissionRatePerSecond(float rate) { _emissionRatePerSecond = rate; }
+
+	inline void setLifetimeRange(const sb::Vector2f& lifetimeRange) { _lifetimeRange = lifetimeRange; }
+
+	inline void setScaleRange(const sb::Vector2f& scaleRange) { _scaleRange = scaleRange; }
+
+	inline void setSpeedRange(const sb::Vector2f& speedRange) { _speedRange = speedRange; }
+
+	void update(float ds) { 
+		deactivateDeadParticles();
+		emitParticles(ds);
+		updateParticles(ds);
+		updateMesh(ds);
+	}
+
+	virtual void draw(sb::DrawTarget& target, sb::DrawStates states = sb::DrawStates::getDefault()) { 
+		states.transform *= getTransform();
+		states.texture = _texture;
+		target.draw(_mesh.getVertices(), _mesh.getPrimitiveType(), states);
+	}
+};
+
+void demo3() {
+	sb::Window window;
+	ParticleSystem particleSystem(100);
+
+	window.getCamera().setWidth(2.5);
+	particleSystem.setEmissionRatePerSecond(2);
+
+	while (window.isOpen()) {
+		float ds = getDeltaSeconds();
+		sb::Input::update();
+		window.update();
+		particleSystem.update(ds);
+
+		window.clear(sb::Color(1, 1, 1, 1));
+		particleSystem.draw(window);
+		window.display();
+	}
+}
+
+
 int main() {
-	 demo2();
+	demo3();
+
+	//demo2();
 
 	//demo1();
 
 	//demo0();
 
-	std::cin.get();
 	return 0;
 }
