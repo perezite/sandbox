@@ -31,8 +31,13 @@ float computeBounceOut(float t, float b, float c, float d) {
 }
 
 float computeQuintInOut(float t, float b, float c, float d) {
-	if ((t /= d / 2) < 1) return c / 2*t*t*t*t*t + b;
-	return c / 2 * ((t -= 2)*t*t*t*t + 2) + b;
+	if ((t /= d / 2) < 1) return c / 2 * t*t*t*t*t + b;
+	t = t - 2;
+	return c / 2 * (t * t * t * t * t + 2) + b;
+}
+
+float computeLinearInOut(float t, float b, float c, float d) {
+	return c * t / d + b;
 }
 
 inline float bounceOut(float t, float t0, float t1, float from, float to) {
@@ -45,6 +50,12 @@ inline float quintInOut(float t, float t0, float t1, float from, float to) {
 	float duration = t1 - t0;
 	float time = t < t0 ? t0 : t > t1 ? t1 : t;
 	return computeQuintInOut(time - t0, from, to - from, duration);
+}
+
+inline float linearInOut(float t, float t0, float t1, float from, float to) {
+	float duration = t1 - t0;
+	float time = t < t0 ? t0 : t > t1 ? t1 : t;
+	return computeLinearInOut(time - t0, from, to - from, duration);
 }
 
 float getDeltaSeconds()
@@ -60,12 +71,11 @@ void concept0() {
 	sb::Window window;
 	sb::Quad quad;
 	
-	window.getCamera().setWidth(1.5f);
+	window.getCamera().setWidth(1.5);
 	quad.setScale(0.3f);
 
 	while (window.isOpen()) {
 		float t = getSeconds();
-		float ds = getDeltaSeconds();
 		sb::Input::update();
 		window.update();
 		float position;
@@ -81,18 +91,86 @@ void concept0() {
 	}
 }
 
+class Tween {
+	typedef float(*easingFunction)(float t, float t0, float t1, float from, float to);
+
+	struct EasingCommand {
+		float t0;
+		float t1;
+		float from;
+		float to;
+		easingFunction easing;
+
+		EasingCommand() { }
+
+		EasingCommand(float t0_, float t1_, float from_, float to_, easingFunction easing_)
+			: t0(t0_), t1(t1_), from(from_), to(to_), easing(easing_)
+		{ }
+	};
+
+	std::vector<EasingCommand> _easingCommands;
+
+protected:
+	EasingCommand getCurrentEasingCommand(float t) {
+		for (std::size_t i = 0; i < _easingCommands.size(); i++) {
+			if (t >= _easingCommands[i].t0 && t < _easingCommands[i].t1)
+				return _easingCommands[i];
+		}
+
+		SB_ERROR("this should never happend");
+		return EasingCommand();
+	}
+
+	template <easingFunction F>
+	inline void addEasing(float from, float to, float duration) {
+		float t0 = _easingCommands.empty() ? 0 : _easingCommands[_easingCommands.size() - 1].t1;
+		float t1 = t0 + duration;
+		_easingCommands.push_back(EasingCommand(t0, t1, from, to, F));
+	}
+
+public:
+	Tween()
+	{ }
+
+	float value(float t) {
+		if (_easingCommands.empty())
+			return 0;
+
+		if (t < _easingCommands[0].t0)
+			return _easingCommands[0].from;
+
+		if (t >= _easingCommands[_easingCommands.size() - 1].t1)
+			return _easingCommands[_easingCommands.size() - 1].to;
+
+		EasingCommand easingCommand = getCurrentEasingCommand(t);
+		return easingCommand.easing(t, easingCommand.t0, easingCommand.t1, easingCommand.from, easingCommand.to);
+	}
+
+	Tween& bounceOut(float from, float to, float duration) {
+		addEasing<::bounceOut>(from, to, duration);
+		return *this;
+	}
+
+	Tween& quintInOut(float from, float to, float duration) {
+		addEasing<::quintInOut>(from, to, duration);
+		return *this;
+	}
+};
+
 void concept1() {
 	sb::Window window;
 	sb::Quad quad;
 
-	// sb::Tween tween = sb::Tween::bounceIn(p1 = 20, p2 = 30, duration = 2).linearOut(p1 = 5, p2 = 12, duration = 0.5f);
+	window.getCamera().setWidth(1.5f);
+	Tween tween = Tween().bounceOut(-0.4f, 0.4f, 2).quintInOut(0.4f, -0.5f, 3);
 	quad.setScale(0.3f);
 
 	while (window.isOpen()) {
+		float t = getSeconds();
 		sb::Input::update();
 		window.update();
-		// quad.setPosition(sb::Vector2f(tween[0.1f], tween[0.1f]));
-		// quad.setPosition(sb::Vector2f(tween.value(0.1f), tween.value(0.1f));
+		sb::Vector2f position = sb::Vector2f(tween.value(t), tween.value(t));
+		quad.setPosition(position);
 
 		window.clear(sb::Color(1, 1, 1, 1));
 		window.draw(quad);
@@ -138,9 +216,9 @@ void concept2() {
 int main() {
 	// concept2();
 
-	// concept1();
+	 concept1();
 
-	concept0();
+	//concept0();
 
 	std::cin.get();
 	return 0;
