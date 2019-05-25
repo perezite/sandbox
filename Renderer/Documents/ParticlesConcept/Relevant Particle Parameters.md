@@ -4,9 +4,9 @@ The following particle parameters are currently relevant for me:
 * Prewarm: boolean (only applicable if Looping = true) (OK)
 * (Start) Lifetime (Lifetime of one particle, equals Duration): float (OK)
 * Start Speed: (float, float) (OK)
-* Start rotation: (float, float)
-* Start Size: (float, float)
-* Start color
+* Start rotation: (float, float) (OK)
+* Start Size: (float, float) (OK)
+* Start color: (Color, Color) (wip)
 * Simulation Space: World / Local
 * Max Particles: int (OK)
 * Emission Rate (Num. particles per second): int (OK)
@@ -16,7 +16,6 @@ The following particle parameters are currently relevant for me:
 * Dampening coefficient: float
 * Color over lifetime: gradient
 * Size over lifetime: tween / spline
-* Rotation over lifetime: tween / spline
-* Angular velocity: float
+* Angular velocity: float (OK)
 * Inherit velocity (inertia relative to the parent transform in percent): float
 * Sub-emitter on Death: function

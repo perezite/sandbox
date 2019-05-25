@@ -8,7 +8,7 @@ namespace sb
 	struct Vector2
 	{
 		inline Vector2()
-			: x(0), y(0)
+			: x(T()), y(T())
 		{ }
 
 		inline Vector2(T s_)
