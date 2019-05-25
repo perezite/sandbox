@@ -43,7 +43,7 @@ float computeBounceOut(float t, float b, float c, float d) {
 float computeQuintInOut(float t, float b, float c, float d) {
 	if ((t /= d / 2) < 1) return c / 2 * t*t*t*t*t + b;
 	t = t - 2;
-	return c / 2 * (t * t * t * t * t + 2) + b;
+	return c / 2 * (t*t*t*t*t + 2) + b;
 }
 
 float computeLinearInOut(float t, float b, float c, float d) {
@@ -329,11 +329,13 @@ class ParticleSystem : public sb::Drawable, public sb::Transformable {
 	std::vector<Particle> _particles;
 	std::size_t _numActiveParticles;
 	float _secondsSinceLastEmission;
+	float _secondsSinceBirth;
 
+	float _lifetime;
 	float _emissionRatePerSecond;
-	sb::Vector2f _lifetimeRange;
-	sb::Vector2f _scaleRange;
-	sb::Vector2f _speedRange;
+	sb::Vector2f _particleLifetimeRange;
+	sb::Vector2f _particleSizeRange;
+	sb::Vector2f _particleSpeedRange;
 
 protected: 
 	static bool isParticleDead(const Particle& particle) {
@@ -363,17 +365,17 @@ protected:
 		return !particle.isActive;
 	}
 
-	std::size_t findFreeIndex() {
+	std::size_t findAvailableIndex() {
 		std::vector<Particle>::iterator it =
 			std::find_if(_particles.begin(), _particles.end(), isParticleInactive);
 		return std::distance(_particles.begin(), it);
 	}
 
 	void initParticle(Particle& particle) {
-		particle.lifetime = sb::random(_lifetimeRange.x, _lifetimeRange.y);
-		particle.velocity = sb::random(_speedRange.x, _speedRange.y) * sb::randomOnCircle(1);
-		float scale = sb::random(_scaleRange.x, _scaleRange.y);
-		particle.setScale(scale, scale);
+		particle.lifetime = sb::random(_particleLifetimeRange.x, _particleLifetimeRange.y);
+		particle.velocity = sb::random(_particleSpeedRange.x, _particleSpeedRange.y) * sb::randomOnCircle(1);
+		float size = sb::random(_particleSizeRange.x, _particleSizeRange.y);
+		particle.setScale(size, size);
 		particle.isActive = true;
 	}
 
@@ -381,10 +383,10 @@ protected:
 		if (_numActiveParticles == _particles.size())
 			return;
 
-		std::size_t freeIndex = findFreeIndex();
+		std::size_t availableIndex = findAvailableIndex();
 		Particle particle;
 		initParticle(particle);
-		_particles[freeIndex] = particle;
+		_particles[availableIndex] = particle;
 		_numActiveParticles++;
 	}
 
@@ -426,38 +428,51 @@ protected:
 	}
 
 	void updateMesh(float ds) {
-		for (std::size_t i = 0; i < _particles.size(); i++)
+		for (std::size_t i = 0; i < _particles.size(); i++) {
 			if (_particles[i].isActive)
 				updateParticleVertices(_particles[i], i);
+		}
 	}
-
 
 public:
 	ParticleSystem(std::size_t maxNumParticles)
 		: _mesh(maxNumParticles * 6, sb::PrimitiveType::TriangleStrip), _texture(NULL),
 		_particles(maxNumParticles), _numActiveParticles(0), _secondsSinceLastEmission(0),
-		_emissionRatePerSecond(1), _lifetimeRange(1, 1), _scaleRange(0.1f, 0.1f), _speedRange(1, 1)
+		_lifetime(-1), _emissionRatePerSecond(1), _particleLifetimeRange(1, 1), _particleSizeRange(0.1f, 0.1f), 
+		_particleSpeedRange(1, 1)
 	{ }
+
+	inline void setLifetime(float lifetime) { _lifetime = lifetime; }
 
 	inline void setEmissionRatePerSecond(float rate) { _emissionRatePerSecond = rate; }
 
-	inline void setLifetimeRange(const sb::Vector2f& lifetimeRange) { _lifetimeRange = lifetimeRange; }
+	inline void setParticleLifetimeRange(const sb::Vector2f& lifetimeRange) { _particleLifetimeRange = lifetimeRange; }
 
-	inline void setScaleRange(const sb::Vector2f& scaleRange) { _scaleRange = scaleRange; }
+	inline void setParticleSizeRange(const sb::Vector2f& sizeRange) { _particleSizeRange = sizeRange; }
 
-	inline void setSpeedRange(const sb::Vector2f& speedRange) { _speedRange = speedRange; }
+	inline void setParticleSpeedRange(const sb::Vector2f& speedRange) { _particleSpeedRange = speedRange; }
+
+	bool isAlive() { 
+		return _lifetime < 0 || _secondsSinceBirth < _lifetime; 
+	}
 
 	void update(float ds) { 
+		_secondsSinceBirth += ds;
+
 		deactivateDeadParticles();
-		emitParticles(ds);
-		updateParticles(ds);
-		updateMesh(ds);
+		if (isAlive()) {	
+			emitParticles(ds);
+			updateParticles(ds);
+			updateMesh(ds);
+		}
 	}
 
 	virtual void draw(sb::DrawTarget& target, sb::DrawStates states = sb::DrawStates::getDefault()) { 
-		states.transform *= getTransform();
-		states.texture = _texture;
-		target.draw(_mesh.getVertices(), _mesh.getPrimitiveType(), states);
+		if (isAlive()) {
+			states.transform *= getTransform();
+			states.texture = _texture;
+			target.draw(_mesh.getVertices(), _mesh.getPrimitiveType(), states);
+		}
 	}
 };
 
@@ -467,12 +482,14 @@ void demo3() {
 
 	window.getCamera().setWidth(2.5);
 	particleSystem.setEmissionRatePerSecond(2);
+	particleSystem.setLifetime(2);
 
 	while (window.isOpen()) {
 		float ds = getDeltaSeconds();
 		sb::Input::update();
 		window.update();
 		particleSystem.update(ds);
+		std::cout << particleSystem.isAlive() << std::endl;
 
 		window.clear(sb::Color(1, 1, 1, 1));
 		particleSystem.draw(window);

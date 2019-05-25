@@ -1,5 +1,5 @@
 The following particle parameters are currently relevant for me:
-* Duration (Lifetime of one cycle): float
+* Duration (Lifetime of one cycle): float (OK)
 * Looping: boolean
 * Prewarm: boolean (only applicable if Looping = true)
 * (Start) Lifetime (Lifetime of one particle, equals Duration): float (OK)
