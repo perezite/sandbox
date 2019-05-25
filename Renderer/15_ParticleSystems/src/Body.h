@@ -6,5 +6,7 @@ namespace sb
 	struct Body : public Transformable 
 	{
 		sb::Vector2f velocity;
+
+		float angularVelocity = 0;
 	};
 }

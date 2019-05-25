@@ -1,7 +1,7 @@
 The following particle parameters are currently relevant for me:
 * Duration (Lifetime of one cycle): float (OK)
 * Looping: boolean (OK)
-* Prewarm: boolean (only applicable if Looping = true)
+* Prewarm: boolean (only applicable if Looping = true) (OK)
 * (Start) Lifetime (Lifetime of one particle, equals Duration): float (OK)
 * Start Speed: (float, float) (OK)
 * Start rotation: (float, float)
@@ -16,6 +16,7 @@ The following particle parameters are currently relevant for me:
 * Dampening coefficient: float
 * Color over lifetime: gradient
 * Size over lifetime: tween / spline
+* Rotation over lifetime: tween / spline
 * Angular velocity: float
 * Inherit velocity (inertia relative to the parent transform in percent): float
 * Sub-emitter on Death: function

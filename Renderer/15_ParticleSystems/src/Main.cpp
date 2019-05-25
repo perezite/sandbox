@@ -336,7 +336,9 @@ class ParticleSystem : public sb::Drawable, public sb::Transformable {
 	float _emissionRatePerSecond;
 	sb::Vector2f _particleLifetimeRange;
 	sb::Vector2f _particleSizeRange;
+	sb::Vector2f _particleRotationRange;
 	sb::Vector2f _particleSpeedRange;
+	sb::Vector2f _particleAngularVelocityRange;
 
 protected: 
 	static bool isParticleDead(const Particle& particle) {
@@ -375,8 +377,10 @@ protected:
 	void initParticle(Particle& particle) {
 		particle.lifetime = sb::random(_particleLifetimeRange.x, _particleLifetimeRange.y);
 		particle.velocity = sb::random(_particleSpeedRange.x, _particleSpeedRange.y) * sb::randomOnCircle(1);
+		particle.angularVelocity = sb::random(_particleAngularVelocityRange.x, _particleAngularVelocityRange.y);
 		float size = sb::random(_particleSizeRange.x, _particleSizeRange.y);
 		particle.setScale(size, size);
+		particle.setRotation(sb::random(_particleRotationRange.x, _particleRotationRange.y));
 		particle.isActive = true;
 	}
 
@@ -403,6 +407,7 @@ protected:
 	void updateParticle(Particle& particle, float ds) {
 		particle.secondsSinceBirth += ds;
 		particle.translate(ds * particle.velocity);
+		particle.rotate(ds * particle.angularVelocity);
 	}
 
 	void updateParticles(float ds) {
@@ -440,7 +445,7 @@ public:
 		: _mesh(maxNumParticles * 6, sb::PrimitiveType::TriangleStrip), _texture(NULL),
 		_particles(maxNumParticles), _numActiveParticles(0), _secondsSinceLastEmission(0),
 		_canDie(false) ,_lifetime(1), _emissionRatePerSecond(1), _particleLifetimeRange(1, 1), 
-		_particleSizeRange(0.1f, 0.1f), _particleSpeedRange(1, 1)
+		_particleSizeRange(0.1f, 0.1f), _particleRotationRange(0, 0), _particleSpeedRange(1, 1)
 	{ }
 
 	inline void setEmissionRatePerSecond(float rate) { _emissionRatePerSecond = rate; }
@@ -449,7 +454,11 @@ public:
 
 	inline void setParticleSizeRange(const sb::Vector2f& sizeRange) { _particleSizeRange = sizeRange; }
 
+	inline void setParticleRotationRange(const sb::Vector2f& rotationRange) { _particleRotationRange = rotationRange; }
+
 	inline void setParticleSpeedRange(const sb::Vector2f& speedRange) { _particleSpeedRange = speedRange; }
+
+	inline void setParticleAngularVelocityRange(const sb::Vector2f& range) { _particleAngularVelocityRange = range; }
 
 	inline void canDie(bool canDie) { _canDie = canDie; }
 
@@ -487,8 +496,10 @@ void demo3() {
 	ParticleSystem particleSystem(100);
 
 	window.getCamera().setWidth(2.5);
-	particleSystem.setParticleSpeedRange(sb::Vector2f(0.5f, 1));
 	particleSystem.setEmissionRatePerSecond(100);
+	particleSystem.setParticleSpeedRange(sb::Vector2f(0.5f, 1));
+	particleSystem.setParticleRotationRange(sb::Vector2f(0, 2 * sb::Pi));
+	particleSystem.setParticleAngularVelocityRange(sb::Vector2f(-4, 4));
 
 	while (window.isOpen()) {
 		float ds = getDeltaSeconds();
