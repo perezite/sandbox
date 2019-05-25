@@ -324,10 +324,21 @@ class ParticleSystem : public sb::Drawable, public sb::Transformable {
 		bool isActive = false;
 	};
 
+	struct Burst {
+		std::size_t numParticles;
+		float emissionTime;
+		bool emitted = false;
+
+		Burst(float emissionTime_, std::size_t numParticles_) 
+			: emissionTime(emissionTime_), numParticles(numParticles_)
+		{ }
+	};
+
 	sb::Mesh _mesh;
 	sb::Texture* _texture;
 
 	std::vector<Particle> _particles;
+	std::vector<Burst> _bursts;
 	std::size_t _numActiveParticles;
 	float _secondsSinceLastEmission;
 	float _secondsSinceBirth;
@@ -412,6 +423,20 @@ protected:
 		}
 	}
 
+	void emitBurst(Burst& burst) {
+		for (std::size_t i = 0; i < burst.numParticles; i++) 
+			emitParticle();
+
+		burst.emitted = true;
+	}
+
+	void emitBursts(float ds) {
+		for (std::size_t i = 0; i < _bursts.size(); i++) {
+			if (!_bursts[i].emitted && _secondsSinceBirth >= _bursts[i].emissionTime)
+				emitBurst(_bursts[i]);
+		}
+	}
+
 	void updateParticle(Particle& particle, float ds) {
 		particle.secondsSinceBirth += ds;
 		particle.translate(ds * particle.velocity);
@@ -470,6 +495,10 @@ public:
 
 	inline void setParticleAngularVelocityRange(const sb::Vector2f& range) { _particleAngularVelocityRange = range; }
 
+	void addBurst(float emissionTime, std::size_t _numParticles) {
+		_bursts.emplace_back(emissionTime, _numParticles);
+	}
+
 	void setParticleVertexColor(std::size_t index, const sb::Color& color) {
 		SB_ERROR_IF(index > 4, "Vertex index out of range");
 		_particleVertexColors[index] = color;
@@ -496,6 +525,7 @@ public:
 		deactivateDeadParticles();
 		if (isAlive()) {	
 			emitParticles(ds);
+			emitBursts(ds);
 			updateParticles(ds);
 			updateMesh(ds);
 		}
@@ -510,12 +540,15 @@ public:
 	}
 };
 
-void init3(ParticleSystem& system) {
-	system.setEmissionRatePerSecond(100);
+void init4(ParticleSystem& system) {
+	system.setEmissionRatePerSecond(2);
 	system.setParticleSizeRange(sb::Vector2f(0.03f, 0.1f));
 	system.setParticleSpeedRange(sb::Vector2f(0.5f, 1));
 	system.setParticleRotationRange(sb::Vector2f(0, 2 * sb::Pi));
 	system.setParticleAngularVelocityRange(sb::Vector2f(-4, 4));
+	system.addBurst(1, 100);
+	system.addBurst(2, 100);
+
 
 	system.setParticleVertexColor(0, sb::Color(1, 0, 0, 0.9f));
 	system.setParticleVertexColor(1, sb::Color(0, 1, 0, 0.9f));
@@ -528,12 +561,12 @@ void printStats() {
 	sb::Renderer::resetStatistics();
 }
 
-void demo3() {
+void demo4() {
 	sb::Window window;
-	ParticleSystem particleSystem(100);
+	ParticleSystem particleSystem(500);
 
 	window.getCamera().setWidth(2.5);
-	init3(particleSystem);
+	init4(particleSystem);
 
 	while (window.isOpen()) {
 		float ds = getDeltaSeconds();
@@ -549,7 +582,40 @@ void demo3() {
 	}
 }
 
+sb::Vector2f randomInsideRectangle(const sb::Vector2f& bottomLeft, const sb::Vector2f& topRight) {
+	float x = sb::random(bottomLeft.x, topRight.x);
+	float y = sb::random(bottomLeft.y, topRight.y);
+	return sb::Vector2f(x, y);
+}
+
+void sampleRectangle(sb::DrawTarget& target, const sb::Vector2f& bottomLeft, const sb::Vector2f& topRight, sb::Mesh& result) {
+	for (std::size_t i = 0; i < result.getVertexCount(); i++) {
+		const sb::Vector2f position = randomInsideRectangle(bottomLeft, topRight);
+		result[i] = sb::Vertex(position, sb::Color(1, 0, 0, 1));
+	}
+}
+
+void demo3() {
+	sb::Window window;
+
+	sb::Mesh sample(2500, sb::PrimitiveType::Points);
+	sampleRectangle(window, sb::Vector2f(-0.3f, -0.3f), sb::Vector2f(0.3f, 0.3f), sample);
+
+	while (window.isOpen()) {
+		float ds = getDeltaSeconds();
+		sb::Input::update();
+		window.update();
+
+		window.clear(sb::Color(1, 1, 1, 1));
+		window.draw(sample.getVertices(), sample.getPrimitiveType());
+
+		window.display();
+	}
+}
+
 int main() {
+	//demo4();
+
 	demo3();
 
 	//demo2();
@@ -560,3 +626,9 @@ int main() {
 
 	return 0;
 }
+
+// TODO
+// 2) Draw a randomly sampled quad
+// 3) Draw a randomly sampled disk
+// 4) Draw a randomly sampled circle
+// 5) Draw a randomly sampled sector

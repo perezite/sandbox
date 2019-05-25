@@ -6,11 +6,10 @@ The following particle parameters are currently relevant for me:
 * Start Speed: (float, float) (OK)
 * Start rotation: (float, float) (OK)
 * Start Size: (float, float) (OK)
-* Start color: (Color, Color) (wip)
-* Simulation Space: World / Local
+* Start color: Color (OK)
 * Max Particles: int (OK)
 * Emission Rate (Num. particles per second): int (OK)
-* Burst (number of particles to emit at t = 0): integer
+* Burst (number of particles to emit at t = 0): integer (OK)
 * Emission Shape (Sphere / Circle / Cone Surface / Cone Volume): emission shape
 * Dampening Threshold Speed (speed at which dampening is applied): float
 * Dampening coefficient: float

@@ -40,10 +40,17 @@ namespace sb
 			return &Shader::getDefault();
 	}
 
+	inline void enablePointSize() {
+		#ifdef WIN32
+			GL_CHECK(glEnable(GL_PROGRAM_POINT_SIZE));
+		#endif
+	}
+
 	void Renderer::setup(Shader* shader, const std::vector<Vertex>& vertices, const DrawStates& states)
 	{
 		GL_CHECK(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 		GL_CHECK(glEnable(GL_BLEND));
+		enablePointSize();
 		GL_CHECK(glActiveTexture(GL_TEXTURE0));
 
 		shader->use();
@@ -80,6 +87,8 @@ namespace sb
 
 	void Renderer::drawVertices(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType)
 	{	
+
+		glLineWidth(100);
 		GL_CHECK(glDrawArrays((GLenum)primitiveType, 0, vertices.size()));
 
 		m_numDrawCalls++;
