@@ -331,6 +331,7 @@ class ParticleSystem : public sb::Drawable, public sb::Transformable {
 	float _secondsSinceLastEmission;
 	float _secondsSinceBirth;
 
+	bool _canDie;
 	float _lifetime;
 	float _emissionRatePerSecond;
 	sb::Vector2f _particleLifetimeRange;
@@ -438,11 +439,9 @@ public:
 	ParticleSystem(std::size_t maxNumParticles)
 		: _mesh(maxNumParticles * 6, sb::PrimitiveType::TriangleStrip), _texture(NULL),
 		_particles(maxNumParticles), _numActiveParticles(0), _secondsSinceLastEmission(0),
-		_lifetime(-1), _emissionRatePerSecond(1), _particleLifetimeRange(1, 1), _particleSizeRange(0.1f, 0.1f), 
-		_particleSpeedRange(1, 1)
+		_canDie(false) ,_lifetime(1), _emissionRatePerSecond(1), _particleLifetimeRange(1, 1), 
+		_particleSizeRange(0.1f, 0.1f), _particleSpeedRange(1, 1)
 	{ }
-
-	inline void setLifetime(float lifetime) { _lifetime = lifetime; }
 
 	inline void setEmissionRatePerSecond(float rate) { _emissionRatePerSecond = rate; }
 
@@ -452,8 +451,15 @@ public:
 
 	inline void setParticleSpeedRange(const sb::Vector2f& speedRange) { _particleSpeedRange = speedRange; }
 
+	inline void canDie(bool canDie) { _canDie = canDie; }
+
+	void setLifetime(float lifetime) { 
+		_canDie = true;
+		_lifetime = lifetime; 
+	}
+	
 	bool isAlive() { 
-		return _lifetime < 0 || _secondsSinceBirth < _lifetime; 
+		return !_canDie || _secondsSinceBirth < _lifetime; 
 	}
 
 	void update(float ds) { 
@@ -481,15 +487,14 @@ void demo3() {
 	ParticleSystem particleSystem(100);
 
 	window.getCamera().setWidth(2.5);
-	particleSystem.setEmissionRatePerSecond(2);
-	particleSystem.setLifetime(2);
+	particleSystem.setParticleSpeedRange(sb::Vector2f(0.5f, 1));
+	particleSystem.setEmissionRatePerSecond(100);
 
 	while (window.isOpen()) {
 		float ds = getDeltaSeconds();
 		sb::Input::update();
 		window.update();
 		particleSystem.update(ds);
-		std::cout << particleSystem.isAlive() << std::endl;
 
 		window.clear(sb::Color(1, 1, 1, 1));
 		particleSystem.draw(window);
