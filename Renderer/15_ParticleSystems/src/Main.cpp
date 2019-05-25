@@ -320,7 +320,7 @@ class ParticleSystem : public sb::Drawable, public sb::Transformable {
 	struct Particle : public sb::Body {
 		float lifetime = 0;
 		float secondsSinceBirth = 0;
-		sb::Color color;
+		std::vector<sb::Color> vertexColors = std::vector<sb::Color>(4);
 		bool isActive = false;
 	};
 
@@ -340,7 +340,7 @@ class ParticleSystem : public sb::Drawable, public sb::Transformable {
 	sb::Vector2f _particleRotationRange;
 	sb::Vector2f _particleSpeedRange;
 	sb::Vector2f _particleAngularVelocityRange;
-	sb::Color _particleColor;
+	std::vector<sb::Color> _particleVertexColors;
 
 protected: 
 	static bool isParticleDead(const Particle& particle) {
@@ -388,7 +388,7 @@ protected:
 		float size = sb::random(_particleSizeRange.x, _particleSizeRange.y);
 		particle.setScale(size, size);
 		particle.setRotation(sb::random(_particleRotationRange.x, _particleRotationRange.y));
-		particle.color = _particleColor;
+		particle.vertexColors = _particleVertexColors;
 		particle.isActive = true;
 	}
 
@@ -433,12 +433,12 @@ protected:
 		edges[3] = particle.getTransform() * sb::Vector2f(0.5f, 0.5f);
 
 		const sb::Color color(1, 0, 0, 1);
-		_mesh[index * 6 + 0] = sb::Vertex(edges[0], particle.color, sb::Vector2f(0, 0));
-		_mesh[index * 6 + 1] = sb::Vertex(edges[0], particle.color, sb::Vector2f(0, 0));
-		_mesh[index * 6 + 2] = sb::Vertex(edges[1], particle.color, sb::Vector2f(1, 0));
-		_mesh[index * 6 + 3] = sb::Vertex(edges[2], particle.color, sb::Vector2f(0, 1));
-		_mesh[index * 6 + 4] = sb::Vertex(edges[3], particle.color, sb::Vector2f(1, 1));
-		_mesh[index * 6 + 5] = sb::Vertex(edges[3], particle.color, sb::Vector2f(1, 1));
+		_mesh[index * 6 + 0] = sb::Vertex(edges[0], particle.vertexColors[0], sb::Vector2f(0, 0));
+		_mesh[index * 6 + 1] = sb::Vertex(edges[0], particle.vertexColors[0], sb::Vector2f(0, 0));
+		_mesh[index * 6 + 2] = sb::Vertex(edges[1], particle.vertexColors[1], sb::Vector2f(1, 0));
+		_mesh[index * 6 + 3] = sb::Vertex(edges[2], particle.vertexColors[2], sb::Vector2f(0, 1));
+		_mesh[index * 6 + 4] = sb::Vertex(edges[3], particle.vertexColors[3], sb::Vector2f(1, 1));
+		_mesh[index * 6 + 5] = sb::Vertex(edges[3], particle.vertexColors[3], sb::Vector2f(1, 1));
 	}
 
 	void updateMesh(float ds) {
@@ -453,7 +453,8 @@ public:
 		: _mesh(maxNumParticles * 6, sb::PrimitiveType::TriangleStrip), _texture(NULL),
 		_particles(maxNumParticles), _numActiveParticles(0), _secondsSinceLastEmission(0),
 		_canDie(false) ,_lifetime(1), _emissionRatePerSecond(1), _particleLifetimeRange(1, 1), 
-		_particleSizeRange(0.1f, 0.1f), _particleRotationRange(0, 0), _particleSpeedRange(1, 1)
+		_particleSizeRange(0.1f, 0.1f), _particleRotationRange(0, 0), _particleSpeedRange(1, 1),
+		_particleVertexColors(4)
 	{ 
 	}
 
@@ -469,7 +470,14 @@ public:
 
 	inline void setParticleAngularVelocityRange(const sb::Vector2f& range) { _particleAngularVelocityRange = range; }
 
-	inline void setParticleColor(const sb::Color& color) { _particleColor = color; }
+	void setParticleVertexColor(std::size_t index, const sb::Color& color) {
+		SB_ERROR_IF(index > 4, "Vertex index out of range");
+		_particleVertexColors[index] = color;
+	}
+
+	void setParticleColor(const sb::Color& color) { 
+		std::fill(_particleVertexColors.begin(), _particleVertexColors.end(), color); 
+	}
 
 	inline void canDie(bool canDie) { _canDie = canDie; }
 
@@ -502,17 +510,30 @@ public:
 	}
 };
 
+void init3(ParticleSystem& system) {
+	system.setEmissionRatePerSecond(100);
+	system.setParticleSizeRange(sb::Vector2f(0.03f, 0.1f));
+	system.setParticleSpeedRange(sb::Vector2f(0.5f, 1));
+	system.setParticleRotationRange(sb::Vector2f(0, 2 * sb::Pi));
+	system.setParticleAngularVelocityRange(sb::Vector2f(-4, 4));
+
+	system.setParticleVertexColor(0, sb::Color(1, 0, 0, 0.9f));
+	system.setParticleVertexColor(1, sb::Color(0, 1, 0, 0.9f));
+	system.setParticleVertexColor(2, sb::Color(0, 0, 1, 0.9f));
+	system.setParticleVertexColor(3, sb::Color(0, 1, 1, 0));
+}
+
+void printStats() {
+	SB_MESSAGE(sb::Renderer::getNumDrawCalls());
+	sb::Renderer::resetStatistics();
+}
+
 void demo3() {
 	sb::Window window;
 	ParticleSystem particleSystem(100);
 
 	window.getCamera().setWidth(2.5);
-	particleSystem.setEmissionRatePerSecond(100);
-	particleSystem.setParticleSizeRange(sb::Vector2f(0.03f, 0.1f));
-	particleSystem.setParticleSpeedRange(sb::Vector2f(0.5f, 1));
-	particleSystem.setParticleRotationRange(sb::Vector2f(0, 2 * sb::Pi));
-	particleSystem.setParticleAngularVelocityRange(sb::Vector2f(-4, 4));
-	particleSystem.setParticleColor(sb::Color(0, 0, 1, 0.8f));
+	init3(particleSystem);
 
 	while (window.isOpen()) {
 		float ds = getDeltaSeconds();
@@ -523,9 +544,10 @@ void demo3() {
 		window.clear(sb::Color(1, 1, 1, 1));
 		particleSystem.draw(window);
 		window.display();
+
+		printStats();
 	}
 }
-
 
 int main() {
 	demo3();
