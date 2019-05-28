@@ -710,9 +710,3 @@ int main() {
 
 	return 0;
 }
-
-// TODO
-// 2) Draw a randomly sampled quad
-// 3) Draw a randomly sampled disk
-// 4) Draw a randomly sampled circle
-// 5) Draw a randomly sampled sector
