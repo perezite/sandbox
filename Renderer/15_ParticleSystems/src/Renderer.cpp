@@ -87,8 +87,6 @@ namespace sb
 
 	void Renderer::drawVertices(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType)
 	{	
-
-		glLineWidth(100);
 		GL_CHECK(glDrawArrays((GLenum)primitiveType, 0, vertices.size()));
 
 		m_numDrawCalls++;

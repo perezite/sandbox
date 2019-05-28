@@ -163,7 +163,7 @@ namespace sb
 			"{																						\n"
 			"	transformedPosition = transform * vec3(position.x, position.y, 1);					\n"
 			"	gl_Position = vec4(transformedPosition.x, transformedPosition.y, 0, 1 );			\n"
-			"	gl_PointSize = 3.0f;																\n"
+			"	gl_PointSize = 2.0f;																\n"
 			"	v_color = color;																	\n"
 			"}																						\n";
 	}
@@ -194,7 +194,7 @@ namespace sb
 			"{																						\n"
 			"	transformedPosition = transform * vec3(position.x, position.y, 1);					\n"
 			"	gl_Position = vec4(transformedPosition.x, transformedPosition.y, 0, 1);				\n"
-			"	gl_PointSize = 3.0f;																\n"
+			"	gl_PointSize = 2.0f;																\n"
 			"	v_color = color;																	\n"
 			"	v_texCoords = texCoords;															\n"
 			"}																						\n";

@@ -582,15 +582,28 @@ void demo4() {
 	}
 }
 
-sb::Vector2f randomInsideRectangle(const sb::Vector2f& bottomLeft, const sb::Vector2f& topRight) {
-	float x = sb::random(bottomLeft.x, topRight.x);
-	float y = sb::random(bottomLeft.y, topRight.y);
+sb::Vector2f randomInsideRectangle(float width, float height) {
+	float x = sb::random(-width / 2, width / 2);
+	float y = sb::random(-height / 2, height / 2);
 	return sb::Vector2f(x, y);
 }
 
-void sampleRectangle(sb::DrawTarget& target, const sb::Vector2f& bottomLeft, const sb::Vector2f& topRight, sb::Mesh& result) {
+void sampleRectangle(sb::DrawTarget& target, float width, float height, sb::Mesh& result) {
 	for (std::size_t i = 0; i < result.getVertexCount(); i++) {
-		const sb::Vector2f position = randomInsideRectangle(bottomLeft, topRight);
+		const sb::Vector2f position = randomInsideRectangle(width, height);
+		result[i] = sb::Vertex(position, sb::Color(1, 0, 0, 1));
+	}
+}
+
+sb::Vector2f randomInsideDisk(float innerRadius, float outerRadius, float startRadian, float endRadian) {
+	float r = sqrtf(sb::random(innerRadius * innerRadius, outerRadius * outerRadius));
+	float angle = sb::random(startRadian, endRadian);
+	return sb::Vector2f(r * cosf(angle), r * sinf(angle));
+}
+
+void sampleDisk(sb::DrawTarget& target, float innerRadius, float outerRadius, float startRadian, float endRadian, sb::Mesh& result) {
+	for (std::size_t i = 0; i < result.getVertexCount(); i++) {
+		const sb::Vector2f position = randomInsideDisk(innerRadius, outerRadius, startRadian, endRadian);
 		result[i] = sb::Vertex(position, sb::Color(1, 0, 0, 1));
 	}
 }
@@ -598,8 +611,10 @@ void sampleRectangle(sb::DrawTarget& target, const sb::Vector2f& bottomLeft, con
 void demo3() {
 	sb::Window window;
 
-	sb::Mesh sample(2500, sb::PrimitiveType::Points);
-	sampleRectangle(window, sb::Vector2f(-0.3f, -0.3f), sb::Vector2f(0.3f, 0.3f), sample);
+	sb::Mesh pointSample(2500, sb::PrimitiveType::Points);
+	// sampleRectangle(window, 0.6f, 0.6f, pointSample);
+	sampleDisk(window, 0.2f, 0.3f, 45 * sb::ToRadian, 270 * sb::ToRadian, pointSample);
+
 
 	while (window.isOpen()) {
 		float ds = getDeltaSeconds();
@@ -607,7 +622,7 @@ void demo3() {
 		window.update();
 
 		window.clear(sb::Color(1, 1, 1, 1));
-		window.draw(sample.getVertices(), sample.getPrimitiveType());
+		window.draw(pointSample.getVertices(), pointSample.getPrimitiveType());
 
 		window.display();
 	}
