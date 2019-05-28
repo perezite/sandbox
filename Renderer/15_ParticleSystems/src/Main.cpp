@@ -316,6 +316,106 @@ void demo2() {
 	}
 }
 
+sb::Vector2f randomInsideRectangle(float width, float height) {
+	float x = sb::random(-width / 2, width / 2);
+	float y = sb::random(-height / 2, height / 2);
+	return sb::Vector2f(x, y);
+}
+
+void sampleRectangle(sb::DrawTarget& target, float width, float height, sb::Mesh& result) {
+	for (std::size_t i = 0; i < result.getVertexCount(); i++) {
+		const sb::Vector2f position = randomInsideRectangle(width, height);
+		result[i] = sb::Vertex(position, sb::Color(1, 0, 0, 1));
+	}
+}
+
+sb::Vector2f randomInsideDisk(float innerRadius, float outerRadius, float startRadian, float endRadian) {
+	float r = sqrtf(sb::random(innerRadius * innerRadius, outerRadius * outerRadius));
+	float angle = sb::random(startRadian, endRadian);
+	return sb::Vector2f(r * cosf(angle), r * sinf(angle));
+}
+
+void sampleDisk(sb::DrawTarget& target, float innerRadius, float outerRadius, float startRadian, float endRadian, sb::Mesh& result) {
+	for (std::size_t i = 0; i < result.getVertexCount(); i++) {
+		const sb::Vector2f position = randomInsideDisk(innerRadius, outerRadius, startRadian, endRadian);
+		result[i] = sb::Vertex(position, sb::Color(1, 0, 0, 1));
+	}
+}
+
+void demo3() {
+	sb::Window window;
+
+	sb::Mesh pointSample(2500, sb::PrimitiveType::Points);
+	sampleDisk(window, 0.2f, 0.3f, 45 * sb::ToRadian, 270 * sb::ToRadian, pointSample);
+
+
+	while (window.isOpen()) {
+		sb::Input::update();
+		window.update();
+
+		window.clear(sb::Color(1, 1, 1, 1));
+		window.draw(pointSample.getVertices(), pointSample.getPrimitiveType());
+
+		window.display();
+	}
+}
+
+class Shape {
+public:
+	virtual ~Shape() {}
+
+	virtual sb::Vector2f random() const = 0;
+};
+
+class Disk : public Shape {
+	float _innerRadius;
+	float _outerRadius;
+	float _startRadian;
+	float _endRadian;
+
+public:
+	Disk(float outerRadius)
+		: _innerRadius(0), _outerRadius(outerRadius), _startRadian(0), _endRadian(2 * sb::Pi)
+	{ }
+
+	Disk(float outerRadius, float startRadian, float endRadian)
+		: _innerRadius(0), _outerRadius(outerRadius), _startRadian(startRadian), _endRadian(endRadian)
+	{ }
+
+	Disk(float innerRadius, float outerRadius, float startRadian, float endRadian)
+		: _innerRadius(innerRadius), _outerRadius(outerRadius), _startRadian(startRadian), _endRadian(endRadian)
+	{ }
+
+	virtual sb::Vector2f random() const {
+		float r = sqrtf(sb::random(_innerRadius * _innerRadius, _outerRadius * _outerRadius));
+		float angle = sb::random(_startRadian, _endRadian);
+		return sb::Vector2f(r * cosf(angle), r * sinf(angle));
+	}
+};
+
+void sample(const Shape& shape, sb::Mesh& result) {
+	for (std::size_t i = 0; i < result.getVertexCount(); i++)
+		result[i] = sb::Vertex(shape.random(), sb::Color(1, 0, 0, 1));
+}
+
+void demo4() {
+	sb::Window window;
+
+	sb::Mesh pointSample(2500, sb::PrimitiveType::Points);
+	Disk disk(0.1f, 0.3f, 45 * sb::ToRadian, 270 * sb::ToRadian);
+	sample(disk, pointSample);
+
+	while (window.isOpen()) {
+		sb::Input::update();
+		window.update();
+
+		window.clear(sb::Color(1, 1, 1, 1));
+		window.draw(pointSample.getVertices(), pointSample.getPrimitiveType());
+
+		window.display();
+	}
+}
+
 class ParticleSystem : public sb::Drawable, public sb::Transformable {
 	struct Particle : public sb::Body {
 		float lifetime = 0;
@@ -330,7 +430,7 @@ class ParticleSystem : public sb::Drawable, public sb::Transformable {
 		bool emitted = false;
 
 		Burst(float emissionTime_, std::size_t numParticles_) 
-			: emissionTime(emissionTime_), numParticles(numParticles_)
+			: numParticles(numParticles_), emissionTime(emissionTime_)
 		{ }
 	};
 
@@ -352,6 +452,7 @@ class ParticleSystem : public sb::Drawable, public sb::Transformable {
 	sb::Vector2f _particleSpeedRange;
 	sb::Vector2f _particleAngularVelocityRange;
 	std::vector<sb::Color> _particleVertexColors;
+	Shape* _emissionShape;
 
 protected: 
 	static bool isParticleDead(const Particle& particle) {
@@ -397,6 +498,7 @@ protected:
 		particle.velocity = sb::random(_particleSpeedRange.x, _particleSpeedRange.y) * sb::randomOnCircle(1);
 		particle.angularVelocity = sb::random(_particleAngularVelocityRange.x, _particleAngularVelocityRange.y);
 		float size = sb::random(_particleSizeRange.x, _particleSizeRange.y);
+		particle.setPosition(_emissionShape->random());
 		particle.setScale(size, size);
 		particle.setRotation(sb::random(_particleRotationRange.x, _particleRotationRange.y));
 		particle.vertexColors = _particleVertexColors;
@@ -479,8 +581,11 @@ public:
 		_particles(maxNumParticles), _numActiveParticles(0), _secondsSinceLastEmission(0),
 		_canDie(false) ,_lifetime(1), _emissionRatePerSecond(1), _particleLifetimeRange(1, 1), 
 		_particleSizeRange(0.1f, 0.1f), _particleRotationRange(0, 0), _particleSpeedRange(1, 1),
-		_particleVertexColors(4)
-	{ 
+		_particleVertexColors(4), _emissionShape(new Disk(0))
+	{ }
+
+	virtual ~ParticleSystem() {
+		delete _emissionShape;
 	}
 
 	inline void setEmissionRatePerSecond(float rate) { _emissionRatePerSecond = rate; }
@@ -506,6 +611,12 @@ public:
 
 	void setParticleColor(const sb::Color& color) { 
 		std::fill(_particleVertexColors.begin(), _particleVertexColors.end(), color); 
+	}
+
+	template <class T>
+	void setEmissionShape(const T& shape) {
+		delete _emissionShape;
+		_emissionShape = new T(shape);
 	}
 
 	inline void canDie(bool canDie) { _canDie = canDie; }
@@ -540,15 +651,16 @@ public:
 	}
 };
 
-void init4(ParticleSystem& system) {
-	system.setEmissionRatePerSecond(2);
-	system.setParticleSizeRange(sb::Vector2f(0.03f, 0.1f));
-	system.setParticleSpeedRange(sb::Vector2f(0.5f, 1));
+void init5(ParticleSystem& system) {
+	system.setEmissionRatePerSecond(1000);
+	system.setParticleSpeedRange(sb::Vector2f(0, 0.1f));
+	system.setParticleSizeRange(sb::Vector2f(0.01f, 0.02f));
+
 	system.setParticleRotationRange(sb::Vector2f(0, 2 * sb::Pi));
 	system.setParticleAngularVelocityRange(sb::Vector2f(-4, 4));
+	system.setEmissionShape(Disk(0.2f, 0.3f, 45 * sb::ToRadian, 225 * sb::ToRadian));
 	system.addBurst(1, 100);
 	system.addBurst(2, 100);
-
 
 	system.setParticleVertexColor(0, sb::Color(1, 0, 0, 0.9f));
 	system.setParticleVertexColor(1, sb::Color(0, 1, 0, 0.9f));
@@ -561,12 +673,13 @@ void printStats() {
 	sb::Renderer::resetStatistics();
 }
 
-void demo4() {
+void demo5() {
 	sb::Window window;
 	ParticleSystem particleSystem(500);
 
 	window.getCamera().setWidth(2.5);
-	init4(particleSystem);
+	init5(particleSystem);
+	particleSystem.setScale(2);
 
 	while (window.isOpen()) {
 		float ds = getDeltaSeconds();
@@ -582,56 +695,12 @@ void demo4() {
 	}
 }
 
-sb::Vector2f randomInsideRectangle(float width, float height) {
-	float x = sb::random(-width / 2, width / 2);
-	float y = sb::random(-height / 2, height / 2);
-	return sb::Vector2f(x, y);
-}
-
-void sampleRectangle(sb::DrawTarget& target, float width, float height, sb::Mesh& result) {
-	for (std::size_t i = 0; i < result.getVertexCount(); i++) {
-		const sb::Vector2f position = randomInsideRectangle(width, height);
-		result[i] = sb::Vertex(position, sb::Color(1, 0, 0, 1));
-	}
-}
-
-sb::Vector2f randomInsideDisk(float innerRadius, float outerRadius, float startRadian, float endRadian) {
-	float r = sqrtf(sb::random(innerRadius * innerRadius, outerRadius * outerRadius));
-	float angle = sb::random(startRadian, endRadian);
-	return sb::Vector2f(r * cosf(angle), r * sinf(angle));
-}
-
-void sampleDisk(sb::DrawTarget& target, float innerRadius, float outerRadius, float startRadian, float endRadian, sb::Mesh& result) {
-	for (std::size_t i = 0; i < result.getVertexCount(); i++) {
-		const sb::Vector2f position = randomInsideDisk(innerRadius, outerRadius, startRadian, endRadian);
-		result[i] = sb::Vertex(position, sb::Color(1, 0, 0, 1));
-	}
-}
-
-void demo3() {
-	sb::Window window;
-
-	sb::Mesh pointSample(2500, sb::PrimitiveType::Points);
-	// sampleRectangle(window, 0.6f, 0.6f, pointSample);
-	sampleDisk(window, 0.2f, 0.3f, 45 * sb::ToRadian, 270 * sb::ToRadian, pointSample);
-
-
-	while (window.isOpen()) {
-		float ds = getDeltaSeconds();
-		sb::Input::update();
-		window.update();
-
-		window.clear(sb::Color(1, 1, 1, 1));
-		window.draw(pointSample.getVertices(), pointSample.getPrimitiveType());
-
-		window.display();
-	}
-}
-
 int main() {
+	demo5();
+
 	//demo4();
 
-	demo3();
+	//demo3();
 
 	//demo2();
 
