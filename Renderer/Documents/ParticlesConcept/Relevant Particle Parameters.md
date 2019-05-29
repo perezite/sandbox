@@ -10,7 +10,7 @@ The following particle parameters are currently relevant for me:
 * Max Particles: int (OK)
 * Emission Rate (Num. particles per second): int (OK)
 * Burst (number of particles to emit at t = 0): integer (OK)
-* Emission Shape: emission shape
+* Emission Shape: emission shape (OK)
 * Dampening Threshold Speed (speed at which dampening is applied): float
 * Dampening coefficient: float
 * Color over lifetime: gradient

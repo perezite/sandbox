@@ -578,7 +578,8 @@ protected:
 public:
 	ParticleSystem(std::size_t maxNumParticles)
 		: _mesh(maxNumParticles * 6, sb::PrimitiveType::TriangleStrip), _texture(NULL),
-		_particles(maxNumParticles), _numActiveParticles(0), _secondsSinceLastEmission(0),
+		_particles(maxNumParticles), _numActiveParticles(0),
+		_secondsSinceLastEmission(0), _secondsSinceBirth(0),
 		_canDie(false) ,_lifetime(1), _emissionRatePerSecond(1), _particleLifetimeRange(1, 1), 
 		_particleSizeRange(0.1f, 0.1f), _particleRotationRange(0, 0), _particleSpeedRange(1, 1),
 		_particleVertexColors(4), _emissionShape(new Disk(0))
@@ -652,15 +653,16 @@ public:
 };
 
 void init5(ParticleSystem& system) {
-	system.setEmissionRatePerSecond(1000);
-	system.setParticleSpeedRange(sb::Vector2f(0, 0.1f));
+	system.setEmissionRatePerSecond(100);
+	system.setParticleLifetimeRange(sb::Vector2f(1, 1));
+	system.setParticleSpeedRange(sb::Vector2f(0, 0.05f));
 	system.setParticleSizeRange(sb::Vector2f(0.01f, 0.02f));
 
 	system.setParticleRotationRange(sb::Vector2f(0, 2 * sb::Pi));
 	system.setParticleAngularVelocityRange(sb::Vector2f(-4, 4));
 	system.setEmissionShape(Disk(0.2f, 0.3f, 45 * sb::ToRadian, 225 * sb::ToRadian));
-	system.addBurst(1, 100);
-	system.addBurst(2, 100);
+	system.addBurst(1, 300);
+	system.addBurst(3, 600);
 
 	system.setParticleVertexColor(0, sb::Color(1, 0, 0, 0.9f));
 	system.setParticleVertexColor(1, sb::Color(0, 1, 0, 0.9f));
@@ -675,7 +677,7 @@ void printStats() {
 
 void demo5() {
 	sb::Window window;
-	ParticleSystem particleSystem(500);
+	ParticleSystem particleSystem(1000);
 
 	window.getCamera().setWidth(2.5);
 	init5(particleSystem);
@@ -691,7 +693,7 @@ void demo5() {
 		particleSystem.draw(window);
 		window.display();
 
-		printStats();
+		// printStats();
 	}
 }
 
