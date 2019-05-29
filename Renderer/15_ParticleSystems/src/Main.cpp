@@ -453,6 +453,7 @@ class ParticleSystem : public sb::Drawable, public sb::Transformable {
 	sb::Vector2f _particleAngularVelocityRange;
 	std::vector<sb::Color> _particleVertexColors;
 	Shape* _emissionShape;
+	bool _hasRandomEmissionDirection;
 
 protected: 
 	static bool isParticleDead(const Particle& particle) {
@@ -493,14 +494,17 @@ protected:
 			sb::random(left.b, right.b), sb::random(left.a, right.a));
 	}
 
+	
+
 	void initParticle(Particle& particle) {
-		particle.lifetime = sb::random(_particleLifetimeRange.x, _particleLifetimeRange.y);
-		particle.velocity = sb::random(_particleSpeedRange.x, _particleSpeedRange.y) * sb::randomOnCircle(1);
-		particle.angularVelocity = sb::random(_particleAngularVelocityRange.x, _particleAngularVelocityRange.y);
-		float size = sb::random(_particleSizeRange.x, _particleSizeRange.y);
 		particle.setPosition(_emissionShape->random());
+		float size = sb::random(_particleSizeRange.x, _particleSizeRange.y);
 		particle.setScale(size, size);
 		particle.setRotation(sb::random(_particleRotationRange.x, _particleRotationRange.y));
+		sb::Vector2f direction = _hasRandomEmissionDirection ? sb::randomOnCircle(1) : particle.getPosition().normalized();
+		particle.velocity = sb::random(_particleSpeedRange.x, _particleSpeedRange.y) * direction;
+		particle.angularVelocity = sb::random(_particleAngularVelocityRange.x, _particleAngularVelocityRange.y);
+		particle.lifetime = sb::random(_particleLifetimeRange.x, _particleLifetimeRange.y);
 		particle.vertexColors = _particleVertexColors;
 		particle.isActive = true;
 	}
@@ -582,7 +586,7 @@ public:
 		_secondsSinceLastEmission(0), _secondsSinceBirth(0),
 		_canDie(false) ,_lifetime(1), _emissionRatePerSecond(1), _particleLifetimeRange(1, 1), 
 		_particleSizeRange(0.1f, 0.1f), _particleRotationRange(0, 0), _particleSpeedRange(1, 1),
-		_particleVertexColors(4), _emissionShape(new Disk(0))
+		_particleVertexColors(4), _emissionShape(new Disk(0)), _hasRandomEmissionDirection(false)
 	{ }
 
 	virtual ~ParticleSystem() {
@@ -600,6 +604,10 @@ public:
 	inline void setParticleSpeedRange(const sb::Vector2f& speedRange) { _particleSpeedRange = speedRange; }
 
 	inline void setParticleAngularVelocityRange(const sb::Vector2f& range) { _particleAngularVelocityRange = range; }
+
+	inline void canDie(bool canDie) { _canDie = canDie; }
+
+	inline void hasRandomEmissionDirection(bool hasRandomEmission) { _hasRandomEmissionDirection = hasRandomEmission; }
 
 	void addBurst(float emissionTime, std::size_t _numParticles) {
 		_bursts.emplace_back(emissionTime, _numParticles);
@@ -620,7 +628,6 @@ public:
 		_emissionShape = new T(shape);
 	}
 
-	inline void canDie(bool canDie) { _canDie = canDie; }
 
 	void setLifetime(float lifetime) { 
 		_canDie = true;
@@ -652,15 +659,21 @@ public:
 	}
 };
 
+void printStats() {
+	SB_MESSAGE(sb::Renderer::getNumDrawCalls());
+	sb::Renderer::resetStatistics();
+}
+
 void init5(ParticleSystem& system) {
 	system.setEmissionRatePerSecond(100);
 	system.setParticleLifetimeRange(sb::Vector2f(1, 1));
-	system.setParticleSpeedRange(sb::Vector2f(0, 0.05f));
+	system.setParticleSpeedRange(sb::Vector2f(0, 1));
 	system.setParticleSizeRange(sb::Vector2f(0.01f, 0.02f));
 
 	system.setParticleRotationRange(sb::Vector2f(0, 2 * sb::Pi));
 	system.setParticleAngularVelocityRange(sb::Vector2f(-4, 4));
-	system.setEmissionShape(Disk(0.2f, 0.3f, 45 * sb::ToRadian, 225 * sb::ToRadian));
+	system.setEmissionShape(Disk(0.2f, 0.3f, 0, 360));
+	system.hasRandomEmissionDirection(true);
 	system.addBurst(1, 300);
 	system.addBurst(3, 600);
 
@@ -668,11 +681,6 @@ void init5(ParticleSystem& system) {
 	system.setParticleVertexColor(1, sb::Color(0, 1, 0, 0.9f));
 	system.setParticleVertexColor(2, sb::Color(0, 0, 1, 0.9f));
 	system.setParticleVertexColor(3, sb::Color(0, 1, 1, 0));
-}
-
-void printStats() {
-	SB_MESSAGE(sb::Renderer::getNumDrawCalls());
-	sb::Renderer::resetStatistics();
 }
 
 void demo5() {
@@ -692,13 +700,54 @@ void demo5() {
 		window.clear(sb::Color(1, 1, 1, 1));
 		particleSystem.draw(window);
 		window.display();
+	}
+}
+
+void init6(ParticleSystem& system) {
+	system.setEmissionRatePerSecond(100);
+	system.setParticleLifetimeRange(sb::Vector2f(1, 1));
+	system.setParticleSpeedRange(sb::Vector2f(0, 0.05f));
+	system.setParticleSizeRange(sb::Vector2f(0.01f, 0.02f));
+
+	system.setParticleRotationRange(sb::Vector2f(0, 2 * sb::Pi));
+	system.setParticleAngularVelocityRange(sb::Vector2f(-4, 4));
+	system.setEmissionShape(Disk(0.2f, 0.3f, 45 * sb::ToRadian, 225 * sb::ToRadian));
+	system.hasRandomEmissionDirection(false);
+	system.addBurst(1, 300);
+	system.addBurst(3, 600);
+
+	system.setParticleVertexColor(0, sb::Color(1, 0, 0, 0.9f));
+	system.setParticleVertexColor(1, sb::Color(0, 1, 0, 0.9f));
+	system.setParticleVertexColor(2, sb::Color(0, 0, 1, 0.9f));
+	system.setParticleVertexColor(3, sb::Color(0, 1, 1, 0));
+}
+
+void demo6() {
+	sb::Window window;
+	ParticleSystem particleSystem(1000);
+
+	window.getCamera().setWidth(2.5);
+	init6(particleSystem);
+	particleSystem.setScale(2);
+
+	while (window.isOpen()) {
+		float ds = getDeltaSeconds();
+		sb::Input::update();
+		window.update();
+		particleSystem.update(ds);
+
+		window.clear(sb::Color(1, 1, 1, 1));
+		particleSystem.draw(window);
+		window.display();
 
 		// printStats();
 	}
 }
 
 int main() {
-	demo5();
+	demo6();
+
+	//demo5();
 
 	//demo4();
 
