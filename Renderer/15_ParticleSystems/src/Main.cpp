@@ -46,7 +46,7 @@ float computeQuintInOut(float t, float b, float c, float d) {
 	return c / 2 * (t*t*t*t*t + 2) + b;
 }
 
-float computeLinearInOut(float t, float b, float c, float d) {
+float computeLinear(float t, float b, float c, float d) {
 	return c * t / d + b;
 }
 
@@ -62,10 +62,10 @@ inline float quintInOut(float t, float t0, float t1, float from, float to) {
 	return computeQuintInOut(time - t0, from, to - from, duration);
 }
 
-inline float linearInOut(float t, float t0, float t1, float from, float to) {
+inline float linear(float t, float t0, float t1, float from, float to) {
 	float duration = t1 - t0;
 	float time = t < t0 ? t0 : t > t1 ? t1 : t;
-	return computeLinearInOut(time - t0, from, to - from, duration);
+	return computeLinear(time - t0, from, to - from, duration);
 }
 
 void demo0() {
@@ -147,7 +147,7 @@ public:
 		return easingCommand.easing(t, easingCommand.t0, easingCommand.t1, easingCommand.from, easingCommand.to);
 	}
 
-	float getDuration() {
+	float getDuration() const {
 		return _easingCommands.empty() ? 0 : _easingCommands[_easingCommands.size() - 1].t1;
 	}
 
@@ -161,13 +161,23 @@ public:
 		return *this;
 	}
 
-	Tween& linearInOut(float from, float to, float duration) {
-		addEasing<::linearInOut>(from, to, duration);
+	Tween& linear(float from, float to, float duration) {
+		addEasing<::linear>(from, to, duration);
 		return *this;
 	}
 
+	Tween& wait(float value, float duration) {
+		addEasing<::linear>(value, value, duration);
+		return *this;
+	}
+
+	Tween& wait(float duration) {
+		float value = !_easingCommands.empty() ? _easingCommands[_easingCommands.size() - 1].to : 0;
+		return wait(value, duration);
+	}
+
 	static Tween None(float value = 0) {
-		return Tween().linearInOut(value, value, 0);
+		return Tween().linear(value, value, 0);
 	}
 };
 
@@ -365,6 +375,8 @@ public:
 	virtual ~Shape() {}
 
 	virtual sb::Vector2f random() const = 0;
+
+	virtual float getBoundingRadius() const = 0;
 };
 
 class Disk : public Shape {
@@ -389,8 +401,11 @@ public:
 	virtual sb::Vector2f random() const {
 		float r = sqrtf(sb::random(_innerRadius * _innerRadius, _outerRadius * _outerRadius));
 		float angle = sb::random(_startRadian, _endRadian);
-		return sb::Vector2f(r * cosf(angle), r * sinf(angle));
+		auto result = sb::Vector2f(r * cosf(angle), r * sinf(angle));
+		return result;
 	}
+
+	virtual float getBoundingRadius() const { return _outerRadius; }
 };
 
 void sample(const Shape& shape, sb::Mesh& result) {
@@ -425,6 +440,8 @@ class ParticleSystem : public sb::Drawable, public sb::Transformable {
 	struct Particle : public sb::Body {
 		float lifetime = 0;
 		float secondsSinceBirth = 0;
+		sb::Vector2f startScale;
+		std::vector<sb::Color> startVertexColors = std::vector<sb::Color>(4);
 		std::vector<sb::Color> vertexColors = std::vector<sb::Color>(4);
 		bool isActive = false;
 	};
@@ -459,10 +476,15 @@ class ParticleSystem : public sb::Drawable, public sb::Transformable {
 	sb::Vector2f _particleSpeedRange;
 	sb::Vector2f _particleAngularVelocityRange;
 	std::vector<sb::Color> _particleVertexColors;
-	bool _hasParticleAlphaChannelOverLifetime;
-	Tween _particleAlphaChannelOverLifetime;
+	std::vector<bool> _hasParticleColorChannelsOverLifetime;
+	std::vector<Tween> _particleColorChannelsOverLifetime;
+	bool _hasParticleScaleOverLifetime;
+	Tween _particleScaleOverLifetime;
 	Shape* _emissionShape;
 	bool _hasRandomEmissionDirection;
+
+	ParticleSystem* _subSystemOnParticleDeath;
+	std::vector<ParticleSystem*> _subSystems;
 
 protected: 
 	static bool isParticleDead(const Particle& particle) {
@@ -478,12 +500,20 @@ protected:
 		_mesh[meshIndex * 6 + 5].position = sb::Vector2f(0, 0);
 	}
 
-	void deactivateDeadParticles() {
+	void spawnSubSystem(const Particle& particle) {
+		ParticleSystem* subSystem = new ParticleSystem(*_subSystemOnParticleDeath);
+		subSystem->setPosition(particle.getPosition());
+		_subSystems.push_back(subSystem);
+	}
+
+	void removeDeadParticles() {
 		for (std::size_t i = 0; i < _particles.size(); i++) {
 			if (_particles[i].isActive && isParticleDead(_particles[i])) {
 				_particles[i].isActive = false;
-				deactivateParticleInMesh(i);
 				_numActiveParticles--;
+				deactivateParticleInMesh(i);
+				if (_subSystemOnParticleDeath)
+					spawnSubSystem(_particles[i]);
 			}
 		}
 	}
@@ -503,16 +533,23 @@ protected:
 			sb::random(left.b, right.b), sb::random(left.a, right.a));
 	}
 
+	sb::Vector2f getDirection(Particle& particle) {
+		bool randomDirection = _hasRandomEmissionDirection || _emissionShape->getBoundingRadius() < 0.0001f;
+		return randomDirection ? sb::randomOnCircle(1) : particle.getPosition().normalized();
+	}
+
 	void initParticle(Particle& particle) {
 		particle.setPosition(_emissionShape->random());
 		float size = sb::random(_particleSizeRange.x, _particleSizeRange.y);
 		particle.setScale(size, size);
+		particle.startScale = sb::Vector2f(size, size);
 		particle.setRotation(sb::random(_particleRotationRange.x, _particleRotationRange.y));
-		sb::Vector2f direction = _hasRandomEmissionDirection ? sb::randomOnCircle(1) : particle.getPosition().normalized();
+		sb::Vector2f direction = getDirection(particle);
 		particle.velocity = sb::random(_particleSpeedRange.x, _particleSpeedRange.y) * direction;
 		particle.angularVelocity = sb::random(_particleAngularVelocityRange.x, _particleAngularVelocityRange.y);
 		particle.lifetime = sb::random(_particleLifetimeRange.x, _particleLifetimeRange.y);
 		particle.vertexColors = _particleVertexColors;
+		particle.startVertexColors = _particleVertexColors;
 		particle.isActive = true;
 	}
 
@@ -560,30 +597,47 @@ protected:
 		return dragTorque;
 	}
 
+	void updateScale(Particle& particle) {
+		if (_hasParticleScaleOverLifetime) {
+			float t = getNormalizedSecondsSinceBirth(particle);
+			particle.setScale(_particleScaleOverLifetime.value(t) * particle.startScale);
+		}
+	}
+
 	inline float getNormalizedSecondsSinceBirth(const Particle& particle) {
 		return particle.secondsSinceBirth / particle.lifetime;
 	}
 
-	void updateVertexColor(sb::Color& color, Particle& particle) {
+	void updateVertexColorChannel(std::size_t channelIndex, float& colorChannel, const float& startColorChannel, float t) {
+		if (_hasParticleColorChannelsOverLifetime[channelIndex])
+			colorChannel = startColorChannel * _particleColorChannelsOverLifetime[channelIndex].value(t);
+	}
+
+	void updateVertexColor(sb::Color& color, const sb::Color& startColor, Particle& particle) {
 		float t = getNormalizedSecondsSinceBirth(particle);
-		if (_hasParticleAlphaChannelOverLifetime)
-			color.a = _particleAlphaChannelOverLifetime.value(t);
+
+		updateVertexColorChannel(0, color.r, startColor.r, t);
+		updateVertexColorChannel(1, color.g, startColor.g, t);		
+		updateVertexColorChannel(2, color.b, startColor.b, t);		
+		updateVertexColorChannel(3, color.a, startColor.a, t);
 	}
 
 	void updateVertexColors(Particle& particle) {
 		for (std::size_t i = 0; i < particle.vertexColors.size(); i++)
-			updateVertexColor(particle.vertexColors[i], particle);
+			updateVertexColor(particle.vertexColors[i], particle.startVertexColors[i], particle);
 	}
 
 	void updateParticle(Particle& particle, float ds) {
 		particle.secondsSinceBirth += ds;
-		updateVertexColors(particle);
 
 		particle.velocity += ds * computeForce(particle);
 		particle.angularVelocity += ds * computeTorque(particle);
 
 		particle.translate(ds * particle.velocity);
 		particle.rotate(ds * particle.angularVelocity);
+
+		updateScale(particle);
+		updateVertexColors(particle);
 	}
 
 	void updateParticles(float ds) {
@@ -616,6 +670,20 @@ protected:
 		}
 	}
 
+	inline static bool isParticleSystemDead(ParticleSystem* particleSystem) { return !particleSystem->isAlive(); }
+
+	inline static void deleteIfDead(ParticleSystem* particleSystem) {
+		if (isParticleSystemDead(particleSystem))
+			delete particleSystem;
+	}
+
+	inline void deleteDeadSubSystems(float ds) {
+		std::for_each(_subSystems.begin(), _subSystems.end(), deleteIfDead);
+		_subSystems.erase(std::remove_if(_subSystems.begin(), _subSystems.end(), isParticleSystemDead), _subSystems.end());
+	}
+
+	void updateSubSystems(float ds);
+
 public:
 	ParticleSystem(std::size_t maxNumParticles)
 		: _mesh(maxNumParticles * 6, sb::PrimitiveType::TriangleStrip), _texture(NULL),
@@ -623,11 +691,14 @@ public:
 		_secondsSinceLastEmission(0), _secondsSinceBirth(0),
 		_canDie(false) ,_lifetime(1), _emissionRatePerSecond(1), _drag(0), _angularDrag(0),
 		_particleLifetimeRange(1, 1), _particleSizeRange(0.1f, 0.1f), _particleRotationRange(0, 0), 
-		_particleSpeedRange(1, 1),_particleVertexColors(4), _hasParticleAlphaChannelOverLifetime(false),
-		_emissionShape(new Disk(0.5f)), _hasRandomEmissionDirection(false)
+		_particleSpeedRange(1, 1),_particleVertexColors(4), _hasParticleColorChannelsOverLifetime(4, false),
+		_particleColorChannelsOverLifetime(4), _hasParticleScaleOverLifetime(false), _emissionShape(new Disk(0)), 
+		_hasRandomEmissionDirection(false), _subSystemOnParticleDeath(NULL)
 	{ }
 
 	virtual ~ParticleSystem() {
+		if (_subSystemOnParticleDeath)
+			delete _subSystemOnParticleDeath;
 		delete _emissionShape;
 	}
 
@@ -654,7 +725,6 @@ public:
 	void addBurst(float emissionTime, std::size_t _numParticles) {
 		_bursts.emplace_back(emissionTime, _numParticles);
 	}
-
 	void setParticleVertexColor(std::size_t index, const sb::Color& color) {
 		SB_ERROR_IF(index > 4, "Vertex index out of range");
 		_particleVertexColors[index] = color;
@@ -664,10 +734,17 @@ public:
 		std::fill(_particleVertexColors.begin(), _particleVertexColors.end(), color); 
 	}
 
-	void setParticleAlphaChannelOverLifetime(const Tween& particleAlphaChannelOverLifetime) {
-		_particleAlphaChannelOverLifetime = particleAlphaChannelOverLifetime; 
-		_hasParticleAlphaChannelOverLifetime = true;
+	void setParticleColorChannelOverLifetime(std::size_t channelIndex, const Tween& particleColorChannelOverLifetime) {
+		SB_ERROR_IF(channelIndex > 4, "Color channel index out of range");
+		SB_ERROR_IF(particleColorChannelOverLifetime.getDuration() > 1, "Tween duration out of range");
+		_particleColorChannelsOverLifetime[channelIndex] = particleColorChannelOverLifetime;
+		_hasParticleColorChannelsOverLifetime[channelIndex] = true;
+	}
 
+	void setParticleScaleOverLifetime(const Tween& particleScaleOverLifetime) {
+		SB_ERROR_IF(particleScaleOverLifetime.getDuration() > 1, "Tween duration out of range");
+		_particleScaleOverLifetime = particleScaleOverLifetime;
+		_hasParticleScaleOverLifetime = true;
 	}
 
 	template <class T>
@@ -680,21 +757,30 @@ public:
 		_canDie = true;
 		_lifetime = lifetime; 
 	}
+
+	void setSubsystemOnParticleDeath(const ParticleSystem& subSystem) {
+		if (_subSystemOnParticleDeath)
+			delete _subSystemOnParticleDeath;
+		_subSystemOnParticleDeath = new ParticleSystem(subSystem);
+	}
 	
 	bool isAlive() { 
-		return !_canDie || _secondsSinceBirth < _lifetime; 
+		return !_canDie || _secondsSinceBirth < _lifetime || !_subSystems.empty(); 
 	}
 
 	void update(float ds) { 
 		_secondsSinceBirth += ds;
 
-		deactivateDeadParticles();
+		removeDeadParticles();
 		if (isAlive()) {	
 			emitParticles(ds);
 			emitBursts(ds);
 			updateParticles(ds);
 			updateMesh(ds);
 		}
+
+		deleteDeadSubSystems(ds);
+		updateSubSystems(ds);
 	}
 
 	virtual void draw(sb::DrawTarget& target, sb::DrawStates states = sb::DrawStates::getDefault()) { 
@@ -705,6 +791,11 @@ public:
 		}
 	}
 };
+
+void ParticleSystem::updateSubSystems(float ds) {
+	for (std::size_t i = 0; i < _subSystems.size(); i++)
+		_subSystems[i]->update(ds);
+}
 
 void printStats() {
 	SB_MESSAGE(sb::Renderer::getNumDrawCalls());
@@ -750,11 +841,11 @@ void demo5() {
 	}
 }
 
-void setParticleColor(ParticleSystem& system) {
-	system.setParticleVertexColor(0, sb::Color(1, 0, 0, 1));
-	system.setParticleVertexColor(1, sb::Color(0, 1, 0, 1));
-	system.setParticleVertexColor(2, sb::Color(0, 0, 1, 1));
-	system.setParticleVertexColor(3, sb::Color(0, 1, 1, 1));
+void setParticleColor(ParticleSystem& system, float alpha = 1) {
+	system.setParticleVertexColor(0, sb::Color(1, 0, 0, alpha));
+	system.setParticleVertexColor(1, sb::Color(0, 1, 0, alpha));
+	system.setParticleVertexColor(2, sb::Color(0, 0, 1, alpha));
+	system.setParticleVertexColor(3, sb::Color(0, 1, 1, alpha));
 }
 
 void init6b(ParticleSystem& system) {
@@ -788,16 +879,40 @@ void init6c(ParticleSystem& system) {
 }
 
 
+void init6d(ParticleSystem& system) {
+	system.setEmissionRatePerSecond(100);
+	system.setParticleSizeRange(sb::Vector2f(0.1f, 0.2f));
+	system.setParticleColorChannelOverLifetime(3, Tween().quintInOut(1, 0, 1));
+
+	setParticleColor(system, 0.5f);
+	system.setScale(0.5f);
+}
+
+void init6e(ParticleSystem& system) {
+	system.setEmissionRatePerSecond(100);
+	system.setParticleSpeedRange(sb::Vector2f(0.5f, 1));
+	system.setParticleAngularVelocityRange(sb::Vector2f(0, 2 * sb::Pi));
+	system.setAngularDrag(0.5f);
+	system.setParticleSizeRange(sb::Vector2f(0.05f, 0.15f));
+	system.setParticleLifetimeRange(sb::Vector2f(1, 2));
+	system.setParticleScaleOverLifetime(Tween().quintInOut(0, 1, 0.1f).quintInOut(1, 0, 0.4f));
+	system.setParticleColorChannelOverLifetime(3, Tween().wait(1, 0.1f).quintInOut(1, 0, 0.4f));
+	system.setEmissionShape(Disk(0.1f, 0.6f, 235 * sb::ToRadian, 305 * sb::ToRadian));
+
+	setParticleColor(system);
+	system.setScale(1);
+}
+
 void init6(ParticleSystem& system) {
-	system.setEmissionRatePerSecond(3);
-	system.setParticleSpeedRange(sb::Vector2f(0.5f, 0.5f));
+	// ParticleSystem subSystem(100);
+
 	system.setParticleSizeRange(sb::Vector2f(0.5f, 0.5f));
-	system.setParticleLifetimeRange(sb::Vector2f(2, 2));
-	system.setParticleAlphaChannelOverLifetime(Tween().linearInOut(1, 0, 0.5f).quintInOut(0, 1, 0.5f));
+	system.setParticleSpeedRange(sb::Vector2f(1, 1));
 
 	setParticleColor(system);
 	system.setScale(0.5f);
 }
+
 
 void demo6() {
 	sb::Window window;
