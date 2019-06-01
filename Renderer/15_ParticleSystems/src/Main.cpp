@@ -416,6 +416,11 @@ void demo4() {
 	}
 }
 
+float lerp(float from, float to, float t) {
+	t = t < 0 ? 0 : t > 1 ? 1 : t;
+	return (1 - t) * from + t * to;
+}
+
 class ParticleSystem : public sb::Drawable, public sb::Transformable {
 	struct Particle : public sb::Body {
 		float lifetime = 0;
@@ -446,12 +451,16 @@ class ParticleSystem : public sb::Drawable, public sb::Transformable {
 	bool _canDie;
 	float _lifetime;
 	float _emissionRatePerSecond;
+	float _drag;
+	float _angularDrag;
 	sb::Vector2f _particleLifetimeRange;
 	sb::Vector2f _particleSizeRange;
 	sb::Vector2f _particleRotationRange;
 	sb::Vector2f _particleSpeedRange;
 	sb::Vector2f _particleAngularVelocityRange;
 	std::vector<sb::Color> _particleVertexColors;
+	bool _hasParticleAlphaChannelOverLifetime;
+	Tween _particleAlphaChannelOverLifetime;
 	Shape* _emissionShape;
 	bool _hasRandomEmissionDirection;
 
@@ -493,8 +502,6 @@ protected:
 		return sb::Color(sb::random(left.r, right.r), sb::random(left.g, right.g),
 			sb::random(left.b, right.b), sb::random(left.a, right.a));
 	}
-
-	
 
 	void initParticle(Particle& particle) {
 		particle.setPosition(_emissionShape->random());
@@ -543,8 +550,38 @@ protected:
 		}
 	}
 
+	sb::Vector2f computeForce(Particle& particle) {
+		sb::Vector2f dragForce = -_drag * particle.velocity;
+		return dragForce;
+	}
+
+	float computeTorque(Particle& particle) {
+		float dragTorque = -_angularDrag * particle.angularVelocity;
+		return dragTorque;
+	}
+
+	inline float getNormalizedSecondsSinceBirth(const Particle& particle) {
+		return particle.secondsSinceBirth / particle.lifetime;
+	}
+
+	void updateVertexColor(sb::Color& color, Particle& particle) {
+		float t = getNormalizedSecondsSinceBirth(particle);
+		if (_hasParticleAlphaChannelOverLifetime)
+			color.a = _particleAlphaChannelOverLifetime.value(t);
+	}
+
+	void updateVertexColors(Particle& particle) {
+		for (std::size_t i = 0; i < particle.vertexColors.size(); i++)
+			updateVertexColor(particle.vertexColors[i], particle);
+	}
+
 	void updateParticle(Particle& particle, float ds) {
 		particle.secondsSinceBirth += ds;
+		updateVertexColors(particle);
+
+		particle.velocity += ds * computeForce(particle);
+		particle.angularVelocity += ds * computeTorque(particle);
+
 		particle.translate(ds * particle.velocity);
 		particle.rotate(ds * particle.angularVelocity);
 	}
@@ -584,9 +621,10 @@ public:
 		: _mesh(maxNumParticles * 6, sb::PrimitiveType::TriangleStrip), _texture(NULL),
 		_particles(maxNumParticles), _numActiveParticles(0),
 		_secondsSinceLastEmission(0), _secondsSinceBirth(0),
-		_canDie(false) ,_lifetime(1), _emissionRatePerSecond(1), _particleLifetimeRange(1, 1), 
-		_particleSizeRange(0.1f, 0.1f), _particleRotationRange(0, 0), _particleSpeedRange(1, 1),
-		_particleVertexColors(4), _emissionShape(new Disk(0)), _hasRandomEmissionDirection(false)
+		_canDie(false) ,_lifetime(1), _emissionRatePerSecond(1), _drag(0), _angularDrag(0),
+		_particleLifetimeRange(1, 1), _particleSizeRange(0.1f, 0.1f), _particleRotationRange(0, 0), 
+		_particleSpeedRange(1, 1),_particleVertexColors(4), _hasParticleAlphaChannelOverLifetime(false),
+		_emissionShape(new Disk(0.5f)), _hasRandomEmissionDirection(false)
 	{ }
 
 	virtual ~ParticleSystem() {
@@ -594,6 +632,10 @@ public:
 	}
 
 	inline void setEmissionRatePerSecond(float rate) { _emissionRatePerSecond = rate; }
+
+	inline void setDrag(float drag) { _drag = drag; }
+
+	inline void setAngularDrag(float angularDrag) { _angularDrag = angularDrag; }
 
 	inline void setParticleLifetimeRange(const sb::Vector2f& lifetimeRange) { _particleLifetimeRange = lifetimeRange; }
 
@@ -622,12 +664,17 @@ public:
 		std::fill(_particleVertexColors.begin(), _particleVertexColors.end(), color); 
 	}
 
+	void setParticleAlphaChannelOverLifetime(const Tween& particleAlphaChannelOverLifetime) {
+		_particleAlphaChannelOverLifetime = particleAlphaChannelOverLifetime; 
+		_hasParticleAlphaChannelOverLifetime = true;
+
+	}
+
 	template <class T>
 	void setEmissionShape(const T& shape) {
 		delete _emissionShape;
 		_emissionShape = new T(shape);
 	}
-
 
 	void setLifetime(float lifetime) { 
 		_canDie = true;
@@ -703,7 +750,14 @@ void demo5() {
 	}
 }
 
-void init6(ParticleSystem& system) {
+void setParticleColor(ParticleSystem& system) {
+	system.setParticleVertexColor(0, sb::Color(1, 0, 0, 1));
+	system.setParticleVertexColor(1, sb::Color(0, 1, 0, 1));
+	system.setParticleVertexColor(2, sb::Color(0, 0, 1, 1));
+	system.setParticleVertexColor(3, sb::Color(0, 1, 1, 1));
+}
+
+void init6b(ParticleSystem& system) {
 	system.setEmissionRatePerSecond(100);
 	system.setParticleLifetimeRange(sb::Vector2f(1, 1));
 	system.setParticleSpeedRange(sb::Vector2f(0, 0.05f));
@@ -716,10 +770,33 @@ void init6(ParticleSystem& system) {
 	system.addBurst(1, 300);
 	system.addBurst(3, 600);
 
-	system.setParticleVertexColor(0, sb::Color(1, 0, 0, 0.9f));
-	system.setParticleVertexColor(1, sb::Color(0, 1, 0, 0.9f));
-	system.setParticleVertexColor(2, sb::Color(0, 0, 1, 0.9f));
-	system.setParticleVertexColor(3, sb::Color(0, 1, 1, 0));
+	setParticleColor(system);
+	system.setScale(2);
+
+}
+
+void init6c(ParticleSystem& system) {
+	system.setEmissionRatePerSecond(10);
+	system.setParticleLifetimeRange(sb::Vector2f(3, 3));
+	system.setParticleSpeedRange(sb::Vector2f(0.2f, 0.2f));
+	system.setParticleAngularVelocityRange(sb::Vector2f(4, 4));
+	system.setDrag(2);
+	system.setAngularDrag(2);
+
+	setParticleColor(system);
+	system.setScale(0.5f);
+}
+
+
+void init6(ParticleSystem& system) {
+	system.setEmissionRatePerSecond(3);
+	system.setParticleSpeedRange(sb::Vector2f(0.5f, 0.5f));
+	system.setParticleSizeRange(sb::Vector2f(0.5f, 0.5f));
+	system.setParticleLifetimeRange(sb::Vector2f(2, 2));
+	system.setParticleAlphaChannelOverLifetime(Tween().linearInOut(1, 0, 0.5f).quintInOut(0, 1, 0.5f));
+
+	setParticleColor(system);
+	system.setScale(0.5f);
 }
 
 void demo6() {
@@ -728,7 +805,6 @@ void demo6() {
 
 	window.getCamera().setWidth(2.5);
 	init6(particleSystem);
-	particleSystem.setScale(2);
 
 	while (window.isOpen()) {
 		float ds = getDeltaSeconds();
@@ -739,8 +815,6 @@ void demo6() {
 		window.clear(sb::Color(1, 1, 1, 1));
 		particleSystem.draw(window);
 		window.display();
-
-		// printStats();
 	}
 }
 

@@ -11,10 +11,10 @@ The following particle parameters are currently relevant for me:
 * Emission Rate (Num. particles per second): int (OK)
 * Burst (number of particles to emit at t = 0): integer (OK)
 * Emission Shape: emission shape (OK)
-* Dampening Threshold Speed (speed at which dampening is applied): float
-* Dampening coefficient: float
-* Color over lifetime: gradient
-* Size over lifetime: tween / spline
+* Dampening Threshold Speed (speed at which dampening is applied): float (OK)
+* Dampening coefficient: float (OK)
+* Color over lifetime: tween per channel
+* Size over lifetime: tween
 * Angular velocity: float (OK)
 * Inherit velocity (inertia relative to the parent transform in percent): float
 * Sub-emitter on Death: function
