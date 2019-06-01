@@ -377,6 +377,8 @@ public:
 	virtual sb::Vector2f random() const = 0;
 
 	virtual float getBoundingRadius() const = 0;
+
+	virtual Shape* clone() const = 0;
 };
 
 class Disk : public Shape {
@@ -406,6 +408,10 @@ public:
 	}
 
 	virtual float getBoundingRadius() const { return _outerRadius; }
+
+	virtual Shape* clone() const { 
+		return new Disk(*this); 
+	}
 };
 
 void sample(const Shape& shape, sb::Mesh& result) {
@@ -434,6 +440,25 @@ void demo4() {
 float lerp(float from, float to, float t) {
 	t = t < 0 ? 0 : t > 1 ? 1 : t;
 	return (1 - t) * from + t * to;
+}
+
+template <class T>
+inline void copy(T* destination, const T* source) {
+	destination = NULL;
+	if (source) 
+		destination = new T(*source);
+}
+
+template <class T>
+inline void copyVector(std::vector<T*>& destination, const std::vector<T*>& source) {
+	destination.clear();
+	for (std::size_t i = 0; i < source.size(); i++) {
+		T* element = NULL;
+		copy(element, source[i]);
+		destination.push_back(element);
+	}
+
+	std::copy(source.begin(), source.end(), destination.begin());
 }
 
 class ParticleSystem : public sb::Drawable, public sb::Transformable {
@@ -695,8 +720,17 @@ public:
 		_particleColorChannelsOverLifetime(4), _hasParticleScaleOverLifetime(false), _emissionShape(new Disk(0)), 
 		_hasRandomEmissionDirection(false), _subSystemOnParticleDeath(NULL)
 	{ }
+	
+	ParticleSystem(const ParticleSystem& other) {
+		*this = other;
+		this->_emissionShape = other._emissionShape->clone();
+		copy(this->_subSystemOnParticleDeath, other._subSystemOnParticleDeath);
+		copyVector(this->_subSystems, other._subSystems);
+	}
 
 	virtual ~ParticleSystem() {
+		for (std::size_t i = 0; i < _subSystems.size(); i++)
+			delete _subSystems[i];
 		if (_subSystemOnParticleDeath)
 			delete _subSystemOnParticleDeath;
 		delete _emissionShape;
@@ -758,7 +792,7 @@ public:
 		_lifetime = lifetime; 
 	}
 
-	void setSubsystemOnParticleDeath(const ParticleSystem& subSystem) {
+	void setSubSystemOnParticleDeath(const ParticleSystem& subSystem) {
 		if (_subSystemOnParticleDeath)
 			delete _subSystemOnParticleDeath;
 		_subSystemOnParticleDeath = new ParticleSystem(subSystem);
@@ -863,7 +897,6 @@ void init6b(ParticleSystem& system) {
 
 	setParticleColor(system);
 	system.setScale(2);
-
 }
 
 void init6c(ParticleSystem& system) {
@@ -904,10 +937,13 @@ void init6e(ParticleSystem& system) {
 }
 
 void init6(ParticleSystem& system) {
-	// ParticleSystem subSystem(100);
+	ParticleSystem subSystem(100);
+	subSystem.addBurst(0, 50);
+	subSystem.setEmissionRatePerSecond(0);
 
 	system.setParticleSizeRange(sb::Vector2f(0.5f, 0.5f));
 	system.setParticleSpeedRange(sb::Vector2f(1, 1));
+	system.setSubSystemOnParticleDeath(subSystem);
 
 	setParticleColor(system);
 	system.setScale(0.5f);
