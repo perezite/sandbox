@@ -401,8 +401,90 @@ void demo6() {
 	}
 }
 
+class TweenVisualization : public sb::Drawable {
+	typedef sb::Tween& (sb::Tween::*easingFunction)(float from, float to, float duration);
+
+	sb::Quad _scalingQuad;
+	sb::Quad _movingQuad;
+	sb::Quad _fadingQuad;
+	sb::Mesh _curve;
+	sb::Tween _tween;
+	std::vector<easingFunction> _easings;
+	std::size_t _easingIndex;
+
+protected:
+
+public:
+	TweenVisualization()
+		: _curve(1000, sb::PrimitiveType::TriangleStrip), _easingIndex(-1)
+	{
+		_easings = { &sb::Tween::linear, &sb::Tween::quintInOut, &sb::Tween::bounceOut };
+		nextEasing();
+	}
+
+	void getCurveValues(std::vector<float>& values) {
+		float delta = 1 / float(values.size() - 1);
+		for (std::size_t i = 0; i < values.size(); i++)
+			values[i] = _tween.value(i * delta);
+	}
+
+	void computeCurve() {
+		static const std::size_t numPoints = _curve.getVertexCount() / 2;
+		float delta = 1 / float(numPoints - 1);
+		static const float thickness = 0.01f;
+		std::vector<float> values(numPoints);
+		getCurveValues(values);
+		for (std::size_t i = 0; i < numPoints; i++) {
+			sb::Vector2f bottom(-0.5f + i * delta, -0.5f + values[i] - thickness / 2);
+			sb::Vector2f top(-0.5f + i * delta, -0.5f + values[i] + thickness / 2);
+			_curve[i * 2 + 0] = sb::Vertex(bottom, sb::Color(1, 0, 0, 1));
+			_curve[i * 2 + 1] = sb::Vertex(top, sb::Color(1, 0, 0, 1));
+		}
+	}
+
+	void nextEasing() {
+		_easingIndex = _easingIndex + 1 % _easings.size();
+		easingFunction easing = _easings[_easingIndex];
+		_tween = (sb::Tween().*easing)(0, 1, 1);
+		computeCurve();
+	}
+		
+	void update(float ds) {
+
+	}
+
+	virtual void draw(sb::DrawTarget& target, sb::DrawStates drawStates = sb::DrawStates::getDefault()) {
+		target.draw(_curve.getVertices(), _curve.getPrimitiveType());
+	}
+
+};
+
+void demo7() {
+	sb::Window window;
+	TweenVisualization visualization;
+
+	sb::Mesh mesh(4, sb::PrimitiveType::TriangleStrip);
+	mesh[0] = sb::Vertex(sb::Vector2f(-0.5f, -0.25f), sb::Color(1, 0, 0, 1));
+	mesh[1] = sb::Vertex(sb::Vector2f(-0.5f, +0.25f), sb::Color(1, 0, 0, 1));
+	mesh[2] = sb::Vertex(sb::Vector2f( 0.5f, -0.25f), sb::Color(1, 0, 0, 1));
+	mesh[3] = sb::Vertex(sb::Vector2f( 0.5f, +0.25f), sb::Color(1, 0, 0, 1));
+
+	while (window.isOpen()) {
+		float ds = getDeltaSeconds();
+		sb::Input::update();
+		window.update();
+		visualization.update(ds);
+
+		window.clear(sb::Color(1, 1, 1, 1));
+		visualization.draw(window);
+		window.display();
+	}
+}
+
 int main() {
-	demo6();
+	demo7();
+
+	//demo6();
 
 	//demo5();
 
