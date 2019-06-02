@@ -4,6 +4,8 @@
 #include "Stopwatch.h"
 #include "Math.h"
 #include "Body.h"
+#include "Tween.h"
+#include "Easing.h"
 #include <iostream>
 #include <vector>		
 #include <algorithm>
@@ -22,52 +24,6 @@ float getDeltaSeconds()
 	return delta;
 }
 
-float computeBounceOut(float t, float b, float c, float d) {
-	if ((t /= d) < (1 / 2.75f)) {
-		return c * (7.5625f * t * t) + b;
-	}
-	else if (t < 2 / 2.75f) {
-		float postFix = t -= (1.5f / 2.75f);
-		return c * (7.5625f * postFix * t + .75f) + b;
-	}
-	else if (t < 2.5 / 2.75) {
-		float postFix = t -= (2.25f / 2.75f);
-		return c * (7.5625f * postFix * t + .9375f) + b;
-	}
-	else {
-		float postFix = t -= (2.625f / 2.75f);
-		return c * (7.5625f * postFix * t + .984375f) + b;
-	}
-}
-
-float computeQuintInOut(float t, float b, float c, float d) {
-	if ((t /= d / 2) < 1) return c / 2 * t*t*t*t*t + b;
-	t = t - 2;
-	return c / 2 * (t*t*t*t*t + 2) + b;
-}
-
-float computeLinear(float t, float b, float c, float d) {
-	return c * t / d + b;
-}
-
-inline float bounceOut(float t, float t0, float t1, float from, float to) {
-	float duration = t1 - t0;
-	float time = t < t0 ? t0 : t > t1 ? t1 : t;
-	return computeBounceOut(time - t0, from, to - from, duration);
-}
-
-inline float quintInOut(float t, float t0, float t1, float from, float to) {
-	float duration = t1 - t0;
-	float time = t < t0 ? t0 : t > t1 ? t1 : t;
-	return computeQuintInOut(time - t0, from, to - from, duration);
-}
-
-inline float linear(float t, float t0, float t1, float from, float to) {
-	float duration = t1 - t0;
-	float time = t < t0 ? t0 : t > t1 ? t1 : t;
-	return computeLinear(time - t0, from, to - from, duration);
-}
-
 void demo0() {
 	sb::Window window;
 	sb::Quad quad;
@@ -81,9 +37,9 @@ void demo0() {
 		window.update();
 		float position;
 		if (t < 2)
-			position = bounceOut(t, 1, 2, -0.4f, 0.4f);
+			position = sb::Easing::bounceOut(t, 1, 2, -0.4f, 0.4f);
 		else
-			position = quintInOut(t, 2.5f, 4.5f, 0.4f, -0.5f);
+			position = sb::Easing::quintInOut(t, 2.5f, 4.5f, 0.4f, -0.5f);
 		quad.setPosition(position, position);
 
 		window.clear(sb::Color(1, 1, 1, 1));
@@ -92,101 +48,12 @@ void demo0() {
 	}
 }
 
-class Tween {
-	typedef float(*easingFunction)(float t, float t0, float t1, float from, float to);
-
-	struct EasingCommand {
-		float t0;
-		float t1;
-		float from;
-		float to;
-		easingFunction easing;
-
-		EasingCommand() { }
-
-		EasingCommand(float t0_, float t1_, float from_, float to_, easingFunction easing_)
-			: t0(t0_), t1(t1_), from(from_), to(to_), easing(easing_)
-		{ }
-	};
-
-	std::vector<EasingCommand> _easingCommands;
-
-protected:
-	EasingCommand getCurrentEasingCommand(float t) {
-		for (std::size_t i = 0; i < _easingCommands.size(); i++) {
-			if (t >= _easingCommands[i].t0 && t < _easingCommands[i].t1)
-				return _easingCommands[i];
-		}
-
-		SB_ERROR("this line must never be reached");
-		return EasingCommand();
-	}
-
-	template <easingFunction F>
-	inline void addEasing(float from, float to, float duration) {
-		float t0 = _easingCommands.empty() ? 0 : _easingCommands[_easingCommands.size() - 1].t1;
-		float t1 = t0 + duration;
-		_easingCommands.push_back(EasingCommand(t0, t1, from, to, F));
-	}
-
-public:
-	Tween()
-	{ }
-
-	float value(float t) {
-		if (_easingCommands.empty())
-			return 0;
-
-		if (t < _easingCommands[0].t0)
-			return _easingCommands[0].from;
-
-		if (t >= _easingCommands[_easingCommands.size() - 1].t1)
-			return _easingCommands[_easingCommands.size() - 1].to;
-
-		EasingCommand easingCommand = getCurrentEasingCommand(t);
-		return easingCommand.easing(t, easingCommand.t0, easingCommand.t1, easingCommand.from, easingCommand.to);
-	}
-
-	float getDuration() const {
-		return _easingCommands.empty() ? 0 : _easingCommands[_easingCommands.size() - 1].t1;
-	}
-
-	Tween& bounceOut(float from, float to, float duration) {
-		addEasing<::bounceOut>(from, to, duration);
-		return *this;
-	}
-
-	Tween& quintInOut(float from, float to, float duration) {
-		addEasing<::quintInOut>(from, to, duration);
-		return *this;
-	}
-
-	Tween& linear(float from, float to, float duration) {
-		addEasing<::linear>(from, to, duration);
-		return *this;
-	}
-
-	Tween& wait(float value, float duration) {
-		addEasing<::linear>(value, value, duration);
-		return *this;
-	}
-
-	Tween& wait(float duration) {
-		float value = !_easingCommands.empty() ? _easingCommands[_easingCommands.size() - 1].to : 0;
-		return wait(value, duration);
-	}
-
-	static Tween None(float value = 0) {
-		return Tween().linear(value, value, 0);
-	}
-};
-
 void demo1() {
 	sb::Window window;
 	sb::Quad quad;
 
 	window.getCamera().setWidth(1.5f);
-	Tween tween = Tween().bounceOut(-0.4f, 0.4f, 2).quintInOut(0.4f, -0.5f, 3);
+	sb::Tween tween = sb::Tween().bounceOut(-0.4f, 0.4f, 2).quintInOut(0.4f, -0.5f, 3);
 	quad.setScale(0.3f);
 
 	while (window.isOpen()) {
@@ -220,7 +87,7 @@ class ParticleSystem2 : public sb::Drawable, public sb::Transformable {
 	sb::Vector2f _speedRange;
 	sb::Vector2f _rotationRange;
 	sb::Vector2f _scaleRange;
-	Tween _scaleOverLifetime;
+	sb::Tween _scaleOverLifetime;
 
 	float _emissionInterval;
 	float _timeSinceLastEmission;
@@ -271,7 +138,7 @@ protected:
 public:
 	ParticleSystem2()
 		: _lifetimeRange(2, 2), _rotationRange(0, 2 * sb::Pi), _scaleRange(1, 1),
-		_scaleOverLifetime(Tween::None(1)), _emissionInterval(0.1f), _timeSinceLastEmission(0)
+		_scaleOverLifetime(sb::Tween::None(1)), _emissionInterval(0.1f), _timeSinceLastEmission(0)
 	{
 	}
 
@@ -281,7 +148,7 @@ public:
 
 	inline void setRotationRange(float min, float max) { _rotationRange = sb::Vector2f(min, max); }
 
-	void setScaleOverLifetime(Tween& scaleOverLifetime) { 
+	void setScaleOverLifetime(sb::Tween& scaleOverLifetime) { 
 		SB_ERROR_IF(scaleOverLifetime.getDuration() > 1, "The duration of the tween must not be larger than 1, i.e. the tween must have normalized time");
 		_scaleOverLifetime = scaleOverLifetime; 
 	}
@@ -303,7 +170,7 @@ void initParticleSystem2(ParticleSystem2& system) {
 	system.setRotationRange(0, 360 * sb::ToRadian);
 	system.setSpeedRange(0.1f, 0.5f);
 	system.setScaleRange(0.05f, 0.1f);
-	Tween sizeOverLifetime = Tween().bounceOut(0, 1, 0.2f).quintInOut(1, 0, 0.8f);
+	sb::Tween sizeOverLifetime = sb::Tween().bounceOut(0, 1, 0.2f).quintInOut(1, 0, 0.8f);
 	system.setScaleOverLifetime(sizeOverLifetime);
 }
 
@@ -522,9 +389,9 @@ public:
 	sb::Vector2f _particleAngularVelocityRange;
 	std::vector<sb::Color> _particleVertexColors;
 	std::vector<bool> _hasParticleColorChannelsOverLifetime;
-	std::vector<Tween> _particleColorChannelsOverLifetime;
+	std::vector<sb::Tween> _particleColorChannelsOverLifetime;
 	bool _hasParticleScaleOverLifetime;
-	Tween _particleScaleOverLifetime;
+	sb::Tween _particleScaleOverLifetime;
 	Shape* _emissionShape;
 	bool _hasRandomEmissionDirection;
 
@@ -792,14 +659,14 @@ public:
 		std::fill(_particleVertexColors.begin(), _particleVertexColors.end(), color); 
 	}
 
-	void setParticleColorChannelOverLifetime(std::size_t channelIndex, const Tween& particleColorChannelOverLifetime) {
+	void setParticleColorChannelOverLifetime(std::size_t channelIndex, const sb::Tween& particleColorChannelOverLifetime) {
 		SB_ERROR_IF(channelIndex > 4, "Color channel index out of range");
 		SB_ERROR_IF(particleColorChannelOverLifetime.getDuration() > 1, "Tween duration out of range");
 		_particleColorChannelsOverLifetime[channelIndex] = particleColorChannelOverLifetime;
 		_hasParticleColorChannelsOverLifetime[channelIndex] = true;
 	}
 
-	void setParticleScaleOverLifetime(const Tween& particleScaleOverLifetime) {
+	void setParticleScaleOverLifetime(const sb::Tween& particleScaleOverLifetime) {
 		SB_ERROR_IF(particleScaleOverLifetime.getDuration() > 1, "Tween duration out of range");
 		_particleScaleOverLifetime = particleScaleOverLifetime;
 		_hasParticleScaleOverLifetime = true;
@@ -938,7 +805,7 @@ void init6c(ParticleSystem& system) {
 void init6d(ParticleSystem& system) {
 	system.setEmissionRatePerSecond(100);
 	system.setParticleSizeRange(sb::Vector2f(0.1f, 0.2f));
-	system.setParticleColorChannelOverLifetime(3, Tween().quintInOut(1, 0, 1));
+	system.setParticleColorChannelOverLifetime(3, sb::Tween().quintInOut(1, 0, 1));
 
 	setParticleColor(system, 0.5f);
 	system.setScale(0.5f);
@@ -951,8 +818,8 @@ void init6e(ParticleSystem& system) {
 	system.setAngularDrag(0.5f);
 	system.setParticleSizeRange(sb::Vector2f(0.05f, 0.15f));
 	system.setParticleLifetimeRange(sb::Vector2f(1, 2));
-	system.setParticleScaleOverLifetime(Tween().quintInOut(0, 1, 0.1f).quintInOut(1, 0, 0.4f));
-	system.setParticleColorChannelOverLifetime(3, Tween().wait(1, 0.1f).quintInOut(1, 0, 0.4f));
+	system.setParticleScaleOverLifetime(sb::Tween().quintInOut(0, 1, 0.1f).quintInOut(1, 0, 0.4f));
+	system.setParticleColorChannelOverLifetime(3, sb::Tween().wait(1, 0.1f).quintInOut(1, 0, 0.4f));
 	system.setEmissionShape(Disk(0.1f, 0.6f, 235 * sb::ToRadian, 305 * sb::ToRadian));
 
 	setParticleColor(system);
