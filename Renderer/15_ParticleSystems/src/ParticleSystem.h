@@ -16,7 +16,7 @@
 
 namespace sb
 {
-	class ParticleSystem : public Drawable, public Transformable {
+	class ParticleSystem : public Drawable, public Body {
 
 		struct Particle : public Body {
 			std::vector<Color> startVertexColors = std::vector<Color>(4);
@@ -103,9 +103,9 @@ namespace sb
 		std::string id;
 
 	protected:
-		inline static bool isParticleSystemDead(ParticleSystem* particleSystem) { return !particleSystem->isAlive(); }
+		void updateParticleSystem(float ds);
 
-		void removeDeadSubSystems(float ds);
+		inline static bool isParticleSystemDead(ParticleSystem* particleSystem) { return !particleSystem->isAlive(); }
 		
 		static bool isParticleDead(const Particle& particle);
 
@@ -118,8 +118,6 @@ namespace sb
 		static bool isParticleInactive(const Particle& particle);
 
 		std::size_t findAvailableIndex();
-
-		Color randomColor(const Color& left, const Color right);
 
 		Vector2f getDirection(Particle& particle);
 
@@ -147,13 +145,15 @@ namespace sb
 
 		void updateVertexColors(Particle& particle);
 
-		void updateParticle(Particle& particle, float ds);
+		void transformParticle(Particle& particle, float ds);
 
-		void updateParticles(float ds);
+		void transformParticles(float ds);
 
 		void updateParticleVertices(Particle& particle, std::size_t index);
 
 		void updateMesh(float ds);
+
+		void updateParticles(float ds);
 
 		void updateSubSystems(float ds);
 

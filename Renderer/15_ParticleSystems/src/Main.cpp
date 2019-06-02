@@ -267,16 +267,39 @@ void printStats() {
 	sb::Renderer::resetStatistics();
 }
 
-void init6(sb::ParticleSystem& system, sb::ParticleSystem& subSystem);
+void setParticleColor(sb::ParticleSystem& system, float alpha = 1) {
+	system.setParticleVertexColor(0, sb::Color(1, 0, 0, alpha));
+	system.setParticleVertexColor(1, sb::Color(0, 1, 0, alpha));
+	system.setParticleVertexColor(2, sb::Color(0, 0, 1, alpha));
+	system.setParticleVertexColor(3, sb::Color(0, 1, 1, alpha));
+}
 
-void demo6() {
+void init5(sb::ParticleSystem& system) {
+	system.setEmissionRatePerSecond(100);
+	system.setParticleLifetimeRange(sb::Vector2f(1, 1));
+	system.setParticleSpeedRange(sb::Vector2f(0, 1));
+	system.setParticleSizeRange(sb::Vector2f(0.01f, 0.02f));
+
+	system.setParticleRotationRange(sb::Vector2f(0, 2 * sb::Pi));
+	system.setParticleAngularVelocityRange(sb::Vector2f(-4, 4));
+	system.setEmissionShape(sb::Disk(0.2f, 0.3f, 0, 360));
+	system.hasRandomEmissionDirection(true);
+	system.addBurst(1, 300);
+	system.addBurst(3, 600);
+
+	system.setParticleVertexColor(0, sb::Color(1, 0, 0, 0.9f));
+	system.setParticleVertexColor(1, sb::Color(0, 1, 0, 0.9f));
+	system.setParticleVertexColor(2, sb::Color(0, 0, 1, 0.9f));
+	system.setParticleVertexColor(3, sb::Color(0, 1, 1, 0));
+}
+
+void demo5() {
 	sb::Window window;
 	sb::ParticleSystem particleSystem(1000);
-	particleSystem.id = "main";
-	sb::ParticleSystem subSystem(100);
 
-	init6(particleSystem, subSystem);
 	window.getCamera().setWidth(2.5);
+	init5(particleSystem);
+	particleSystem.setScale(2);
 
 	while (window.isOpen()) {
 		float ds = getDeltaSeconds();
@@ -288,28 +311,6 @@ void demo6() {
 		particleSystem.draw(window);
 		window.display();
 	}
-}
-
-void setParticleColor(sb::ParticleSystem& system, float alpha = 1);
-
-void init6(sb::ParticleSystem& system, sb::ParticleSystem& subSystem) {
-	subSystem.setParticleSizeRange(sb::Vector2f(0.15f, 0.15f));
-	subSystem.setEmissionRatePerSecond(0);
-	subSystem.addBurst(0, 50);
-	subSystem.setEmissionShape(sb::Disk(1));
-	subSystem.setLifetime(1);
-
-	system.setEmissionRatePerSecond(2);
-	system.setSubSystemOnParticleDeath(subSystem);
-
-	setParticleColor(system);
-}
-
-void setParticleColor(sb::ParticleSystem& system, float alpha) {
-	system.setParticleVertexColor(0, sb::Color(1, 0, 0, alpha));
-	system.setParticleVertexColor(1, sb::Color(0, 1, 0, alpha));
-	system.setParticleVertexColor(2, sb::Color(0, 0, 1, alpha));
-	system.setParticleVertexColor(3, sb::Color(0, 1, 1, alpha));
 }
 
 void init6b(sb::ParticleSystem& system) {
@@ -365,32 +366,27 @@ void init6e(sb::ParticleSystem& system) {
 	system.setScale(1);
 }
 
-void init5(sb::ParticleSystem& system) {
-	system.setEmissionRatePerSecond(100);
-	system.setParticleLifetimeRange(sb::Vector2f(1, 1));
-	system.setParticleSpeedRange(sb::Vector2f(0, 1));
-	system.setParticleSizeRange(sb::Vector2f(0.01f, 0.02f));
+void init6(sb::ParticleSystem& system, sb::ParticleSystem& subSystem) {
+	subSystem.setParticleSizeRange(sb::Vector2f(0.15f, 0.15f));
+	subSystem.setEmissionRatePerSecond(0);
+	subSystem.addBurst(0, 50);
+	subSystem.setEmissionShape(sb::Disk(1));
+	subSystem.setLifetime(1);
 
-	system.setParticleRotationRange(sb::Vector2f(0, 2 * sb::Pi));
-	system.setParticleAngularVelocityRange(sb::Vector2f(-4, 4));
-	system.setEmissionShape(sb::Disk(0.2f, 0.3f, 0, 360));
-	system.hasRandomEmissionDirection(true);
-	system.addBurst(1, 300);
-	system.addBurst(3, 600);
+	system.setEmissionRatePerSecond(2);
+	system.setSubSystemOnParticleDeath(subSystem);
 
-	system.setParticleVertexColor(0, sb::Color(1, 0, 0, 0.9f));
-	system.setParticleVertexColor(1, sb::Color(0, 1, 0, 0.9f));
-	system.setParticleVertexColor(2, sb::Color(0, 0, 1, 0.9f));
-	system.setParticleVertexColor(3, sb::Color(0, 1, 1, 0));
+	setParticleColor(system);
 }
 
-void demo5() {
+void demo6() {
 	sb::Window window;
 	sb::ParticleSystem particleSystem(1000);
+	particleSystem.id = "main";
+	sb::ParticleSystem subSystem(100);
 
+	init6(particleSystem, subSystem);
 	window.getCamera().setWidth(2.5);
-	init5(particleSystem);
-	particleSystem.setScale(2);
 
 	while (window.isOpen()) {
 		float ds = getDeltaSeconds();

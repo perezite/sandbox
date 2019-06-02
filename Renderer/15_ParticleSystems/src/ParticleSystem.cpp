@@ -79,16 +79,9 @@ namespace sb
 	void ParticleSystem::update(float ds)
 	{
 		_secondsSinceBirth += ds;
-
-		removeDeadParticles();
-		if (isAlive()) {
-			emitParticles(ds);
-			emitBursts(ds);
-			updateParticles(ds);
-			updateMesh(ds);
-		}
-		
-		removeDeadSubSystems(ds);
+	
+		updateParticleSystem(ds);
+		updateParticles(ds);
 		updateSubSystems(ds);
 
 		SB_DEBUG_IF(id == "main", _subSystems.size());
@@ -103,16 +96,17 @@ namespace sb
 		}
 	}
 
-	void ParticleSystem::removeDeadSubSystems(float ds)
+	void ParticleSystem::updateParticleSystem(float ds)
 	{
-		deleteFromVector(_subSystems, isParticleSystemDead);
+		translate(ds * velocity);
+		rotate(ds * angularVelocity);
 	}
 
 	bool ParticleSystem::isParticleDead(const Particle& particle)
 	{
 		return particle.secondsSinceBirth > particle.lifetime;
 	}
-
+	
 	void ParticleSystem::deactivateParticleInMesh(std::size_t meshIndex) 
 	{
 		_mesh[meshIndex * 6 + 0].position = Vector2f(0, 0);
@@ -155,12 +149,6 @@ namespace sb
 		std::vector<Particle>::iterator it =
 			std::find_if(_particles.begin(), _particles.end(), isParticleInactive);
 		return std::distance(_particles.begin(), it);
-	}
-
-	Color ParticleSystem::randomColor(const Color& left, const Color right) 
-	{
-		return Color(random(left.r, right.r), random(left.g, right.g),
-			random(left.b, right.b), random(left.a, right.a));
 	}
 
 	Vector2f ParticleSystem::getDirection(Particle& particle) 
@@ -270,7 +258,7 @@ namespace sb
 			updateVertexColor(particle.vertexColors[i], particle.startVertexColors[i], particle);
 	}
 
-	void ParticleSystem::updateParticle(Particle& particle, float ds) 
+	void ParticleSystem::transformParticle(Particle& particle, float ds) 
 	{
 		particle.secondsSinceBirth += ds;
 
@@ -284,11 +272,11 @@ namespace sb
 		updateVertexColors(particle);
 	}
 
-	void ParticleSystem::updateParticles(float ds) 
+	void ParticleSystem::transformParticles(float ds) 
 	{
 		for (std::size_t i = 0; i < _particles.size(); i++) {
 			if (_particles[i].isActive)
-				updateParticle(_particles[i], ds);
+				transformParticle(_particles[i], ds);
 		}
 	}
 
@@ -317,8 +305,21 @@ namespace sb
 		}
 	}
 
+	void ParticleSystem::updateParticles(float ds)
+	{
+		removeDeadParticles();
+		if (isAlive()) {
+			emitParticles(ds);
+			emitBursts(ds);
+			transformParticles(ds);
+			updateMesh(ds);
+		}
+	}
+
 	void ParticleSystem::updateSubSystems(float ds)
 	{
+		deleteFromVector(_subSystems, isParticleSystemDead);
+
 		for (std::size_t i = 0; i < _subSystems.size(); i++)
 			_subSystems[i]->update(ds);
 	}
