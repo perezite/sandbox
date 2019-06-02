@@ -1,3 +1,4 @@
+#pragma once
 #include "Vector2.h"
 #include "Transformable.h"
 

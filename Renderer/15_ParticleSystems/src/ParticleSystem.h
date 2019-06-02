@@ -1,53 +1,193 @@
+#pragma once
 #include "Drawable.h"
 #include "Transformable.h"
+#include "Body.h"
+#include "Color.h"
+#include "Vector2.h"
+#include "Mesh.h"
+#include "Texture.h"
+#include "Tween.h"
+#include "Shape.h"
+#include "Disk.h"
+#include "Math.h"
+#include "Memory.h"
+#include <vector>
+#include <algorithm>
 
 namespace sb
 {
-	class ParticleSystem : public Drawable, public Transformable 
-	{
+	class ParticleSystem : public Drawable, public Transformable {
+
+		struct Particle : public Body {
+			std::vector<Color> startVertexColors = std::vector<Color>(4);
+			std::vector<Color> vertexColors = std::vector<Color>(4);
+			float secondsSinceBirth = 0;
+			float lifetime = 0;
+			Vector2f startScale;
+			bool isActive = false;
+		};
+
+		struct Burst {
+			std::size_t numParticles;
+			float emissionTime;
+			bool emitted = false;
+
+			Burst(float emissionTime_, std::size_t numParticles_)
+				: numParticles(numParticles_), emissionTime(emissionTime_)
+			{ }
+		};
+
 	public:
-		ParticleSystem(std::size_t numParticles, float timeOffset = 0);
+		ParticleSystem(std::size_t maxNumParticles)
+			: _mesh(maxNumParticles * 6, PrimitiveType::TriangleStrip), _texture(NULL),
+			_particles(maxNumParticles), _numActiveParticles(0),
+			_secondsSinceLastEmission(1), _secondsSinceBirth(0),
+			_canDie(false), _lifetime(1), _emissionRatePerSecond(1), _drag(0), _angularDrag(0),
+			_particleLifetimeRange(1, 1), _particleSizeRange(0.1f, 0.1f), _particleRotationRange(0, 0),
+			_particleSpeedRange(1, 1), _particleVertexColors(4, Color(1, 0, 0, 1)), _hasParticleColorChannelsOverLifetime(4, false),
+			_particleColorChannelsOverLifetime(4), _hasParticleScaleOverLifetime(false), _emissionShape(new Disk(0)),
+			_hasRandomEmissionDirection(false), _subSystemOnParticleDeath(NULL)
+		{ }
 
-		inline void setTexture(const sb::Texture& texture) { m_texture = &texture; }
+		ParticleSystem(const ParticleSystem& other);
 
-		inline void setParticleSizeRange(float min, float max) { m_particleSizeRange = sb::Vector2f(min, max); }
+		virtual ~ParticleSystem();
+
+		inline void setDrag(float drag) { _drag = drag; }
+
+		inline void setAngularDrag(float angularDrag) { _angularDrag = angularDrag; }
+
+		inline void setParticleLifetimeRange(const Vector2f& lifetimeRange) { _particleLifetimeRange = lifetimeRange; }
+
+		inline void setParticleSizeRange(const Vector2f& sizeRange) { _particleSizeRange = sizeRange; }
+
+		inline void setParticleRotationRange(const Vector2f& rotationRange) { _particleRotationRange = rotationRange; }
+
+		inline void setParticleSpeedRange(const Vector2f& speedRange) { _particleSpeedRange = speedRange; }
+
+		inline void setParticleAngularVelocityRange(const Vector2f& range) { _particleAngularVelocityRange = range; }
+
+		inline void canDie(bool canDie) { _canDie = canDie; }
+
+		inline void hasRandomEmissionDirection(bool hasRandomEmission) { _hasRandomEmissionDirection = hasRandomEmission; }
+
+		template <class T>
+		inline void setEmissionShape(const T& shape) {
+			delete _emissionShape;
+			_emissionShape = new T(shape);
+		}
+
+		void setEmissionRatePerSecond(float rate);
+
+		void addBurst(float emissionTime, std::size_t _numParticles);
+
+		void setParticleVertexColor(std::size_t index, const Color& color);
+
+		void setParticleColor(const Color& color);
+
+		void setParticleColorChannelOverLifetime(std::size_t channelIndex, const Tween& particleColorChannelOverLifetime);
+
+		void setParticleScaleOverLifetime(const Tween& particleScaleOverLifetime);
+
+		void setLifetime(float lifetime);
+
+		void setSubSystemOnParticleDeath(const ParticleSystem& subSystem);
+
+		bool isAlive();
 
 		void update(float ds);
 
-		virtual void draw(sb::DrawTarget& target, sb::DrawStates drawStates = sb::DrawStates::getDefault());
+		virtual void draw(DrawTarget& target, DrawStates states = DrawStates::getDefault());
+
+	public:
+		std::string id;
 
 	protected:
-		void scaleParticles(float ds);
+		inline static bool isParticleSystemDead(ParticleSystem* particleSystem) { return !particleSystem->isAlive(); }
 
-		void scaleParticle();
+		void removeDeadSubSystems(float ds);
+		
+		static bool isParticleDead(const Particle& particle);
 
-		void scaleParticle(std::size_t index);
+		void deactivateParticleInMesh(std::size_t meshIndex);
 
-		void randomizeParticle(std::size_t index, const sb::Vector2f& positionRange);
+		void spawnSubSystem(const Particle& particle);
 
-		void setParticle(sb::Transform& transform, std::size_t index);
+		void removeDeadParticles();
 
-		void hideParticle(std::size_t index);
+		static bool isParticleInactive(const Particle& particle);
 
-		void moveParticles(float ds);
+		std::size_t findAvailableIndex();
 
-		void moveParticle(float ds, std::size_t index);
+		Color randomColor(const Color& left, const Color right);
+
+		Vector2f getDirection(Particle& particle);
+
+		void initParticle(Particle& particle);
+
+		void emitParticle();
+
+		void emitParticles(float ds);
+
+		void emitBurst(Burst& burst);
+
+		void emitBursts(float ds);
+
+		Vector2f computeForce(Particle& particle);
+
+		float computeTorque(Particle& particle);
+
+		void updateScale(Particle& particle);
+
+		float getNormalizedSecondsSinceBirth(const Particle& particle);
+
+		void updateVertexColorChannel(std::size_t channelIndex, float& colorChannel, const float& startColorChannel, float t);
+
+		void updateVertexColor(Color& color, const Color& startColor, Particle& particle);
+
+		void updateVertexColors(Particle& particle);
+
+		void updateParticle(Particle& particle, float ds);
+
+		void updateParticles(float ds);
+
+		void updateParticleVertices(Particle& particle, std::size_t index);
+
+		void updateMesh(float ds);
+
+		void updateSubSystems(float ds);
+
+		void drawSubSystems(DrawTarget& target, DrawStates& states);
 
 	private:
-		const sb::Texture* m_texture;
-		
-		sb::Mesh m_mesh;
+		Mesh _mesh;
+		Texture* _texture;
 
-		std::size_t m_numParticles;
+		std::vector<Particle> _particles;
+		std::vector<Burst> _bursts;
+		std::size_t _numActiveParticles;
+		float _secondsSinceLastEmission;
+		float _secondsSinceBirth;
 
-		sb::Vector2f m_particleSizeRange;
+		bool _canDie;
+		float _lifetime;
+		float _emissionRatePerSecond;
+		float _drag;
+		float _angularDrag;
+		Vector2f _particleLifetimeRange;
+		Vector2f _particleSizeRange;
+		Vector2f _particleRotationRange;
+		Vector2f _particleSpeedRange;
+		Vector2f _particleAngularVelocityRange;
+		std::vector<Color> _particleVertexColors;
+		std::vector<bool> _hasParticleColorChannelsOverLifetime;
+		std::vector<Tween> _particleColorChannelsOverLifetime;
+		bool _hasParticleScaleOverLifetime;
+		Tween _particleScaleOverLifetime;
+		Shape* _emissionShape;
+		bool _hasRandomEmissionDirection;
 
-		std::vector<sb::Vector2f> m_velocities;
-
-		std::size_t m_updateIndex;
-
-		bool m_isGrowing;
-
-		float m_elapsed;
+		ParticleSystem* _subSystemOnParticleDeath;
+		std::vector<ParticleSystem*> _subSystems;
 	};
 }

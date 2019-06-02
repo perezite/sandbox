@@ -1,108 +1,331 @@
 #include "ParticleSystem.h"
 #include "DrawTarget.h"
-#include "Math.h"
+#include "Logger.h"
 
 namespace sb
 {
-	ParticleSystem::ParticleSystem(std::size_t numParticles, float timeOffset)
-		: m_texture(NULL), m_mesh(numParticles * 6, sb::PrimitiveType::TriangleStrip),
-			m_numParticles(numParticles), m_particleSizeRange(0, 0.1f), m_velocities(numParticles), 
-			m_updateIndex(0), m_isGrowing(true), m_elapsed(0)
-	{ }
+	ParticleSystem::ParticleSystem(const ParticleSystem& other) 
+	{
+		*this = other;
+		this->_emissionShape = other._emissionShape->clone();
+		copy(this->_subSystemOnParticleDeath, other._subSystemOnParticleDeath);
+		copyVector(this->_subSystems, other._subSystems);
+	}
+
+	ParticleSystem::~ParticleSystem()
+	{
+		for (std::size_t i = 0; i < _subSystems.size(); i++)
+			delete _subSystems[i];
+		if (_subSystemOnParticleDeath)
+			delete _subSystemOnParticleDeath;
+		delete _emissionShape;
+	}
+
+	void ParticleSystem::setEmissionRatePerSecond(float rate)
+	{
+		_secondsSinceLastEmission = rate == 0 ? 0 : 1 / rate;
+		_emissionRatePerSecond = rate;
+	}
+
+	void ParticleSystem::addBurst(float emissionTime, std::size_t _numParticles) 
+	{
+		_bursts.emplace_back(emissionTime, _numParticles);
+	}
+
+	void ParticleSystem::setParticleVertexColor(std::size_t index, const Color& color)
+	{
+		SB_ERROR_IF(index > 4, "Vertex index out of range");
+		_particleVertexColors[index] = color;
+	}
+
+	void ParticleSystem::setParticleColor(const Color& color)
+	{
+		std::fill(_particleVertexColors.begin(), _particleVertexColors.end(), color);
+	}
+
+	void ParticleSystem::setParticleColorChannelOverLifetime(std::size_t channelIndex, const Tween& particleColorChannelOverLifetime) 
+	{
+		SB_ERROR_IF(channelIndex > 4, "Color channel index out of range");
+		SB_ERROR_IF(particleColorChannelOverLifetime.getDuration() > 1, "Tween duration out of range");
+		_particleColorChannelsOverLifetime[channelIndex] = particleColorChannelOverLifetime;
+		_hasParticleColorChannelsOverLifetime[channelIndex] = true;
+	}
+
+	void ParticleSystem::setParticleScaleOverLifetime(const Tween& particleScaleOverLifetime) 
+	{
+		SB_ERROR_IF(particleScaleOverLifetime.getDuration() > 1, "Tween duration out of range");
+		_particleScaleOverLifetime = particleScaleOverLifetime;
+		_hasParticleScaleOverLifetime = true;
+	}
+
+	void ParticleSystem::setLifetime(float lifetime)
+	{
+		_canDie = true;
+		_lifetime = lifetime;
+	}
+
+	void ParticleSystem::setSubSystemOnParticleDeath(const ParticleSystem& subSystem)
+	{
+		if (_subSystemOnParticleDeath)
+			delete _subSystemOnParticleDeath;
+		_subSystemOnParticleDeath = new ParticleSystem(subSystem);
+	}
+
+	bool ParticleSystem::isAlive() 
+	{
+		return !_canDie || _secondsSinceBirth < _lifetime || !_subSystems.empty() || _numActiveParticles > 0;
+	}
 
 	void ParticleSystem::update(float ds)
 	{
-		scaleParticles(ds);
-		moveParticles(ds);
+		_secondsSinceBirth += ds;
+
+		removeDeadParticles();
+		if (isAlive()) {
+			emitParticles(ds);
+			emitBursts(ds);
+			updateParticles(ds);
+			updateMesh(ds);
+		}
+		
+		removeDeadSubSystems(ds);
+		updateSubSystems(ds);
+
+		SB_DEBUG_IF(id == "main", _subSystems.size());
 	}
 
-	void ParticleSystem::draw(sb::DrawTarget& target, sb::DrawStates drawStates)
-	{
-		drawStates.transform *= getTransform();
-		drawStates.texture = m_texture;
-		target.draw(m_mesh.getVertices(), m_mesh.getPrimitiveType(), drawStates);
-	}
-
-	void ParticleSystem::scaleParticles(float ds)
-	{
-		m_elapsed += ds;
-		float decayRate = 0.35f;
-		float decayInterval = 1 / (m_numParticles * decayRate);
-		while (m_elapsed > decayInterval) {
-			scaleParticle();
-			m_elapsed -= decayInterval;
+	void ParticleSystem::draw(DrawTarget& target, DrawStates states) {
+		if (isAlive()) {
+			states.transform *= getTransform();
+			states.texture = _texture;
+			target.draw(_mesh.getVertices(), _mesh.getPrimitiveType(), states);
+			drawSubSystems(target, states);
 		}
 	}
 
-	void ParticleSystem::scaleParticle()
+	void ParticleSystem::removeDeadSubSystems(float ds)
 	{
-		scaleParticle(m_updateIndex);
-		m_updateIndex++;
-		if (m_updateIndex == m_numParticles - 1) {
-			m_isGrowing = !m_isGrowing;
-			m_updateIndex = 0;
+		deleteFromVector(_subSystems, isParticleSystemDead);
+	}
+
+	bool ParticleSystem::isParticleDead(const Particle& particle)
+	{
+		return particle.secondsSinceBirth > particle.lifetime;
+	}
+
+	void ParticleSystem::deactivateParticleInMesh(std::size_t meshIndex) 
+	{
+		_mesh[meshIndex * 6 + 0].position = Vector2f(0, 0);
+		_mesh[meshIndex * 6 + 1].position = Vector2f(0, 0);
+		_mesh[meshIndex * 6 + 2].position = Vector2f(0, 0);
+		_mesh[meshIndex * 6 + 3].position = Vector2f(0, 0);
+		_mesh[meshIndex * 6 + 4].position = Vector2f(0, 0);
+		_mesh[meshIndex * 6 + 5].position = Vector2f(0, 0);
+	}
+
+	void ParticleSystem::spawnSubSystem(const Particle& particle) 
+	{
+		ParticleSystem* subSystem = new ParticleSystem(*_subSystemOnParticleDeath);
+		subSystem->setPosition(particle.getPosition());
+		subSystem->setScale(particle.getScale());
+		subSystem->setRotation(particle.getRotation());
+		_subSystems.push_back(subSystem);
+	}
+
+	void ParticleSystem::removeDeadParticles() 
+	{
+		for (std::size_t i = 0; i < _particles.size(); i++) {
+			if (_particles[i].isActive && isParticleDead(_particles[i])) {
+				_particles[i].isActive = false;
+				_numActiveParticles--;
+				deactivateParticleInMesh(i);
+				if (_subSystemOnParticleDeath)
+					spawnSubSystem(_particles[i]);
+			}
 		}
 	}
 
-	void ParticleSystem::scaleParticle(std::size_t index)
+	bool ParticleSystem::isParticleInactive(const Particle& particle) 
 	{
-		static const sb::Vector2f positionRange(-0.1f, 0.1f);
-		if (m_isGrowing)
-			randomizeParticle(index, positionRange);
-		else
-			hideParticle(index);
+		return !particle.isActive;
 	}
 
-	void ParticleSystem::randomizeParticle(std::size_t index, const sb::Vector2f& positionRange)
+	std::size_t ParticleSystem::findAvailableIndex() 
 	{
-		sb::Vector2f position = sb::random2D(positionRange.x, positionRange.y);
-		sb::Vector2f scale = sb::random(m_particleSizeRange.x, m_particleSizeRange.y);
-		float rotation = sb::random(0, 2 * sb::Pi);
-		sb::Transform transform(position, scale, rotation);
-		setParticle(transform, index);
-		m_velocities[index] = sb::random(0.05f, 0.5f) * position.normalized();
+		std::vector<Particle>::iterator it =
+			std::find_if(_particles.begin(), _particles.end(), isParticleInactive);
+		return std::distance(_particles.begin(), it);
 	}
 
-	void ParticleSystem::setParticle(sb::Transform& transform, std::size_t index)
+	Color ParticleSystem::randomColor(const Color& left, const Color right) 
 	{
-		std::vector<sb::Vector2f> edges(4);
-		edges[0] = transform * sb::Vector2f(-0.5f, -0.5f);
-		edges[1] = transform * sb::Vector2f(0.5f, -0.5f);
-		edges[2] = transform * sb::Vector2f(-0.5f, 0.5f);
-		edges[3] = transform * sb::Vector2f(0.5f, 0.5f);
-
-		const sb::Color color(1, 1, 1, 0.3f);
-		m_mesh[index * 6 + 0] = sb::Vertex(edges[0], color, sb::Vector2f(0, 0));
-		m_mesh[index * 6 + 1] = sb::Vertex(edges[0], color, sb::Vector2f(0, 0));
-		m_mesh[index * 6 + 2] = sb::Vertex(edges[1], color, sb::Vector2f(1, 0));
-		m_mesh[index * 6 + 3] = sb::Vertex(edges[2], color, sb::Vector2f(0, 1));
-		m_mesh[index * 6 + 4] = sb::Vertex(edges[3], color, sb::Vector2f(1, 1));
-		m_mesh[index * 6 + 5] = sb::Vertex(edges[3], color, sb::Vector2f(1, 1));
+		return Color(random(left.r, right.r), random(left.g, right.g),
+			random(left.b, right.b), random(left.a, right.a));
 	}
 
-	void ParticleSystem::hideParticle(std::size_t index)
+	Vector2f ParticleSystem::getDirection(Particle& particle) 
 	{
-		m_mesh[index * 6 + 0].position = sb::Vector2f(0, 0);
-		m_mesh[index * 6 + 1].position = sb::Vector2f(0, 0);
-		m_mesh[index * 6 + 2].position = sb::Vector2f(0, 0);
-		m_mesh[index * 6 + 3].position = sb::Vector2f(0, 0);
-		m_mesh[index * 6 + 4].position = sb::Vector2f(0, 0);
-		m_mesh[index * 6 + 5].position = sb::Vector2f(0, 0);
+		bool randomDirection = _hasRandomEmissionDirection || _emissionShape->getBoundingRadius() < 0.0001f;
+		return randomDirection ? randomOnCircle(1) : particle.getPosition().normalized();
 	}
 
-	void ParticleSystem::moveParticles(float ds)
+	void ParticleSystem::initParticle(Particle& particle) 
 	{
-		for (std::size_t i = 0; i < m_numParticles; i++)
-			moveParticle(ds, i);
+		particle.setPosition(_emissionShape->random());
+		float size = random(_particleSizeRange.x, _particleSizeRange.y);
+		particle.setScale(size, size);
+		particle.startScale = Vector2f(size, size);
+		particle.setRotation(random(_particleRotationRange.x, _particleRotationRange.y));
+		Vector2f direction = getDirection(particle);
+		particle.velocity = random(_particleSpeedRange.x, _particleSpeedRange.y) * direction;
+		particle.angularVelocity = random(_particleAngularVelocityRange.x, _particleAngularVelocityRange.y);
+		particle.lifetime = random(_particleLifetimeRange.x, _particleLifetimeRange.y);
+		particle.vertexColors = _particleVertexColors;
+		particle.startVertexColors = _particleVertexColors;
+		particle.isActive = true;
 	}
 
-	void ParticleSystem::moveParticle(float ds, std::size_t index) 
+	void ParticleSystem::emitParticle() 
 	{
-		m_mesh[index * 6 + 0].position += ds * m_velocities[index];
-		m_mesh[index * 6 + 1].position += ds * m_velocities[index];
-		m_mesh[index * 6 + 2].position += ds * m_velocities[index];
-		m_mesh[index * 6 + 3].position += ds * m_velocities[index];
-		m_mesh[index * 6 + 4].position += ds * m_velocities[index];
-		m_mesh[index * 6 + 5].position += ds * m_velocities[index];
+		if (_numActiveParticles == _particles.size())
+			return;
+
+		std::size_t availableIndex = findAvailableIndex();
+		Particle particle;
+		initParticle(particle);
+		_particles[availableIndex] = particle;
+		_numActiveParticles++;
+	}
+
+	void ParticleSystem::emitParticles(float ds) 
+	{
+		_secondsSinceLastEmission += ds;
+		float emissionInterval = 1 / _emissionRatePerSecond;
+		while (_secondsSinceLastEmission > emissionInterval) {
+			emitParticle();
+			_secondsSinceLastEmission -= emissionInterval;
+		}
+	}
+
+	void ParticleSystem::emitBurst(Burst& burst) 
+	{
+		for (std::size_t i = 0; i < burst.numParticles; i++)
+			emitParticle();
+
+		burst.emitted = true;
+	}
+
+	void ParticleSystem::emitBursts(float ds) 
+	{
+		for (std::size_t i = 0; i < _bursts.size(); i++) {
+			if (!_bursts[i].emitted && _secondsSinceBirth >= _bursts[i].emissionTime)
+				emitBurst(_bursts[i]);
+		}
+	}
+
+	Vector2f ParticleSystem::computeForce(Particle& particle) 
+	{
+		Vector2f dragForce = -_drag * particle.velocity;
+		return dragForce;
+	}
+
+	float ParticleSystem::computeTorque(Particle& particle)
+	{
+		float dragTorque = -_angularDrag * particle.angularVelocity;
+		return dragTorque;
+	}
+
+	void ParticleSystem::updateScale(Particle& particle) 
+	{
+		if (_hasParticleScaleOverLifetime) {
+			float t = getNormalizedSecondsSinceBirth(particle);
+			particle.setScale(_particleScaleOverLifetime.value(t) * particle.startScale);
+		}
+	}
+
+	float ParticleSystem::getNormalizedSecondsSinceBirth(const Particle & particle)
+	{
+		return particle.secondsSinceBirth / particle.lifetime;
+	}
+
+	void ParticleSystem::updateVertexColorChannel(std::size_t channelIndex, float& colorChannel, const float& startColorChannel, float t)
+	{
+		if (_hasParticleColorChannelsOverLifetime[channelIndex])
+			colorChannel = startColorChannel * _particleColorChannelsOverLifetime[channelIndex].value(t);
+	}
+
+	void ParticleSystem::updateVertexColor(Color& color, const Color& startColor, Particle& particle) 
+	{
+		float t = getNormalizedSecondsSinceBirth(particle);
+
+		updateVertexColorChannel(0, color.r, startColor.r, t);
+		updateVertexColorChannel(1, color.g, startColor.g, t);
+		updateVertexColorChannel(2, color.b, startColor.b, t);
+		updateVertexColorChannel(3, color.a, startColor.a, t);
+	}
+
+	void ParticleSystem::updateVertexColors(Particle& particle) 
+	{
+		for (std::size_t i = 0; i < particle.vertexColors.size(); i++)
+			updateVertexColor(particle.vertexColors[i], particle.startVertexColors[i], particle);
+	}
+
+	void ParticleSystem::updateParticle(Particle& particle, float ds) 
+	{
+		particle.secondsSinceBirth += ds;
+
+		particle.velocity += ds * computeForce(particle);
+		particle.angularVelocity += ds * computeTorque(particle);
+
+		particle.translate(ds * particle.velocity);
+		particle.rotate(ds * particle.angularVelocity);
+
+		updateScale(particle);
+		updateVertexColors(particle);
+	}
+
+	void ParticleSystem::updateParticles(float ds) 
+	{
+		for (std::size_t i = 0; i < _particles.size(); i++) {
+			if (_particles[i].isActive)
+				updateParticle(_particles[i], ds);
+		}
+	}
+
+	void ParticleSystem::updateParticleVertices(Particle& particle, std::size_t index) 
+	{
+		std::vector<Vector2f> edges(4);
+		edges[0] = particle.getTransform() * Vector2f(-0.5f, -0.5f);
+		edges[1] = particle.getTransform() * Vector2f(0.5f, -0.5f);
+		edges[2] = particle.getTransform() * Vector2f(-0.5f, 0.5f);
+		edges[3] = particle.getTransform() * Vector2f(0.5f, 0.5f);
+
+		const Color color(1, 0, 0, 1);
+		_mesh[index * 6 + 0] = Vertex(edges[0], particle.vertexColors[0], Vector2f(0, 0));
+		_mesh[index * 6 + 1] = Vertex(edges[0], particle.vertexColors[0], Vector2f(0, 0));
+		_mesh[index * 6 + 2] = Vertex(edges[1], particle.vertexColors[1], Vector2f(1, 0));
+		_mesh[index * 6 + 3] = Vertex(edges[2], particle.vertexColors[2], Vector2f(0, 1));
+		_mesh[index * 6 + 4] = Vertex(edges[3], particle.vertexColors[3], Vector2f(1, 1));
+		_mesh[index * 6 + 5] = Vertex(edges[3], particle.vertexColors[3], Vector2f(1, 1));
+	}
+
+	void ParticleSystem::updateMesh(float ds) 
+	{
+		for (std::size_t i = 0; i < _particles.size(); i++) {
+			if (_particles[i].isActive)
+				updateParticleVertices(_particles[i], i);
+		}
+	}
+
+	void ParticleSystem::updateSubSystems(float ds)
+	{
+		for (std::size_t i = 0; i < _subSystems.size(); i++)
+			_subSystems[i]->update(ds);
+	}
+
+	void ParticleSystem::drawSubSystems(DrawTarget& target, DrawStates& states)
+	{
+		for (std::size_t i = 0; i < _subSystems.size(); i++)
+			target.draw(_subSystems[i], states);
 	}
 }
