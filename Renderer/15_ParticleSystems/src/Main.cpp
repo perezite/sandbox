@@ -466,6 +466,20 @@ inline void copyVector(std::vector<T*>& destination, const std::vector<T*>& sour
 	std::copy(source.begin(), source.end(), destination.begin());
 }
 
+template <class T>
+inline void deleteFromVector(std::vector<T*>& vec, bool(*predicate)(T*)) {
+	std::vector<ParticleSystem*> toDelete;
+	for (std::size_t i = 0; i < vec.size(); i++) {
+		if (predicate(vec[i]))
+			toDelete.push_back(vec[i]);
+	}
+		
+	vec.erase(std::remove_if(vec.begin(), vec.end(), predicate), vec.end());
+	
+	for (std::size_t i = 0; i < toDelete.size(); i++)
+		delete toDelete[i];
+}
+
 class ParticleSystem : public sb::Drawable, public sb::Transformable {
 	struct Particle : public sb::Body {
 		float lifetime = 0;
@@ -485,7 +499,6 @@ class ParticleSystem : public sb::Drawable, public sb::Transformable {
 			: numParticles(numParticles_), emissionTime(emissionTime_)
 		{ }
 	};
-
 
 public:
 	sb::Mesh _mesh;
@@ -535,6 +548,8 @@ protected:
 	void spawnSubSystem(const Particle& particle) {
 		ParticleSystem* subSystem = new ParticleSystem(*_subSystemOnParticleDeath);
 		subSystem->setPosition(particle.getPosition());
+		subSystem->setScale(particle.getScale());
+		subSystem->setRotation(particle.getRotation());
 		_subSystems.push_back(subSystem);
 	}
 
@@ -560,7 +575,7 @@ protected:
 		return std::distance(_particles.begin(), it);
 	}
 
-	sb::Color random(const sb::Color& left, const sb::Color right) {
+	sb::Color randomColor(const sb::Color& left, const sb::Color right) {
 		return sb::Color(sb::random(left.r, right.r), sb::random(left.g, right.g),
 			sb::random(left.b, right.b), sb::random(left.a, right.a));
 	}
@@ -704,23 +719,22 @@ protected:
 
 	inline static bool isParticleSystemDead(ParticleSystem* particleSystem) { return !particleSystem->isAlive(); }
 
-	inline static void deleteIfDead(ParticleSystem* particleSystem) {
-		if (isParticleSystemDead(particleSystem))
-			delete particleSystem;
-	}
-
-	inline void deleteDeadSubSystems(float ds) {
-		std::for_each(_subSystems.begin(), _subSystems.end(), deleteIfDead);
-		_subSystems.erase(std::remove_if(_subSystems.begin(), _subSystems.end(), isParticleSystemDead), _subSystems.end());
+	inline void removeDeadSubSystems(float ds) {
+		deleteFromVector(_subSystems, isParticleSystemDead);
 	}
 
 	void updateSubSystems(float ds);
+
+	void drawSubSystems(sb::DrawTarget& target, sb::DrawStates& states) {
+		for (std::size_t i = 0; i < _subSystems.size(); i++) 
+			target.draw(_subSystems[i], states);
+	}
 
 public:
 	ParticleSystem(std::size_t maxNumParticles)
 		: _mesh(maxNumParticles * 6, sb::PrimitiveType::TriangleStrip), _texture(NULL),
 		_particles(maxNumParticles), _numActiveParticles(0),
-		_secondsSinceLastEmission(0), _secondsSinceBirth(0),
+		_secondsSinceLastEmission(1), _secondsSinceBirth(0),
 		_canDie(false) ,_lifetime(1), _emissionRatePerSecond(1), _drag(0), _angularDrag(0),
 		_particleLifetimeRange(1, 1), _particleSizeRange(0.1f, 0.1f), _particleRotationRange(0, 0), 
 		_particleSpeedRange(1, 1),_particleVertexColors(4, sb::Color(1, 0, 0, 1)), _hasParticleColorChannelsOverLifetime(4, false),
@@ -743,7 +757,10 @@ public:
 		delete _emissionShape;
 	}
 
-	inline void setEmissionRatePerSecond(float rate) { _emissionRatePerSecond = rate; }
+	void setEmissionRatePerSecond(float rate) { 
+		_secondsSinceLastEmission = rate == 0 ? 0 : 1 / rate;
+		_emissionRatePerSecond = rate; 
+	}
 
 	inline void setDrag(float drag) { _drag = drag; }
 
@@ -806,7 +823,7 @@ public:
 	}
 	
 	bool isAlive() { 
-		return !_canDie || _secondsSinceBirth < _lifetime || !_subSystems.empty(); 
+		return !_canDie || _secondsSinceBirth < _lifetime || !_subSystems.empty() || _numActiveParticles > 0; 
 	}
 
 	void update(float ds) { 
@@ -820,8 +837,11 @@ public:
 			updateMesh(ds);
 		}
 
-		deleteDeadSubSystems(ds);
+		removeDeadSubSystems(ds);
 		updateSubSystems(ds);
+
+		if (id == "main")
+			std::cout << _subSystems.size() << std::endl;
 	}
 
 	virtual void draw(sb::DrawTarget& target, sb::DrawStates states = sb::DrawStates::getDefault()) { 
@@ -829,8 +849,11 @@ public:
 			states.transform *= getTransform();
 			states.texture = _texture;
 			target.draw(_mesh.getVertices(), _mesh.getPrimitiveType(), states);
+			drawSubSystems(target, states);
 		}
 	}
+
+	std::string id;
 };
 
 void ParticleSystem::updateSubSystems(float ds) {
@@ -838,32 +861,45 @@ void ParticleSystem::updateSubSystems(float ds) {
 		_subSystems[i]->update(ds);
 }
 
-void init6(ParticleSystem& system);
+void init6(ParticleSystem& system, ParticleSystem& subSystem);
 
 void demo6() {
 	sb::Window window;
-	ParticleSystem particleSystem(1);
-	particleSystem.setEmissionRatePerSecond(1000);
-	ParticleSystem particleSystem2(particleSystem);
+	ParticleSystem particleSystem(1000);
+	particleSystem.id = "main";
+	ParticleSystem subSystem(100);
 
+	init6(particleSystem, subSystem);
 	window.getCamera().setWidth(2.5);
 
 	while (window.isOpen()) {
 		float ds = getDeltaSeconds();
 		sb::Input::update();
 		window.update();
-		particleSystem2.update(ds);
+		particleSystem.update(ds);
 
 		window.clear(sb::Color(1, 1, 1, 1));
-		particleSystem2.draw(window);
+		particleSystem.draw(window);
 		window.display();
 	}
 }
 
-void init6(ParticleSystem& system) {
+void setParticleColor(ParticleSystem& system, float alpha = 1);
+
+void init6(ParticleSystem& system, ParticleSystem& subSystem) {
+	subSystem.setParticleSizeRange(sb::Vector2f(0.15f, 0.15f));
+	subSystem.setEmissionRatePerSecond(0);
+	subSystem.addBurst(0, 50);
+	subSystem.setEmissionShape(Disk(1));
+	subSystem.setLifetime(1);
+
+	system.setEmissionRatePerSecond(2);
+	system.setSubSystemOnParticleDeath(subSystem);
+
+	setParticleColor(system);
 }
 
-void setParticleColor(ParticleSystem& system, float alpha = 1) {
+void setParticleColor(ParticleSystem& system, float alpha) {
 	system.setParticleVertexColor(0, sb::Color(1, 0, 0, alpha));
 	system.setParticleVertexColor(1, sb::Color(0, 1, 0, alpha));
 	system.setParticleVertexColor(2, sb::Color(0, 0, 1, alpha));
