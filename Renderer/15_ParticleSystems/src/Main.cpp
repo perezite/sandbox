@@ -979,8 +979,184 @@ void demo6() {
 	}
 }
 
+class SimpleParticleSystem : public sb::Drawable, public sb::Transformable {
+	struct Particle : public sb::Body {
+		float lifetime = 0;
+		float secondsSinceBirth = 0;
+		bool isActive = false;
+		std::vector<sb::Color> vertexColors = std::vector<sb::Color>(4);
+	};
+
+public:
+	sb::Mesh _mesh;
+	sb::Texture* _texture;
+
+	std::vector<Particle> _particles;
+	std::size_t _numActiveParticles;
+	float _secondsSinceLastEmission;
+
+protected:
+	static bool isParticleDead(const Particle& particle) {
+		return particle.secondsSinceBirth > particle.lifetime;
+	}
+
+	void deactivateParticleInMesh(std::size_t meshIndex) {
+		_mesh[meshIndex * 6 + 0].position = sb::Vector2f(0, 0);
+		_mesh[meshIndex * 6 + 1].position = sb::Vector2f(0, 0);
+		_mesh[meshIndex * 6 + 2].position = sb::Vector2f(0, 0);
+		_mesh[meshIndex * 6 + 3].position = sb::Vector2f(0, 0);
+		_mesh[meshIndex * 6 + 4].position = sb::Vector2f(0, 0);
+		_mesh[meshIndex * 6 + 5].position = sb::Vector2f(0, 0);
+	}
+
+	void removeDeadParticles() {
+		for (std::size_t i = 0; i < _particles.size(); i++) {
+			if (_particles[i].isActive && isParticleDead(_particles[i])) {
+				_particles[i].isActive = false;
+				_numActiveParticles--;
+				deactivateParticleInMesh(i);
+			}
+		}
+	}
+
+	static bool isParticleInactive(const Particle& particle) {
+		return !particle.isActive;
+	}
+
+	std::size_t findAvailableIndex() {
+		std::vector<Particle>::iterator it =
+			std::find_if(_particles.begin(), _particles.end(), isParticleInactive);
+		return std::distance(_particles.begin(), it);
+	}
+
+	sb::Color random(const sb::Color& left, const sb::Color right) {
+		return sb::Color(sb::random(left.r, right.r), sb::random(left.g, right.g),
+			sb::random(left.b, right.b), sb::random(left.a, right.a));
+	}
+
+	void initParticle(Particle& particle) {
+		particle.setPosition(0, 0);
+		float size = sb::random(0.2f, 0.2f);
+		particle.setScale(size, size);
+		particle.velocity = 0.2f *  sb::randomOnCircle(1);
+		particle.lifetime = 1;
+		particle.vertexColors = { sb::Color(1, 0, 0, 1), sb::Color(0, 1, 0, 1), sb::Color(0, 0, 1, 1), sb::Color(0, 0, 1 , 1) };
+		particle.isActive = true;
+	}
+
+	void emitParticle() {
+		if (_numActiveParticles == _particles.size())
+			return;
+
+		std::size_t availableIndex = findAvailableIndex();
+		Particle particle;
+		initParticle(particle);
+		_particles[availableIndex] = particle;
+		_numActiveParticles++;
+	}
+
+	void emitParticles(float ds) {
+		_secondsSinceLastEmission += ds;
+		float emissionInterval = 0.1f;
+		while (_secondsSinceLastEmission > emissionInterval) {
+			emitParticle();
+			_secondsSinceLastEmission -= emissionInterval;
+		}
+	}
+
+	inline float getNormalizedSecondsSinceBirth(const Particle& particle) {
+		return particle.secondsSinceBirth / particle.lifetime;
+	}
+
+
+
+	void updateParticle(Particle& particle, float ds) {
+		particle.secondsSinceBirth += ds;
+
+		particle.translate(ds * particle.velocity);
+		particle.rotate(ds * particle.angularVelocity);
+	}
+
+	void updateParticles(float ds) {
+		for (std::size_t i = 0; i < _particles.size(); i++) {
+			if (_particles[i].isActive)
+				updateParticle(_particles[i], ds);
+		}
+	}
+
+	void updateParticleVertices(Particle& particle, std::size_t index) {
+		std::vector<sb::Vector2f> edges(4);
+		edges[0] = particle.getTransform() * sb::Vector2f(-0.5f, -0.5f);
+		edges[1] = particle.getTransform() * sb::Vector2f(0.5f, -0.5f);
+		edges[2] = particle.getTransform() * sb::Vector2f(-0.5f, 0.5f);
+		edges[3] = particle.getTransform() * sb::Vector2f(0.5f, 0.5f);
+
+		const sb::Color color(1, 0, 0, 1);
+		_mesh[index * 6 + 0] = sb::Vertex(edges[0], particle.vertexColors[0], sb::Vector2f(0, 0));
+		_mesh[index * 6 + 1] = sb::Vertex(edges[0], particle.vertexColors[0], sb::Vector2f(0, 0));
+		_mesh[index * 6 + 2] = sb::Vertex(edges[1], particle.vertexColors[1], sb::Vector2f(1, 0));
+		_mesh[index * 6 + 3] = sb::Vertex(edges[2], particle.vertexColors[2], sb::Vector2f(0, 1));
+		_mesh[index * 6 + 4] = sb::Vertex(edges[3], particle.vertexColors[3], sb::Vector2f(1, 1));
+		_mesh[index * 6 + 5] = sb::Vertex(edges[3], particle.vertexColors[3], sb::Vector2f(1, 1));
+	}
+
+	void updateMesh(float ds) {
+		for (std::size_t i = 0; i < _particles.size(); i++) {
+			if (_particles[i].isActive)
+				updateParticleVertices(_particles[i], i);
+		}
+	}
+
+public:
+	SimpleParticleSystem(std::size_t maxNumParticles)
+		: _mesh(maxNumParticles * 6, sb::PrimitiveType::TriangleStrip), _texture(NULL),
+		_particles(maxNumParticles), _numActiveParticles(0),
+		_secondsSinceLastEmission(0)
+	{ }
+
+	SimpleParticleSystem(const SimpleParticleSystem& other) :
+		_mesh(other._mesh), _texture(other._texture),
+		_particles(other._particles), _numActiveParticles(other._numActiveParticles),
+		_secondsSinceLastEmission(other._secondsSinceLastEmission)
+	{ }
+
+	void update(float ds) {
+		removeDeadParticles();
+		emitParticles(ds);
+		updateParticles(ds);
+		updateMesh(ds);
+	}
+
+	virtual void draw(sb::DrawTarget& target, sb::DrawStates states = sb::DrawStates::getDefault()) {
+		states.transform *= getTransform();
+		states.texture = _texture;
+		target.draw(_mesh.getVertices(), _mesh.getPrimitiveType(), states);
+	}
+};
+
+void demo7() {
+	sb::Window window;
+	SimpleParticleSystem particleSystem(1);
+	SimpleParticleSystem particleSystem2(particleSystem);
+
+	window.getCamera().setWidth(2.5);
+
+	while (window.isOpen()) {
+		float ds = getDeltaSeconds();
+		sb::Input::update();
+		window.update();
+		particleSystem.update(ds);
+
+		window.clear(sb::Color(1, 1, 1, 1));
+		particleSystem2.draw(window);
+		window.display();
+	}
+}
+
 int main() {
-	demo6();
+	demo7();
+
+	//demo6();
 
 	//demo5();
 
