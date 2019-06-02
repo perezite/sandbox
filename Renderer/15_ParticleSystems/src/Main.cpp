@@ -481,6 +481,8 @@ class ParticleSystem : public sb::Drawable, public sb::Transformable {
 		{ }
 	};
 
+
+public:
 	sb::Mesh _mesh;
 	sb::Texture* _texture;
 
@@ -716,17 +718,24 @@ public:
 		_secondsSinceLastEmission(0), _secondsSinceBirth(0),
 		_canDie(false) ,_lifetime(1), _emissionRatePerSecond(1), _drag(0), _angularDrag(0),
 		_particleLifetimeRange(1, 1), _particleSizeRange(0.1f, 0.1f), _particleRotationRange(0, 0), 
-		_particleSpeedRange(1, 1),_particleVertexColors(4), _hasParticleColorChannelsOverLifetime(4, false),
+		_particleSpeedRange(1, 1),_particleVertexColors(4, sb::Color(1, 0, 0, 1)), _hasParticleColorChannelsOverLifetime(4, false),
 		_particleColorChannelsOverLifetime(4), _hasParticleScaleOverLifetime(false), _emissionShape(new Disk(0)), 
 		_hasRandomEmissionDirection(false), _subSystemOnParticleDeath(NULL)
 	{ }
-	
-	ParticleSystem(const ParticleSystem& other) {
-		*this = other;
-		this->_emissionShape = other._emissionShape->clone();
-		copy(this->_subSystemOnParticleDeath, other._subSystemOnParticleDeath);
-		copyVector(this->_subSystems, other._subSystems);
+
+	static ParticleSystem clone(const ParticleSystem& other) {
+		ParticleSystem myClone(other);
+		myClone._emissionShape = other._emissionShape->clone();
+		// copy(myClone._subSystemOnParticleDeath, other._subSystemOnParticleDeath);
+		return myClone;
 	}
+
+	//ParticleSystem(const ParticleSystem& other) {
+	//	*this = other;
+	//	this->_emissionShape = other._emissionShape->clone();
+	//	copy(this->_subSystemOnParticleDeath, other._subSystemOnParticleDeath);
+	//	copyVector(this->_subSystems, other._subSystems);
+	//}
 
 	virtual ~ParticleSystem() {
 		for (std::size_t i = 0; i < _subSystems.size(); i++)
@@ -937,25 +946,25 @@ void init6e(ParticleSystem& system) {
 }
 
 void init6(ParticleSystem& system) {
-	ParticleSystem subSystem(100);
-	subSystem.addBurst(0, 50);
-	subSystem.setEmissionRatePerSecond(0);
+	// ParticleSystem subSystem(1000);
 
-	system.setParticleSizeRange(sb::Vector2f(0.5f, 0.5f));
-	system.setParticleSpeedRange(sb::Vector2f(1, 1));
-	system.setSubSystemOnParticleDeath(subSystem);
+	// system.setSubSystemOnParticleDeath(subSystem);
 
-	setParticleColor(system);
-	system.setScale(0.5f);
+	// setParticleColor(system);
+	// system.setScale(0.5f);
 }
-
 
 void demo6() {
 	sb::Window window;
-	ParticleSystem particleSystem(1000);
+	ParticleSystem particleSystem(1);
+	particleSystem.setEmissionRatePerSecond(1000);
+	ParticleSystem particleSystem2 = ParticleSystem::clone(particleSystem);
+	// ParticleSystem particleSystem2(particleSystem);
+
+	std::cout << &particleSystem._mesh << " " << &particleSystem2._mesh << std::endl;
 
 	window.getCamera().setWidth(2.5);
-	init6(particleSystem);
+	// init6(particleSystem);
 
 	while (window.isOpen()) {
 		float ds = getDeltaSeconds();
@@ -964,6 +973,7 @@ void demo6() {
 		particleSystem.update(ds);
 
 		window.clear(sb::Color(1, 1, 1, 1));
+		//particleSystem2.draw(window);
 		particleSystem.draw(window);
 		window.display();
 	}
