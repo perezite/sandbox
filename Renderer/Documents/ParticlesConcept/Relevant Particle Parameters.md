@@ -17,4 +17,4 @@ The following particle parameters are currently relevant for me:
 * Scale over lifetime: tween (OK)
 * Angular velocity: float (OK)
 * Inherit velocity (inertia relative to the parent transform in percent): float (OK)
-* Sub-emitter on Death: function
+* Sub-emitter on Death: function (OK)

@@ -468,7 +468,7 @@ inline void copyVector(std::vector<T*>& destination, const std::vector<T*>& sour
 
 template <class T>
 inline void deleteFromVector(std::vector<T*>& vec, bool(*predicate)(T*)) {
-	std::vector<ParticleSystem*> toDelete;
+	std::vector<T*> toDelete;
 	for (std::size_t i = 0; i < vec.size(); i++) {
 		if (predicate(vec[i]))
 			toDelete.push_back(vec[i]);
@@ -934,7 +934,6 @@ void init6c(ParticleSystem& system) {
 	setParticleColor(system);
 	system.setScale(0.5f);
 }
-
 
 void init6d(ParticleSystem& system) {
 	system.setEmissionRatePerSecond(100);
