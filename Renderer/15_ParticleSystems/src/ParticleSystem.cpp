@@ -20,7 +20,7 @@ namespace sb
 			delete _subSystemOnParticleDeath;
 		delete _emissionShape;
 	}
-
+	
 	void ParticleSystem::setEmissionRatePerSecond(float rate)
 	{
 		_secondsSinceLastEmission = rate == 0 ? 0 : 1 / rate;
@@ -98,6 +98,11 @@ namespace sb
 
 	void ParticleSystem::updateParticleSystem(float ds)
 	{
+		sb::Vector2f force = -_drag * velocity;
+		float torque = -_angularDrag * angularVelocity;
+		velocity += force;
+		angularVelocity += torque;
+
 		translate(ds * velocity);
 		rotate(ds * angularVelocity);
 	}
@@ -117,12 +122,14 @@ namespace sb
 		_mesh[meshIndex * 6 + 5].position = Vector2f(0, 0);
 	}
 
-	void ParticleSystem::spawnSubSystem(const Particle& particle) 
+	void ParticleSystem::emitSubSystem(const Particle& particle) 
 	{
 		ParticleSystem* subSystem = new ParticleSystem(*_subSystemOnParticleDeath);
 		subSystem->setPosition(particle.getPosition());
 		subSystem->setScale(particle.getScale());
 		subSystem->setRotation(particle.getRotation());
+		subSystem->velocity = particle.velocity;
+		subSystem->angularVelocity = particle.angularVelocity;
 		_subSystems.push_back(subSystem);
 	}
 
@@ -134,7 +141,7 @@ namespace sb
 				_numActiveParticles--;
 				deactivateParticleInMesh(i);
 				if (_subSystemOnParticleDeath)
-					spawnSubSystem(_particles[i]);
+					emitSubSystem(_particles[i]);
 			}
 		}
 	}
@@ -211,15 +218,15 @@ namespace sb
 		}
 	}
 
-	Vector2f ParticleSystem::computeForce(Particle& particle) 
+	Vector2f ParticleSystem::computeParticleForce(Particle& particle) 
 	{
-		Vector2f dragForce = -_drag * particle.velocity;
+		Vector2f dragForce = -_particleDrag * particle.velocity;
 		return dragForce;
 	}
 
-	float ParticleSystem::computeTorque(Particle& particle)
+	float ParticleSystem::computeParticleTorque(Particle& particle)
 	{
-		float dragTorque = -_angularDrag * particle.angularVelocity;
+		float dragTorque = -_angularParticleDrag * particle.angularVelocity;
 		return dragTorque;
 	}
 
@@ -262,8 +269,8 @@ namespace sb
 	{
 		particle.secondsSinceBirth += ds;
 
-		particle.velocity += ds * computeForce(particle);
-		particle.angularVelocity += ds * computeTorque(particle);
+		particle.velocity += ds * computeParticleForce(particle);
+		particle.angularVelocity += ds * computeParticleTorque(particle);
 
 		particle.translate(ds * particle.velocity);
 		particle.rotate(ds * particle.angularVelocity);

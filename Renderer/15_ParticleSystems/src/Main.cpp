@@ -335,8 +335,8 @@ void init6c(sb::ParticleSystem& system) {
 	system.setParticleLifetimeRange(sb::Vector2f(3, 3));
 	system.setParticleSpeedRange(sb::Vector2f(0.2f, 0.2f));
 	system.setParticleAngularVelocityRange(sb::Vector2f(4, 4));
-	system.setDrag(2);
-	system.setAngularDrag(2);
+	system.setParticleDrag(2);
+	system.setAngularParticleDrag(2);
 
 	setParticleColor(system);
 	system.setScale(0.5f);
@@ -355,7 +355,7 @@ void init6e(sb::ParticleSystem& system) {
 	system.setEmissionRatePerSecond(100);
 	system.setParticleSpeedRange(sb::Vector2f(0.5f, 1));
 	system.setParticleAngularVelocityRange(sb::Vector2f(0, 2 * sb::Pi));
-	system.setAngularDrag(0.5f);
+	system.setAngularParticleDrag(0.5f);
 	system.setParticleSizeRange(sb::Vector2f(0.05f, 0.15f));
 	system.setParticleLifetimeRange(sb::Vector2f(1, 2));
 	system.setParticleScaleOverLifetime(sb::Tween().quintInOut(0, 1, 0.1f).quintInOut(1, 0, 0.4f));
@@ -371,6 +371,7 @@ void init6(sb::ParticleSystem& system, sb::ParticleSystem& subSystem) {
 	subSystem.setEmissionRatePerSecond(0);
 	subSystem.addBurst(0, 50);
 	subSystem.setEmissionShape(sb::Disk(1));
+	subSystem.setDrag(0.005f);
 	subSystem.setLifetime(1);
 
 	system.setEmissionRatePerSecond(2);
