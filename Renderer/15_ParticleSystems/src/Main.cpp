@@ -1114,11 +1114,9 @@ public:
 		_secondsSinceLastEmission(0)
 	{ }
 
-	SimpleParticleSystem(const SimpleParticleSystem& other) :
-		_mesh(other._mesh), _texture(other._texture),
-		_particles(other._particles), _numActiveParticles(other._numActiveParticles),
-		_secondsSinceLastEmission(other._secondsSinceLastEmission)
-	{ }
+	SimpleParticleSystem(const SimpleParticleSystem& other) { 
+		//*this = other;
+	}
 
 	void update(float ds) {
 		removeDeadParticles();
@@ -1136,8 +1134,11 @@ public:
 
 void demo7() {
 	sb::Window window;
-	SimpleParticleSystem particleSystem(1);
-	SimpleParticleSystem particleSystem2(particleSystem);
+	/*SimpleParticleSystem particleSystem(1);
+	SimpleParticleSystem particleSystem2(particleSystem);*/
+	ParticleSystem particleSystem(1);
+	particleSystem.setEmissionRatePerSecond(100);
+	ParticleSystem particleSystem2(particleSystem);
 
 	window.getCamera().setWidth(2.5);
 
@@ -1145,7 +1146,7 @@ void demo7() {
 		float ds = getDeltaSeconds();
 		sb::Input::update();
 		window.update();
-		particleSystem.update(ds);
+		particleSystem2.update(ds);
 
 		window.clear(sb::Color(1, 1, 1, 1));
 		particleSystem2.draw(window);
