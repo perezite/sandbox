@@ -111,6 +111,12 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Easing.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Shape.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Disk.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Main.cpp" />
@@ -137,5 +143,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\TextureSheet.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Image.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Tween.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Disk.cpp" />
   </ItemGroup>
 </Project>

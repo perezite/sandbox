@@ -6,6 +6,7 @@
 #include "Body.h"
 #include "Tween.h"
 #include "Easing.h"
+#include "Disk.h"
 #include <iostream>
 #include <vector>		
 #include <algorithm>
@@ -237,51 +238,7 @@ void demo3() {
 	}
 }
 
-class Shape {
-public:
-	virtual ~Shape() {}
-
-	virtual sb::Vector2f random() const = 0;
-
-	virtual float getBoundingRadius() const = 0;
-
-	virtual Shape* clone() const = 0;
-};
-
-class Disk : public Shape {
-	float _innerRadius;
-	float _outerRadius;
-	float _startRadian;
-	float _endRadian;
-
-public:
-	Disk(float outerRadius)
-		: _innerRadius(0), _outerRadius(outerRadius), _startRadian(0), _endRadian(2 * sb::Pi)
-	{ }
-
-	Disk(float outerRadius, float startRadian, float endRadian)
-		: _innerRadius(0), _outerRadius(outerRadius), _startRadian(startRadian), _endRadian(endRadian)
-	{ }
-
-	Disk(float innerRadius, float outerRadius, float startRadian, float endRadian)
-		: _innerRadius(innerRadius), _outerRadius(outerRadius), _startRadian(startRadian), _endRadian(endRadian)
-	{ }
-
-	virtual sb::Vector2f random() const {
-		float r = sqrtf(sb::random(_innerRadius * _innerRadius, _outerRadius * _outerRadius));
-		float angle = sb::random(_startRadian, _endRadian);
-		auto result = sb::Vector2f(r * cosf(angle), r * sinf(angle));
-		return result;
-	}
-
-	virtual float getBoundingRadius() const { return _outerRadius; }
-
-	virtual Shape* clone() const { 
-		return new Disk(*this); 
-	}
-};
-
-void sample(const Shape& shape, sb::Mesh& result) {
+void sample(const sb::Shape& shape, sb::Mesh& result) {
 	for (std::size_t i = 0; i < result.getVertexCount(); i++)
 		result[i] = sb::Vertex(shape.random(), sb::Color(1, 0, 0, 1));
 }
@@ -290,7 +247,7 @@ void demo4() {
 	sb::Window window;
 
 	sb::Mesh pointSample(2500, sb::PrimitiveType::Points);
-	Disk disk(0.1f, 0.3f, 45 * sb::ToRadian, 270 * sb::ToRadian);
+	sb::Disk disk(0.1f, 0.3f, 45 * sb::ToRadian, 270 * sb::ToRadian);
 	sample(disk, pointSample);
 
 	while (window.isOpen()) {
@@ -392,7 +349,7 @@ public:
 	std::vector<sb::Tween> _particleColorChannelsOverLifetime;
 	bool _hasParticleScaleOverLifetime;
 	sb::Tween _particleScaleOverLifetime;
-	Shape* _emissionShape;
+	sb::Shape* _emissionShape;
 	bool _hasRandomEmissionDirection;
 
 	ParticleSystem* _subSystemOnParticleDeath;
@@ -605,7 +562,7 @@ public:
 		_canDie(false) ,_lifetime(1), _emissionRatePerSecond(1), _drag(0), _angularDrag(0),
 		_particleLifetimeRange(1, 1), _particleSizeRange(0.1f, 0.1f), _particleRotationRange(0, 0), 
 		_particleSpeedRange(1, 1),_particleVertexColors(4, sb::Color(1, 0, 0, 1)), _hasParticleColorChannelsOverLifetime(4, false),
-		_particleColorChannelsOverLifetime(4), _hasParticleScaleOverLifetime(false), _emissionShape(new Disk(0)), 
+		_particleColorChannelsOverLifetime(4), _hasParticleScaleOverLifetime(false), _emissionShape(new sb::Disk(0)), 
 		_hasRandomEmissionDirection(false), _subSystemOnParticleDeath(NULL)
 	{ }
 
@@ -757,7 +714,7 @@ void init6(ParticleSystem& system, ParticleSystem& subSystem) {
 	subSystem.setParticleSizeRange(sb::Vector2f(0.15f, 0.15f));
 	subSystem.setEmissionRatePerSecond(0);
 	subSystem.addBurst(0, 50);
-	subSystem.setEmissionShape(Disk(1));
+	subSystem.setEmissionShape(sb::Disk(1));
 	subSystem.setLifetime(1);
 
 	system.setEmissionRatePerSecond(2);
@@ -781,7 +738,7 @@ void init6b(ParticleSystem& system) {
 
 	system.setParticleRotationRange(sb::Vector2f(0, 2 * sb::Pi));
 	system.setParticleAngularVelocityRange(sb::Vector2f(-4, 4));
-	system.setEmissionShape(Disk(0.2f, 0.3f, 45 * sb::ToRadian, 225 * sb::ToRadian));
+	system.setEmissionShape(sb::Disk(0.2f, 0.3f, 45 * sb::ToRadian, 225 * sb::ToRadian));
 	system.hasRandomEmissionDirection(false);
 	system.addBurst(1, 300);
 	system.addBurst(3, 600);
@@ -820,7 +777,7 @@ void init6e(ParticleSystem& system) {
 	system.setParticleLifetimeRange(sb::Vector2f(1, 2));
 	system.setParticleScaleOverLifetime(sb::Tween().quintInOut(0, 1, 0.1f).quintInOut(1, 0, 0.4f));
 	system.setParticleColorChannelOverLifetime(3, sb::Tween().wait(1, 0.1f).quintInOut(1, 0, 0.4f));
-	system.setEmissionShape(Disk(0.1f, 0.6f, 235 * sb::ToRadian, 305 * sb::ToRadian));
+	system.setEmissionShape(sb::Disk(0.1f, 0.6f, 235 * sb::ToRadian, 305 * sb::ToRadian));
 
 	setParticleColor(system);
 	system.setScale(1);
@@ -834,7 +791,7 @@ void init5(ParticleSystem& system) {
 
 	system.setParticleRotationRange(sb::Vector2f(0, 2 * sb::Pi));
 	system.setParticleAngularVelocityRange(sb::Vector2f(-4, 4));
-	system.setEmissionShape(Disk(0.2f, 0.3f, 0, 360));
+	system.setEmissionShape(sb::Disk(0.2f, 0.3f, 0, 360));
 	system.hasRandomEmissionDirection(true);
 	system.addBurst(1, 300);
 	system.addBurst(3, 600);

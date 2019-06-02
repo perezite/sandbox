@@ -19,6 +19,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Body.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Camera.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Color.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Disk.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Drawable.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawBatch.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawStates.h" />
@@ -39,6 +40,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Renderer.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\SDL.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Shader.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Shape.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Sprite.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Stopwatch.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Texture.h" />
@@ -54,6 +56,7 @@
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Asset.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Camera.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Disk.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawStates.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\GL.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Image.cpp" />

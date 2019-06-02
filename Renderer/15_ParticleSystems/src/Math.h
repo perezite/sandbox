@@ -1,3 +1,5 @@
+#pragma once
+
 #include <math.h>
 #include "Vector2.h"
 #define _USE_MATH_DEFINES
