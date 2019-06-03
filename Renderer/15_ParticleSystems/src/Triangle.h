@@ -13,7 +13,9 @@ namespace sb
 
 		virtual void draw(DrawTarget& window, DrawStates states = DrawStates::getDefault());
 
+		inline Mesh& getMesh() { return TriangleMesh; }
+
 	private:
-		static const Mesh TriangleMesh;
+		static Mesh TriangleMesh;
 	};
 }

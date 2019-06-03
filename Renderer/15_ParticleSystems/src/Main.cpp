@@ -1,6 +1,7 @@
 #include "Window.h"
 #include "Input.h"
 #include "Quad.h"
+#include "Triangle.h"
 #include "Stopwatch.h"
 #include "Math.h"
 #include "Body.h"
@@ -406,20 +407,28 @@ class TweenVisualization : public sb::Drawable {
 
 	sb::Quad _scalingQuad;
 	sb::Quad _movingQuad;
-	sb::Quad _fadingQuad;
+	sb::Triangle _fadingTriangle;
 	sb::Mesh _curve;
-	sb::Tween _tween;
 	std::vector<easingFunction> _easings;
+	sb::Tween _tween;
 	std::size_t _easingIndex;
+	float _elapsedSeconds;
+	float _alpha;
 
 protected:
 
 public:
 	TweenVisualization()
-		: _curve(1000, sb::PrimitiveType::TriangleStrip), _easingIndex(-1)
+		: _curve(1000, sb::PrimitiveType::TriangleStrip), _easingIndex(-1), _alpha(1)
 	{
 		_easings = { &sb::Tween::linear, &sb::Tween::quintInOut, &sb::Tween::bounceOut };
 		nextEasing();
+		_scalingQuad.setScale(0.1f, 0.1f);
+		_scalingQuad.setPosition(0, 0.4f);
+		_movingQuad.setScale(0.1f, 0.1f);
+		_movingQuad.setPosition(-0.4f, 0.4f);
+		_fadingTriangle.setScale(0.1f, 0.1f);
+		_fadingTriangle.setPosition(0, -0.4f);
 	}
 
 	void getCurveValues(std::vector<float>& values) {
@@ -443,18 +452,45 @@ public:
 	}
 
 	void nextEasing() {
-		_easingIndex = _easingIndex + 1 % _easings.size();
+		_easingIndex = (_easingIndex + 1) % _easings.size();
 		easingFunction easing = _easings[_easingIndex];
 		_tween = (sb::Tween().*easing)(0, 1, 1);
 		computeCurve();
 	}
-		
-	void update(float ds) {
 
+	void scale(float ds) {
+		float t = sb::oscillate(_elapsedSeconds, 1);
+		float value = _tween.value(t);
+		_scalingQuad.setScale(value * sb::Vector2f(0.1f, 0.1f));
 	}
 
-	virtual void draw(sb::DrawTarget& target, sb::DrawStates drawStates = sb::DrawStates::getDefault()) {
-		target.draw(_curve.getVertices(), _curve.getPrimitiveType());
+	void move(float ds) {
+		float t = sb::oscillate(_elapsedSeconds, 1);
+		float value = _tween.value(t);
+		sb::Vector2f position = 
+			sb::lerp(value, sb::Vector2f(-0.4f, 0.4f), sb::Vector2f(0.4f, -0.4f));
+		_movingQuad.setPosition(position);
+	}
+
+	void fade(float ds) {
+		float t = sb::oscillate(_elapsedSeconds, 1);
+		float value = _tween.value(t);
+		for (std::size_t i = 0; i < _fadingTriangle.getMesh().getVertexCount(); i++)
+			_fadingTriangle.getMesh()[i].color.a = value;
+	}
+
+	void update(float ds) {
+		_elapsedSeconds += ds;
+		scale(ds);
+		move(ds);
+		fade(ds);
+	}
+
+	virtual void draw(sb::DrawTarget& target, sb::DrawStates states = sb::DrawStates::getDefault()) {
+		target.draw(_curve.getVertices(), _curve.getPrimitiveType(), states);
+		target.draw(_scalingQuad, states);
+		target.draw(_movingQuad, states);
+		target.draw(_fadingTriangle, states);
 	}
 
 };
@@ -474,6 +510,8 @@ void demo7() {
 		sb::Input::update();
 		window.update();
 		visualization.update(ds);
+		if (sb::Input::isTouchGoingDown(1))
+			visualization.nextEasing();
 
 		window.clear(sb::Color(1, 1, 1, 1));
 		visualization.draw(window);

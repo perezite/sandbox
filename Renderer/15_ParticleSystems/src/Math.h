@@ -38,4 +38,22 @@ namespace sb
 
 		return power;
 	}
+
+	inline float oscillate(float t, float length)
+	{
+		double intpart;
+		float remainder = (float)modf(t / length, &intpart);
+		bool even = (int)intpart % 2 == 0;
+
+		return even ? remainder * length : (1 - remainder) * length;
+	}
+
+	inline float clamp(float t, float min, float max) {
+		return t > max ? max : t < min ? min : t;
+	}
+
+	template <class T>
+	inline T lerp(float t, const T& start, const T& end) {
+		return (1 - t) * start + t * end;
+	}
 }
