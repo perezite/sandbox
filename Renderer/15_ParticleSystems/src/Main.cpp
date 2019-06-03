@@ -415,13 +415,12 @@ class TweenVisualization : public sb::Drawable {
 	std::vector<NamedTween> _namedTweens;
 	std::size_t _tweenIndex;
 	float _elapsedSeconds;
-	float _alpha;
 
 protected:
 
 public:
 	TweenVisualization()
-		: _curve(1000, sb::PrimitiveType::TriangleStrip), _tweenIndex(-1), _alpha(1)
+		: _curve(1000, sb::PrimitiveType::TriangleStrip), _tweenIndex(-1)
 	{
 		initializeTweens();
 		nextTween();
