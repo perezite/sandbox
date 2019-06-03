@@ -44,7 +44,7 @@ namespace sb
 			_secondsSinceLastEmission(1), _secondsSinceBirth(0),
 			_canDie(false), _lifetime(1), _emissionRatePerSecond(1), _drag(0), _angularDrag(0),
 			_particleDrag(0), _angularParticleDrag(0),_particleLifetimeRange(1, 1), _particleSizeRange(0.1f, 0.1f),
-			_particleRotationRange(0, 0), _particleSpeedRange(1, 1), _particleVertexColors(4, Color(1, 0, 0, 1)),
+			_particleRotationRange(0, 0), _particleSpeedRange(1, 1), _particleVertexColors(4, Color(1, 1, 1, 1)),
 			_hasParticleColorChannelsOverLifetime(4, false), _particleColorChannelsOverLifetime(4), 
 			_hasParticleScaleOverLifetime(false), _emissionShape(new Disk(0)), _hasRandomEmissionDirection(false),
 			_subSystemOnParticleDeath(NULL)
@@ -53,6 +53,8 @@ namespace sb
 		ParticleSystem(const ParticleSystem& other);
 
 		virtual ~ParticleSystem();
+
+		inline void setTexture(Texture& texture) { _texture = &texture; }
 
 		inline void setDrag(float drag) { _drag = drag; }
 

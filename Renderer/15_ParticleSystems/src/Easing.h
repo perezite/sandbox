@@ -175,6 +175,10 @@ namespace sb
 			return postFix * sin((t*d - s)*(2 * Pi) / p)*.5f + c + b;
 		}
 
+		static inline float computeBounceIn(float t, float b, float c, float d) {
+			return c - computeBounceOut(d - t, 0, c, d) + b;
+		}
+
 		static inline float computeBounceOut(float t, float b, float c, float d) {
 			float t0 = t / d;
 			if (t0 < (1 / 2.75f)) {
@@ -192,6 +196,11 @@ namespace sb
 				float postFix = t0 -= (2.625f / 2.75f);
 				return c * (7.5625f * postFix * t0 + .984375f) + b;
 			}
+		}
+
+		static inline float computeBounceInOut(float t, float b, float c, float d) {
+			if (t < d / 2) return computeBounceIn(t * 2, 0, c, d) * .5f + b;
+			else return computeBounceOut(t * 2 - d, 0, c, d) * .5f + c*.5f + b;
 		}
 
 		template <computeFunction F>
@@ -316,8 +325,16 @@ namespace sb
 			return compute<computeElasticInOut>(t, t0, t1, from, to);
 		}
 
+		static inline float bounceIn(float t, float t0, float t1, float from, float to) {
+			return compute<computeBounceIn>(t, t0, t1, from, to);
+		}
+
 		static inline float bounceOut(float t, float t0, float t1, float from, float to) {
 			return compute<computeBounceOut>(t, t0, t1, from, to);
+		}
+
+		static inline float bounceInOut(float t, float t0, float t1, float from, float to) {
+			return compute<computeBounceInOut>(t, t0, t1, from, to);
 		}
 
 	};

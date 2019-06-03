@@ -434,7 +434,9 @@ public:
 
 	void initializeTweens() {
 		_namedTweens = {
+			{"bounceInOut", sb::Tween().bounceInOut(0, 1, 1) },
 			{"bounceOut", sb::Tween().bounceOut(0, 1, 1)},
+			{"bounceIn", sb::Tween().bounceIn(0, 1, 1) },
 			{"elasticInOut", sb::Tween().elasticInOut(0, 1, 1) },
 			{"elasticOut", sb::Tween().elasticOut(0, 1, 1) },
 			{"elasticIn", sb::Tween().elasticIn(0, 1, 1) },
@@ -535,12 +537,6 @@ void demo7() {
 	sb::Window window;
 	TweenVisualization visualization;
 
-	sb::Mesh mesh(4, sb::PrimitiveType::TriangleStrip);
-	mesh[0] = sb::Vertex(sb::Vector2f(-0.5f, -0.25f), sb::Color(1, 0, 0, 1));
-	mesh[1] = sb::Vertex(sb::Vector2f(-0.5f, +0.25f), sb::Color(1, 0, 0, 1));
-	mesh[2] = sb::Vertex(sb::Vector2f( 0.5f, -0.25f), sb::Color(1, 0, 0, 1));
-	mesh[3] = sb::Vertex(sb::Vector2f( 0.5f, +0.25f), sb::Color(1, 0, 0, 1));
-
 	while (window.isOpen()) {
 		float ds = getDeltaSeconds();
 		sb::Input::update();
@@ -555,8 +551,46 @@ void demo7() {
 	}
 }
 
+void init8(sb::ParticleSystem& system) {
+	system.setParticleLifetimeRange(sb::Vector2f(1, 1));
+	system.setParticleSpeedRange(sb::Vector2f(1, 1));
+	system.setParticleSizeRange(0.8f * sb::Vector2f(0.175f, 0.65f));
+	system.setParticleColor(sb::Color(1, 1, 1, 0.3f));
+	system.setEmissionRatePerSecond(100);
+	system.setParticleDrag(0.1f);
+	system.setParticleColorChannelOverLifetime(3, sb::Tween().linear(1, 0, 1));
+	system.setParticleScaleOverLifetime(sb::Tween().bounceOut(0, 1, 0.1f).quadInOut(1, 0, 0.9f));
+
+	system.setEmissionShape(sb::Disk(0, 0.6f, (270 - 28) * sb::ToRadian, (270 + 28) * sb::ToRadian));
+
+	system.setScale(0.15f);
+}
+
+void demo8() {
+	sb::Window window;
+	sb::Texture texture;
+	sb::ParticleSystem particleSystem(1000);
+
+	texture.loadFromAsset("Textures/GreenPropulsion.png");
+	particleSystem.setTexture(texture);
+	init8(particleSystem);
+
+	while (window.isOpen()) {
+		float ds = getDeltaSeconds();
+		sb::Input::update();
+		window.update();
+		particleSystem.update(ds);
+
+		window.clear(sb::Color(1, 1, 1, 1));
+		window.draw(particleSystem);
+		window.display();
+	}
+}
+
 int main() {
-	demo7();
+	demo8();
+
+	// demo7();
 
 	//demo6();
 

@@ -104,6 +104,10 @@ namespace sb
 
 		inline Tween& elasticInOut(float from, float to, float duration) { return addEasing<Easing::elasticInOut>(from, to, duration); }
 
+		inline Tween& bounceIn(float from, float to, float duration) { return addEasing<Easing::bounceIn>(from, to, duration); }
+
         inline Tween& bounceOut(float from, float to, float duration) { return addEasing<Easing::bounceOut>(from, to, duration); }
+
+		inline Tween& bounceInOut(float from, float to, float duration) { return addEasing<Easing::bounceInOut>(from, to, duration); }
     };
 }
