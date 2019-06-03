@@ -76,6 +76,55 @@ namespace sb
 		return !_canDie || _secondsSinceBirth < _lifetime || !_subSystems.empty() || _numActiveParticles > 0;
 	}
 
+	void ParticleSystem::reset()
+	{/*
+		Mesh _mesh;
+		Texture* _texture;
+
+		std::vector<Particle> _particles;
+		std::vector<Burst> _bursts;
+		std::size_t _numActiveParticles;
+		float _secondsSinceLastEmission;
+		float _secondsSinceBirth;
+
+		bool _canDie;
+		float _lifetime;
+		float _emissionRatePerSecond;
+		float _drag;
+		float _angularDrag;
+		float _particleDrag;
+		float _angularParticleDrag;
+		Vector2f _particleLifetimeRange;
+		Vector2f _particleSizeRange;
+		Vector2f _particleRotationRange;
+		Vector2f _particleSpeedRange;
+		Vector2f _particleAngularVelocityRange;
+		std::vector<Color> _particleVertexColors;
+		std::vector<bool> _hasParticleColorChannelsOverLifetime;
+		std::vector<Tween> _particleColorChannelsOverLifetime;
+		bool _hasParticleScaleOverLifetime;
+		Tween _particleScaleOverLifetime;
+		Shape* _emissionShape;
+		bool _hasRandomEmissionDirection;
+
+		ParticleSystem* _subSystemOnParticleDeath;
+		std::vector<ParticleSystem*> _subSystems;
+		*/
+
+		_secondsSinceLastEmission = _emissionRatePerSecond == 0 ? 0 : 1 / _emissionRatePerSecond;
+		_numActiveParticles = 0;
+		_secondsSinceBirth = 0;
+
+		for (std::size_t i = 0; i < _particles.size(); i++)
+			_particles[i].isActive = false;
+
+		for (std::size_t i = 0; i < _subSystems.size(); i++)
+			_subSystemOnParticleDeath[i].reset();
+
+		std::vector<Vertex>& vertices = _mesh.getVertices();
+		std::fill(vertices.begin(), vertices.end(), sb::Vertex(sb::Vector2f(0, 0), sb::Color(0, 0, 0, 0)));
+	}
+
 	void ParticleSystem::update(float ds)
 	{
 		_secondsSinceBirth += ds;
@@ -334,5 +383,17 @@ namespace sb
 	{
 		for (std::size_t i = 0; i < _subSystems.size(); i++)
 			target.draw(_subSystems[i], states);
+	}
+
+	void ParticleSystem::resetParticles()
+	{
+		for (std::size_t i = 0; i < _particles.size(); i++)
+			_particles[i].isActive = false;
+	}
+
+	void ParticleSystem::resetSubSystems()
+	{
+		for (std::size_t i = 0; i < _subSystems.size(); i++)
+			_subSystemOnParticleDeath[i].reset();
 	}
 }

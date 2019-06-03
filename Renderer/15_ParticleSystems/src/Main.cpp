@@ -268,7 +268,7 @@ void printStats() {
 	sb::Renderer::resetStatistics();
 }
 
-void setParticleColor(sb::ParticleSystem& system, float alpha = 1) {
+void setParticleRainbowColor(sb::ParticleSystem& system, float alpha = 1) {
 	system.setParticleVertexColor(0, sb::Color(1, 0, 0, alpha));
 	system.setParticleVertexColor(1, sb::Color(0, 1, 0, alpha));
 	system.setParticleVertexColor(2, sb::Color(0, 0, 1, alpha));
@@ -327,7 +327,7 @@ void init6b(sb::ParticleSystem& system) {
 	system.addBurst(1, 300);
 	system.addBurst(3, 600);
 
-	setParticleColor(system);
+	setParticleRainbowColor(system);
 	system.setScale(2);
 }
 
@@ -339,7 +339,7 @@ void init6c(sb::ParticleSystem& system) {
 	system.setParticleDrag(2);
 	system.setAngularParticleDrag(2);
 
-	setParticleColor(system);
+	setParticleRainbowColor(system);
 	system.setScale(0.5f);
 }
 
@@ -348,7 +348,7 @@ void init6d(sb::ParticleSystem& system) {
 	system.setParticleSizeRange(sb::Vector2f(0.1f, 0.2f));
 	system.setParticleColorChannelOverLifetime(3, sb::Tween().quintInOut(1, 0, 1));
 
-	setParticleColor(system, 0.5f);
+	setParticleRainbowColor(system, 0.5f);
 	system.setScale(0.5f);
 }
 
@@ -363,7 +363,7 @@ void init6e(sb::ParticleSystem& system) {
 	system.setParticleColorChannelOverLifetime(3, sb::Tween().wait(1, 0.1f).quintInOut(1, 0, 0.4f));
 	system.setEmissionShape(sb::Disk(0.1f, 0.6f, 235 * sb::ToRadian, 305 * sb::ToRadian));
 
-	setParticleColor(system);
+	setParticleRainbowColor(system);
 	system.setScale(1);
 }
 
@@ -378,7 +378,7 @@ void init6(sb::ParticleSystem& system, sb::ParticleSystem& subSystem) {
 	system.setEmissionRatePerSecond(2);
 	system.setSubSystemOnParticleDeath(subSystem);
 
-	setParticleColor(system);
+	setParticleRainbowColor(system);
 }
 
 void demo6() {
@@ -586,7 +586,6 @@ void demo8() {
 	sb::ParticleSystem particleSystem(1000);
 	sb::ParticleSystem particleSubSystem(10);
 
-	//window.getCamera().setWidth(4);
 	texture.loadFromAsset("Textures/GreenPropulsion.png");
 	init8(particleSystem, particleSubSystem, texture);
 
@@ -602,8 +601,38 @@ void demo8() {
 	}
 }
 
+void init9(sb::ParticleSystem& system) {
+	setParticleRainbowColor(system);
+	system.setEmissionRatePerSecond(100);
+
+	system.setScale(0.1f, 0.1f);
+}
+
+void demo9() {
+	sb::Window window;
+	sb::Texture texture;
+	sb::ParticleSystem particleSystem(1000);
+
+	init9(particleSystem);
+
+	while (window.isOpen()) {
+		float ds = getDeltaSeconds();
+		sb::Input::update();
+		window.update();
+		particleSystem.update(ds);
+		if (sb::Input::isTouchGoingDown(1))
+			particleSystem.reset();
+
+		window.clear(sb::Color(1, 1, 1, 1));
+		window.draw(particleSystem);
+		window.display();
+	}
+}
+
 int main() {
-	demo8();
+	demo9();
+
+	//demo8();
 
 	// demo7();
 

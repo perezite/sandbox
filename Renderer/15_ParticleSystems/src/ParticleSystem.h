@@ -106,10 +106,12 @@ namespace sb
 
 		virtual void draw(DrawTarget& target, DrawStates states = DrawStates::getDefault());
 
+		void reset();
 	public:
 		std::string id;
 
 	protected:
+
 		void updateParticleSystem(float ds);
 
 		inline static bool isParticleSystemDead(ParticleSystem* particleSystem) { return !particleSystem->isAlive(); }
@@ -165,6 +167,10 @@ namespace sb
 		void updateSubSystems(float ds);
 
 		void drawSubSystems(DrawTarget& target, DrawStates& states);
+
+		void resetParticles();
+
+		void resetSubSystems();
 
 	private:
 		Mesh _mesh;
