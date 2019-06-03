@@ -92,6 +92,12 @@ namespace sb
 
 		inline Tween& circInOut(float from, float to, float duration) { return addEasing<Easing::circInOut>(from, to, duration); }
 
+		inline Tween& backIn(float from, float to, float duration) { return addEasing<Easing::backIn>(from, to, duration); }
+
+		inline Tween& backOut(float from, float to, float duration) { return addEasing<Easing::backOut>(from, to, duration); }
+
+		inline Tween& backInOut(float from, float to, float duration) { return addEasing<Easing::backInOut>(from, to, duration); }
+
         inline Tween& bounceOut(float from, float to, float duration) { return addEasing<Easing::bounceOut>(from, to, duration); }
     };
 }

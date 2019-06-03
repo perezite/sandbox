@@ -435,6 +435,9 @@ public:
 	void initializeTweens() {
 		_namedTweens = {
 			{"bounceOut", sb::Tween().bounceOut(0, 1, 1)},
+			{"backInOut", sb::Tween().backInOut(0, 1, 1) },
+			{"backOut", sb::Tween().backOut(0, 1, 1) },
+			{"backIn", sb::Tween().backIn(0, 1, 1) },
 			{"circInOut", sb::Tween().circInOut(0, 1, 1) },
 			{"circOut", sb::Tween().circOut(0, 1, 1) },
 			{"circIn", sb::Tween().circIn(0, 1, 1) },
