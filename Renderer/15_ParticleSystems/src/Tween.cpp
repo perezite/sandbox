@@ -1,6 +1,5 @@
 #include "Tween.h"
 #include "Logger.h"
-#include "Easing.h"
 
 namespace sb
 {
@@ -40,45 +39,5 @@ namespace sb
 		float value = !_easingCommands.empty() ? _easingCommands[_easingCommands.size() - 1].to : 0;
 		return wait(value, duration);
 	}
-
-	Tween& Tween::linear(float from, float to, float duration) {
-		addEasing<Easing::linear>(from, to, duration);
-		return *this;
-	}
-
-	Tween & Tween::sineIn(float from, float to, float duration)
-	{
-		addEasing<Easing::sineIn>(from, to, duration);
-		return *this;
-	}
-
-	Tween & Tween::sineOut(float from, float to, float duration)
-	{
-		addEasing<Easing::sineOut>(from, to, duration);
-		return *this;
-	}
-
-	Tween & Tween::sineInOut(float from, float to, float duration)
-	{
-		addEasing<Easing::sineInOut>(from, to, duration);
-		return *this;
-	}
-
-	Tween& Tween::quintInOut(float from, float to, float duration) {
-		addEasing<Easing::quintInOut>(from, to, duration);
-		return *this;
-	}
-
-	Tween& Tween::bounceOut(float from, float to, float duration) {
-		addEasing<Easing::bounceOut>(from, to, duration);
-		return *this;
-	}
-
-	Tween& Tween::wait(float value, float duration) {
-		addEasing<Easing::linear>(value, value, duration);
-		return *this;
-	}
-
-
 }
 

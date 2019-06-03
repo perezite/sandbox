@@ -434,6 +434,9 @@ public:
 			sb::Tween().sineIn(0, 1, 1),
 			sb::Tween().sineOut(0, 1, 1),
 			sb::Tween().sineInOut(0, 1, 1),
+			sb::Tween().cubicIn(0, 1, 1),
+			sb::Tween().cubicOut(0, 1, 1),
+			sb::Tween().cubicInOut(0, 1, 1),
 			sb::Tween().quintInOut(0, 1, 1),
 			sb::Tween().bounceOut(0, 1, 1)
 		};

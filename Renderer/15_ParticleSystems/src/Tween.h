@@ -1,4 +1,5 @@
 #pragma once
+#include "Easing.h"
 #include <vector>
 
 namespace sb
@@ -27,10 +28,11 @@ namespace sb
 		EasingCommand getCurrentEasingCommand(float t) const;
 
 		template <easingFunction F>
-		inline void addEasing(float from, float to, float duration) {
+		inline Tween& addEasing(float from, float to, float duration) {
 			float t0 = _easingCommands.empty() ? 0 : _easingCommands[_easingCommands.size() - 1].t1;
 			float t1 = t0 + duration;
 			_easingCommands.push_back(EasingCommand(t0, t1, from, to, F));
+			return *this;
 		}
 
 	public:
@@ -42,20 +44,32 @@ namespace sb
 
 		static Tween None(float value = 0);
 
-		Tween& wait(float value, float duration);
-
 		Tween& wait(float duration);
 
-		Tween& linear(float from, float to, float duration);
+		inline Tween& wait(float value, float duration) { return addEasing<Easing::linear>(value, value, duration); }
 
-		Tween& sineIn(float from, float to, float duration);
+		inline Tween& linear(float from, float to, float duration) { return addEasing<Easing::linear>(from, to, duration); }
 
-		Tween& sineOut(float from, float to, float duration);
+		inline Tween& sineIn(float from, float to, float duration) { return addEasing<Easing::sineIn>(from, to, duration); }
 
-		Tween& sineInOut(float from, float to, float duration);
-
-		Tween& quintInOut(float from, float to, float duration);
-
-		Tween& bounceOut(float from, float to, float duration);
+		inline Tween& sineOut(float from, float to, float duration) { return addEasing<Easing::sineOut>(from, to, duration); }
+					  
+		inline Tween& sineInOut(float from, float to, float duration) { return addEasing<Easing::sineInOut>(from, to, duration); }
+					  
+		inline Tween& quadIn(float from, float to, float duration) { return addEasing<Easing::quadIn>(from, to, duration); }
+					  
+		inline Tween& quadOut(float from, float to, float duration) { return addEasing<Easing::quadOut>(from, to, duration); }
+ 					  
+		inline Tween& quadInOut(float from, float to, float duration) { return addEasing<Easing::quadInOut>(from, to, duration); }
+					  
+		inline Tween& cubicIn(float from, float to, float duration) { return addEasing<Easing::cubicIn>(from, to, duration); }
+					  
+		inline Tween& cubicOut(float from, float to, float duration) { return addEasing<Easing::cubicOut>(from, to, duration); }
+					  
+		inline Tween& cubicInOut(float from, float to, float duration) { return addEasing<Easing::cubicInOut>(from, to, duration); }
+					  
+		inline Tween& quintInOut(float from, float to, float duration) { return addEasing<Easing::quintInOut>(from, to, duration); }
+					  
+		inline Tween& bounceOut(float from, float to, float duration) { return addEasing<Easing::bounceOut>(from, to, duration); }
 	};
 }
