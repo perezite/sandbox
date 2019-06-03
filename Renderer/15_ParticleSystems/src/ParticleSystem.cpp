@@ -126,7 +126,6 @@ namespace sb
 	{
 		ParticleSystem* subSystem = new ParticleSystem(*_subSystemOnParticleDeath);
 		subSystem->setPosition(particle.getPosition());
-		subSystem->setScale(particle.getScale());
 		subSystem->setRotation(particle.getRotation());
 		subSystem->velocity = particle.velocity;
 		subSystem->angularVelocity = particle.angularVelocity;

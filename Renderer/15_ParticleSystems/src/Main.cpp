@@ -551,7 +551,7 @@ void demo7() {
 	}
 }
 
-void init8(sb::ParticleSystem& system) {
+void init8(sb::ParticleSystem& system, sb::ParticleSystem& subSystem, sb::Texture& texture) {
 	system.setParticleLifetimeRange(sb::Vector2f(1, 1));
 	system.setParticleSpeedRange(sb::Vector2f(1, 1));
 	system.setParticleSizeRange(0.8f * sb::Vector2f(0.175f, 0.65f));
@@ -560,20 +560,35 @@ void init8(sb::ParticleSystem& system) {
 	system.setParticleDrag(0.1f);
 	system.setParticleColorChannelOverLifetime(3, sb::Tween().linear(1, 0, 1));
 	system.setParticleScaleOverLifetime(sb::Tween().bounceOut(0, 1, 0.1f).quadInOut(1, 0, 0.9f));
-
 	system.setEmissionShape(sb::Disk(0, 0.6f, (270 - 28) * sb::ToRadian, (270 + 28) * sb::ToRadian));
+	system.setTexture(texture);
 
-	system.setScale(0.15f);
+	subSystem.setLifetime(1);
+	subSystem.canDie(true);
+	subSystem.setParticleLifetimeRange(sb::Vector2f(0.5f, 0.5f));
+	subSystem.setParticleSpeedRange(sb::Vector2f(0.5f, 0.5f));
+	subSystem.setParticleSizeRange(1.0f * sb::Vector2f(0.01f, 0.1f));
+	subSystem.setParticleColor(sb::Color(1, 1, 1, 0.3f));
+	subSystem.hasRandomEmissionDirection(true);
+	subSystem.setEmissionRatePerSecond(0);
+	subSystem.addBurst(0, 1);
+	subSystem.setParticleDrag(50);
+	subSystem.setParticleColorChannelOverLifetime(3, sb::Tween().linear(1, 0, 1));
+	subSystem.setTexture(texture);
+
+	system.setSubSystemOnParticleDeath(subSystem);
+	system.setScale(0.25f);
 }
 
 void demo8() {
 	sb::Window window;
 	sb::Texture texture;
 	sb::ParticleSystem particleSystem(1000);
+	sb::ParticleSystem particleSubSystem(10);
 
+	//window.getCamera().setWidth(4);
 	texture.loadFromAsset("Textures/GreenPropulsion.png");
-	particleSystem.setTexture(texture);
-	init8(particleSystem);
+	init8(particleSystem, particleSubSystem, texture);
 
 	while (window.isOpen()) {
 		float ds = getDeltaSeconds();
