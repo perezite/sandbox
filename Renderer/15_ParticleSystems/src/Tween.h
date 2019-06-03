@@ -24,7 +24,7 @@ namespace sb
 		std::vector<EasingCommand> _easingCommands;
 
 	protected:
-		EasingCommand getCurrentEasingCommand(float t);
+		EasingCommand getCurrentEasingCommand(float t) const;
 
 		template <easingFunction F>
 		inline void addEasing(float from, float to, float duration) {
@@ -36,20 +36,26 @@ namespace sb
 	public:
 		Tween() { }
 
-		float value(float t);
+		float value(float t) const;
 
 		float getDuration() const;
 
-		Tween& bounceOut(float from, float to, float duration);
-
-		Tween& quintInOut(float from, float to, float duration);
-
-		Tween& linear(float from, float to, float duration);
+		static Tween None(float value = 0);
 
 		Tween& wait(float value, float duration);
 
 		Tween& wait(float duration);
 
-		static Tween None(float value = 0);
+		Tween& linear(float from, float to, float duration);
+
+		Tween& sineIn(float from, float to, float duration);
+
+		Tween& sineOut(float from, float to, float duration);
+
+		Tween& sineInOut(float from, float to, float duration);
+
+		Tween& quintInOut(float from, float to, float duration);
+
+		Tween& bounceOut(float from, float to, float duration);
 	};
 }

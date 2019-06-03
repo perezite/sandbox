@@ -4,7 +4,7 @@
 
 namespace sb
 {
-	Tween::EasingCommand Tween::getCurrentEasingCommand(float t) {
+	Tween::EasingCommand Tween::getCurrentEasingCommand(float t) const {
 		for (std::size_t i = 0; i < _easingCommands.size(); i++) {
 			if (t >= _easingCommands[i].t0 && t < _easingCommands[i].t1)
 				return _easingCommands[i];
@@ -14,7 +14,7 @@ namespace sb
 		return EasingCommand();
 	}
 
-	float Tween::value(float t) {
+	float Tween::value(float t) const {
 		if (_easingCommands.empty())
 			return 0;
 
@@ -32,8 +32,35 @@ namespace sb
 		return _easingCommands.empty() ? 0 : _easingCommands[_easingCommands.size() - 1].t1;
 	}
 
-	Tween& Tween::bounceOut(float from, float to, float duration) {
-		addEasing<Easing::bounceOut>(from, to, duration);
+	Tween Tween::None(float value) {
+		return Tween().linear(value, value, 0);
+	}
+
+	Tween& Tween::wait(float duration) {
+		float value = !_easingCommands.empty() ? _easingCommands[_easingCommands.size() - 1].to : 0;
+		return wait(value, duration);
+	}
+
+	Tween& Tween::linear(float from, float to, float duration) {
+		addEasing<Easing::linear>(from, to, duration);
+		return *this;
+	}
+
+	Tween & Tween::sineIn(float from, float to, float duration)
+	{
+		addEasing<Easing::sineIn>(from, to, duration);
+		return *this;
+	}
+
+	Tween & Tween::sineOut(float from, float to, float duration)
+	{
+		addEasing<Easing::sineOut>(from, to, duration);
+		return *this;
+	}
+
+	Tween & Tween::sineInOut(float from, float to, float duration)
+	{
+		addEasing<Easing::sineInOut>(from, to, duration);
 		return *this;
 	}
 
@@ -42,8 +69,8 @@ namespace sb
 		return *this;
 	}
 
-	Tween& Tween::linear(float from, float to, float duration) {
-		addEasing<Easing::linear>(from, to, duration);
+	Tween& Tween::bounceOut(float from, float to, float duration) {
+		addEasing<Easing::bounceOut>(from, to, duration);
 		return *this;
 	}
 
@@ -52,13 +79,6 @@ namespace sb
 		return *this;
 	}
 
-	Tween& Tween::wait(float duration) {
-		float value = !_easingCommands.empty() ? _easingCommands[_easingCommands.size() - 1].to : 0;
-		return wait(value, duration);
-	}
 
-	Tween Tween::None(float value) {
-		return Tween().linear(value, value, 0);
-	}
 }
 

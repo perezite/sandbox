@@ -403,15 +403,12 @@ void demo6() {
 }
 
 class TweenVisualization : public sb::Drawable {
-	typedef sb::Tween& (sb::Tween::*easingFunction)(float from, float to, float duration);
-
 	sb::Quad _scalingQuad;
 	sb::Quad _movingQuad;
 	sb::Triangle _fadingTriangle;
 	sb::Mesh _curve;
-	std::vector<easingFunction> _easings;
-	sb::Tween _tween;
-	std::size_t _easingIndex;
+	std::vector<sb::Tween> _tweens;
+	std::size_t _tweenIndex;
 	float _elapsedSeconds;
 	float _alpha;
 
@@ -419,10 +416,10 @@ protected:
 
 public:
 	TweenVisualization()
-		: _curve(1000, sb::PrimitiveType::TriangleStrip), _easingIndex(-1), _alpha(1)
+		: _curve(1000, sb::PrimitiveType::TriangleStrip), _tweenIndex(-1), _alpha(1)
 	{
-		_easings = { &sb::Tween::linear, &sb::Tween::quintInOut, &sb::Tween::bounceOut };
-		nextEasing();
+		initializeTweens();
+		nextTween();
 		_scalingQuad.setScale(0.1f, 0.1f);
 		_scalingQuad.setPosition(0, 0.4f);
 		_movingQuad.setScale(0.1f, 0.1f);
@@ -431,10 +428,23 @@ public:
 		_fadingTriangle.setPosition(0, -0.4f);
 	}
 
+	void initializeTweens() {
+		_tweens = {
+			sb::Tween().linear(0, 1, 1),
+			sb::Tween().sineIn(0, 1, 1),
+			sb::Tween().sineOut(0, 1, 1),
+			sb::Tween().sineInOut(0, 1, 1),
+			sb::Tween().quintInOut(0, 1, 1),
+			sb::Tween().bounceOut(0, 1, 1)
+		};
+	}
+
+	inline const sb::Tween& getCurrentTween() const { return _tweens[_tweenIndex]; }
+
 	void getCurveValues(std::vector<float>& values) {
 		float delta = 1 / float(values.size() - 1);
 		for (std::size_t i = 0; i < values.size(); i++)
-			values[i] = _tween.value(i * delta);
+			values[i] = _tweens[_tweenIndex].value(i * delta);
 	}
 
 	void computeCurve() {
@@ -451,22 +461,20 @@ public:
 		}
 	}
 
-	void nextEasing() {
-		_easingIndex = (_easingIndex + 1) % _easings.size();
-		easingFunction easing = _easings[_easingIndex];
-		_tween = (sb::Tween().*easing)(0, 1, 1);
+	void nextTween() {
+		_tweenIndex = (_tweenIndex + 1) % _tweens.size();
 		computeCurve();
 	}
 
 	void scale(float ds) {
 		float t = sb::oscillate(_elapsedSeconds, 1);
-		float value = _tween.value(t);
+		float value = getCurrentTween().value(t);
 		_scalingQuad.setScale(value * sb::Vector2f(0.1f, 0.1f));
 	}
 
 	void move(float ds) {
 		float t = sb::oscillate(_elapsedSeconds, 1);
-		float value = _tween.value(t);
+		float value = getCurrentTween().value(t);
 		sb::Vector2f position = 
 			sb::lerp(value, sb::Vector2f(-0.4f, 0.4f), sb::Vector2f(0.4f, -0.4f));
 		_movingQuad.setPosition(position);
@@ -474,7 +482,7 @@ public:
 
 	void fade(float ds) {
 		float t = sb::oscillate(_elapsedSeconds, 1);
-		float value = _tween.value(t);
+		float value = getCurrentTween().value(t);
 		for (std::size_t i = 0; i < _fadingTriangle.getMesh().getVertexCount(); i++)
 			_fadingTriangle.getMesh()[i].color.a = value;
 	}
@@ -511,7 +519,7 @@ void demo7() {
 		window.update();
 		visualization.update(ds);
 		if (sb::Input::isTouchGoingDown(1))
-			visualization.nextEasing();
+			visualization.nextTween();
 
 		window.clear(sb::Color(1, 1, 1, 1));
 		visualization.draw(window);
