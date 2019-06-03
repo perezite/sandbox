@@ -434,21 +434,23 @@ public:
 
 	void initializeTweens() {
 		_namedTweens = {
-			{"linear", sb::Tween().linear(0, 1, 1)},
-			{"sineIn", sb::Tween().sineIn(0, 1, 1)},
-			{"sineOut", sb::Tween().sineOut(0, 1, 1)},
-			{"sineInOut", sb::Tween().sineInOut(0, 1, 1)},
-			{"quadIn", sb::Tween().quadIn(0, 1, 1)},
-			{"quadOut", sb::Tween().quadOut(0, 1, 1)},
-			{"quadInOut", sb::Tween().quadInOut(0, 1, 1)},
-			{"cubicIn", sb::Tween().cubicIn(0, 1, 1)},
-			{"cubicOut", sb::Tween().cubicOut(0, 1, 1)},
-			{"cubicInOut", sb::Tween().cubicInOut(0, 1, 1)},
-			{"quartIn", sb::Tween().quartIn(0, 1, 1)},
-			{"quartOut", sb::Tween().quartOut(0, 1, 1)},
-			{"quartInOut", sb::Tween().quartInOut(0, 1, 1)},
+			{"bounceOut", sb::Tween().bounceOut(0, 1, 1)},
 			{"quintInOut", sb::Tween().quintInOut(0, 1, 1)},
-			{"bounceOut", sb::Tween().bounceOut(0, 1, 1)}
+			{"quintOut", sb::Tween().quintOut(0, 1, 1) },
+			{"quintIn", sb::Tween().quintIn(0, 1, 1) },
+			{"quartInOut", sb::Tween().quartInOut(0, 1, 1)},
+			{"quartOut", sb::Tween().quartOut(0, 1, 1)},
+			{"quartIn", sb::Tween().quartIn(0, 1, 1)},
+			{"cubicInOut", sb::Tween().cubicInOut(0, 1, 1)},
+			{"cubicOut", sb::Tween().cubicOut(0, 1, 1)},
+			{"cubicIn", sb::Tween().cubicIn(0, 1, 1)},
+			{"quadInOut", sb::Tween().quadInOut(0, 1, 1)},
+			{"quadOut", sb::Tween().quadOut(0, 1, 1)},
+			{"quadIn", sb::Tween().quadIn(0, 1, 1)},
+			{"sineInOut", sb::Tween().sineInOut(0, 1, 1)},
+			{"sineOut", sb::Tween().sineOut(0, 1, 1)},
+			{"sineIn", sb::Tween().sineIn(0, 1, 1)},
+			{"linear", sb::Tween().linear(0, 1, 1)}
 		};
 	}
 

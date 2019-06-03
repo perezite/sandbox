@@ -74,6 +74,16 @@ namespace sb
 			return -c / 2 * (t1*t1*t1*t1 - 2) + b;
 		}
 
+		static float computeQuintIn(float t, float b, float c, float d) {
+			float t0 = t / d;
+			return c*t0*t0*t0*t0*t0 + b;
+		}
+
+		static float computeQuintOut(float t, float b, float c, float d) {
+			float t0 = t / d - 1;
+			return c*(t0*t0*t0*t0*t0 + 1) + b;
+		}
+
 		static float computeQuintInOut(float t, float b, float c, float d) {
 			float t0 = t / (d / 2);
 			if (t0 < 1) return c / 2 * t0*t0*t0*t0*t0 + b;
@@ -161,9 +171,19 @@ namespace sb
 			return compute<computeQuartInOut>(t, t0, t1, from, to);
 		}
 
+		static inline float quintIn(float t, float t0, float t1, float from, float to) {
+			return compute<computeQuintIn>(t, t0, t1, from, to);
+		}
+
+
+		static inline float quintOut(float t, float t0, float t1, float from, float to) {
+			return compute<computeQuintOut>(t, t0, t1, from, to);
+		}
+
 		static inline float quintInOut(float t, float t0, float t1, float from, float to) {
 			return compute<computeQuintInOut>(t, t0, t1, from, to);
 		}
+
 
 		static inline float bounceOut(float t, float t0, float t1, float from, float to) {
 			return compute<computeBounceOut>(t, t0, t1, from, to);
