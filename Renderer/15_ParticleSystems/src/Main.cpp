@@ -420,7 +420,7 @@ protected:
 
 public:
 	TweenVisualization()
-		: _curve(1000, sb::PrimitiveType::TriangleStrip), _tweenIndex(-1)
+		: _curve(1000, sb::PrimitiveType::TriangleStrip), _tweenIndex(-1), _elapsedSeconds(0)
 	{
 		initializeTweens();
 		nextTween();
@@ -435,6 +435,12 @@ public:
 	void initializeTweens() {
 		_namedTweens = {
 			{"bounceOut", sb::Tween().bounceOut(0, 1, 1)},
+			{"circInOut", sb::Tween().circInOut(0, 1, 1) },
+			{"circOut", sb::Tween().circOut(0, 1, 1) },
+			{"circIn", sb::Tween().circIn(0, 1, 1) },
+			{"expoInOut", sb::Tween().expoInOut(0, 1, 1) },
+			{"expoOut", sb::Tween().expoOut(0, 1, 1) },
+			{"expoIn", sb::Tween().expoIn(0, 1, 1) },
 			{"quintInOut", sb::Tween().quintInOut(0, 1, 1)},
 			{"quintOut", sb::Tween().quintOut(0, 1, 1) },
 			{"quintIn", sb::Tween().quintIn(0, 1, 1) },

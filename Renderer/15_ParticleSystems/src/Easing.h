@@ -91,6 +91,38 @@ namespace sb
 			return c / 2 * (t0*t0*t0*t0*t0 + 2) + b;
 		}
 
+		static float computeExpoIn(float t, float b, float c, float d) {
+			return (t == 0) ? b : c * pow(2.0f, 10 * (t / d - 1)) + b;
+		}
+
+		static float computeExpoOut(float t, float b, float c, float d) {
+			return (t == d) ? b + c : c * (-pow(2.0f, -10 * t / d) + 1) + b;
+		}
+
+		static float computeExpoInOut(float t, float b, float c, float d) {
+			if (t == 0) return b;
+			if (t == d) return b + c;
+			if ((t /= d / 2) < 1) return c / 2 * pow(2.0f, 10 * (t - 1)) + b;
+			return c / 2 * (-pow(2.0f, -10 * --t) + 2) + b;
+		}
+
+		static float computeCircIn(float t, float b, float c, float d) {
+			float t0 = t / d;
+			return -c * (sqrt(1 - t0*t0) - 1) + b;
+		}
+
+		static float computeCircOut(float t, float b, float c, float d) {
+			float t0 = t / d - 1;
+			return c * sqrt(1 - t0*t0) + b;
+		}
+
+		static float computeCircInOut(float t, float b, float c, float d) {
+			float t0 = t / (d / 2);
+			float t1 = t0 - 2;
+			if (t0 < 1) return -c / 2 * (sqrt(1 - t0*t0) - 1) + b;
+			return c / 2 * (sqrt(1 - t1*t1) + 1) + b;
+		}
+
 		static inline float computeBounceOut(float t, float b, float c, float d) {
 			float t0 = t / d;
 			if (t0 < (1 / 2.75f)) {
@@ -184,6 +216,30 @@ namespace sb
 			return compute<computeQuintInOut>(t, t0, t1, from, to);
 		}
 
+		static inline float expoIn(float t, float t0, float t1, float from, float to) {
+			return compute<computeExpoIn>(t, t0, t1, from, to);
+		}
+
+		static inline float expoOut(float t, float t0, float t1, float from, float to) {
+			return compute<computeExpoOut>(t, t0, t1, from, to);
+		}
+
+		static inline float expoInOut(float t, float t0, float t1, float from, float to) {
+			return compute<computeExpoInOut>(t, t0, t1, from, to);
+		}
+
+		static inline float circIn(float t, float t0, float t1, float from, float to) {
+			return compute<computeCircIn>(t, t0, t1, from, to);
+		}
+
+
+		static inline float circOut(float t, float t0, float t1, float from, float to) {
+			return compute<computeCircOut>(t, t0, t1, from, to);
+		}
+
+		static inline float circInOut(float t, float t0, float t1, float from, float to) {
+			return compute<computeCircInOut>(t, t0, t1, from, to);
+		}
 
 		static inline float bounceOut(float t, float t0, float t1, float from, float to) {
 			return compute<computeBounceOut>(t, t0, t1, from, to);

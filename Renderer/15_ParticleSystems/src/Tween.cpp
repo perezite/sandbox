@@ -9,7 +9,7 @@ namespace sb
 				return _easingCommands[i];
 		}
 
-		SB_ERROR("this line must never be reached");
+		SB_ERROR("invalid parameter value");
 		return EasingCommand();
 	}
 

@@ -80,6 +80,18 @@ namespace sb
                       
         inline Tween& quintInOut(float from, float to, float duration) { return addEasing<Easing::quintInOut>(from, to, duration); }
 
+		inline Tween& expoIn(float from, float to, float duration) { return addEasing<Easing::expoIn>(from, to, duration); }
+
+		inline Tween& expoOut(float from, float to, float duration) { return addEasing<Easing::expoOut>(from, to, duration); }
+
+		inline Tween& expoInOut(float from, float to, float duration) { return addEasing<Easing::expoInOut>(from, to, duration); }
+
+		inline Tween& circIn(float from, float to, float duration) { return addEasing<Easing::circIn>(from, to, duration); }
+
+		inline Tween& circOut(float from, float to, float duration) { return addEasing<Easing::circOut>(from, to, duration); }
+
+		inline Tween& circInOut(float from, float to, float duration) { return addEasing<Easing::circInOut>(from, to, duration); }
+
         inline Tween& bounceOut(float from, float to, float duration) { return addEasing<Easing::bounceOut>(from, to, duration); }
     };
 }
