@@ -24,36 +24,59 @@ namespace sb
 		}
 
 		static inline float computeQuadIn(float t, float b, float c, float d) {
-			return c*(t /= d)*t + b;
-
+			float t0 = t / d;
+			return c * t0 * t0 + b;
 		}
 
 		static inline float computeQuadOut(float t, float b, float c, float d) {
-			return -c *(t /= d)*(t - 2) + b;
+			float t0 = t / d;
+			return -c *(t0)*(t0 - 2) + b;
 		}
 
 		static inline float computeQuadInOut(float t, float b, float c, float d) {
-			if ((t /= d / 2) < 1) return ((c / 2)*(t*t)) + b;
-			return -c / 2 * (((t - 2)*(--t)) - 1) + b;
+			float t0 = t / (d / 2);
+			if (t0 < 1) return ((c / 2)*(t0*t0)) + b;
+			return -c / 2 * (((t0 - 2)*(--t0)) - 1) + b;
 		}
 
 		static inline float computeCubicIn(float t, float b, float c, float d) {
-			return c*(t /= d)*t*t + b;
+			float t0 = t / d;
+			return c*t0*t0*t0 + b;
 		}
 
 		static inline float computeCubicOut(float t, float b, float c, float d) {
-			return c*((t = t / d - 1)*t*t + 1) + b;
+			float t0 = t / d - 1;
+			return c*((t0)*t0*t0 + 1) + b;
 		}
 
 		static inline float computeCubicInOut(float t, float b, float c, float d) {
-			if ((t /= d / 2) < 1) return c / 2 * t*t*t + b;
-			return c / 2 * ((t -= 2)*t*t + 2) + b;
+			float t0 = t / (d / 2);
+			if (t0 < 1) return c / 2 * t0*t0*t0 + b;
+			return c / 2 * ((t0 -= 2)*t0*t0 + 2) + b;
+		}
+
+		static inline float computeQuartIn(float t, float b, float c, float d) {
+			float t0 = t / d;
+			return c*t0*t0*t0*t0 + b;
+
+		}
+
+		static inline float computeQuartOut(float t, float b, float c, float d) {
+			float t0 = t / d - 1;
+			return -c * (t0*t0*t0*t0 - 1) + b;
+		}
+
+		static inline float computeQuartInOut(float t, float b, float c, float d) {
+			float t0 = t / (d / 2);
+			if (t0 < 1) return c / 2 * t0*t0*t0*t0 + b;
+			return -c / 2 * ((t0 -= 2)*t0*t0*t0 - 2) + b;
 		}
 
 		static float computeQuintInOut(float t, float b, float c, float d) {
-			if ((t /= d / 2) < 1) return c / 2 * t*t*t*t*t + b;
-			t = t - 2;
-			return c / 2 * (t*t*t*t*t + 2) + b;
+			float t0 = t / (d / 2);
+			if (t0 < 1) return c / 2 * t0*t0*t0*t0*t0 + b;
+			t0 = t0 - 2;
+			return c / 2 * (t0*t0*t0*t0*t0 + 2) + b;
 		}
 
 		static inline float computeBounceOut(float t, float b, float c, float d) {
@@ -121,6 +144,18 @@ namespace sb
 
 		static inline float cubicInOut(float t, float t0, float t1, float from, float to) {
 			return compute<computeCubicInOut>(t, t0, t1, from, to);
+		}
+
+		static inline float quartIn(float t, float t0, float t1, float from, float to) {
+			return compute<computeQuartIn>(t, t0, t1, from, to);
+		}
+
+		static inline float quartOut(float t, float t0, float t1, float from, float to) {
+			return compute<computeQuartOut>(t, t0, t1, from, to);
+		}
+
+		static inline float quartInOut(float t, float t0, float t1, float from, float to) {
+			return compute<computeQuartInOut>(t, t0, t1, from, to);
 		}
 
 		static inline float quintInOut(float t, float t0, float t1, float from, float to) {

@@ -403,11 +403,16 @@ void demo6() {
 }
 
 class TweenVisualization : public sb::Drawable {
+	struct NamedTween {
+		std::string name;
+		sb::Tween tween;
+	};
+
 	sb::Quad _scalingQuad;
 	sb::Quad _movingQuad;
 	sb::Triangle _fadingTriangle;
 	sb::Mesh _curve;
-	std::vector<sb::Tween> _tweens;
+	std::vector<NamedTween> _namedTweens;
 	std::size_t _tweenIndex;
 	float _elapsedSeconds;
 	float _alpha;
@@ -429,25 +434,31 @@ public:
 	}
 
 	void initializeTweens() {
-		_tweens = {
-			sb::Tween().linear(0, 1, 1),
-			sb::Tween().sineIn(0, 1, 1),
-			sb::Tween().sineOut(0, 1, 1),
-			sb::Tween().sineInOut(0, 1, 1),
-			sb::Tween().cubicIn(0, 1, 1),
-			sb::Tween().cubicOut(0, 1, 1),
-			sb::Tween().cubicInOut(0, 1, 1),
-			sb::Tween().quintInOut(0, 1, 1),
-			sb::Tween().bounceOut(0, 1, 1)
+		_namedTweens = {
+			{"linear", sb::Tween().linear(0, 1, 1)},
+			{"sineIn", sb::Tween().sineIn(0, 1, 1)},
+			{"sineOut", sb::Tween().sineOut(0, 1, 1)},
+			{"sineInOut", sb::Tween().sineInOut(0, 1, 1)},
+			{"quadIn", sb::Tween().quadIn(0, 1, 1)},
+			{"quadOut", sb::Tween().quadOut(0, 1, 1)},
+			{"quadInOut", sb::Tween().quadInOut(0, 1, 1)},
+			{"cubicIn", sb::Tween().cubicIn(0, 1, 1)},
+			{"cubicOut", sb::Tween().cubicOut(0, 1, 1)},
+			{"cubicInOut", sb::Tween().cubicInOut(0, 1, 1)},
+			{"quartIn", sb::Tween().quartIn(0, 1, 1)},
+			{"quartOut", sb::Tween().quartOut(0, 1, 1)},
+			{"quartInOut", sb::Tween().quartInOut(0, 1, 1)},
+			{"quintInOut", sb::Tween().quintInOut(0, 1, 1)},
+			{"bounceOut", sb::Tween().bounceOut(0, 1, 1)}
 		};
 	}
 
-	inline const sb::Tween& getCurrentTween() const { return _tweens[_tweenIndex]; }
+	inline const sb::Tween& getCurrentTween() const { return _namedTweens[_tweenIndex].tween; }
 
 	void getCurveValues(std::vector<float>& values) {
 		float delta = 1 / float(values.size() - 1);
 		for (std::size_t i = 0; i < values.size(); i++)
-			values[i] = _tweens[_tweenIndex].value(i * delta);
+			values[i] = _namedTweens[_tweenIndex].tween.value(i * delta);
 	}
 
 	void computeCurve() {
@@ -465,7 +476,8 @@ public:
 	}
 
 	void nextTween() {
-		_tweenIndex = (_tweenIndex + 1) % _tweens.size();
+		_tweenIndex = (_tweenIndex + 1) % _namedTweens.size();
+		SB_MESSAGE(_namedTweens[_tweenIndex].name);
 		computeCurve();
 	}
 
