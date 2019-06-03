@@ -629,8 +629,54 @@ void demo9() {
 	}
 }
 
+void init10(sb::ParticleSystem& particleSystem, sb::ParticleSystem& subParticleSystem) {
+	subParticleSystem.setParticleColor(sb::Color(1, 0, 0, 1));
+	subParticleSystem.setEmissionRatePerSecond(0);
+	subParticleSystem.addBurst(0, 2);
+	subParticleSystem.hasRandomEmissionDirection(true);
+
+	setParticleRainbowColor(particleSystem);
+	particleSystem.setScale(0.1f, 0.1f);
+	particleSystem.setSubSystemOnParticleDeath(subParticleSystem);
+}
+
+void input10(sb::Window& window, sb::ParticleSystem& system) {
+	if (sb::Input::isTouchGoingDown(1)) {
+		const sb::Vector2f touch = sb::Input::getTouchPosition(window);
+		if (touch.x <= 0)
+			system.setEmissionRatePerSecond(sb::clamp(system.getEmissionRatePerSecond() - 5, 0, 1000));
+		else 
+			system.setEmissionRatePerSecond(system.getEmissionRatePerSecond() + 5);
+
+		SB_MESSAGE("Emsision rate:" << system.getEmissionRatePerSecond());
+	}
+}
+
+void demo10() {
+	sb::Window window;
+	sb::Texture texture;
+	sb::ParticleSystem particleSystem(1000);
+	sb::ParticleSystem subParticleSystem(10);
+
+	init10(particleSystem, subParticleSystem);
+
+	while (window.isOpen()) {
+		float ds = getDeltaSeconds();
+		sb::Input::update();
+		window.update();
+		particleSystem.update(ds);
+		input10(window, particleSystem);
+
+		window.clear(sb::Color(1, 1, 1, 1));
+		window.draw(particleSystem);
+		window.display();
+	}
+}
+
 int main() {
-	demo9();
+	demo10();
+
+	//demo9();
 
 	//demo8();
 

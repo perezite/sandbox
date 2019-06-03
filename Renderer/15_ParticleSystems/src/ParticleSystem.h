@@ -54,6 +54,8 @@ namespace sb
 
 		virtual ~ParticleSystem();
 
+		inline float getEmissionRatePerSecond() const { return _emissionRatePerSecond; }
+
 		inline void setTexture(Texture& texture) { _texture = &texture; }
 
 		inline void setDrag(float drag) { _drag = drag; }
@@ -167,10 +169,6 @@ namespace sb
 		void updateSubSystems(float ds);
 
 		void drawSubSystems(DrawTarget& target, DrawStates& states);
-
-		void resetParticles();
-
-		void resetSubSystems();
 
 	private:
 		Mesh _mesh;
