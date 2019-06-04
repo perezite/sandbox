@@ -56,6 +56,7 @@ namespace sb
 			inline std::size_t getNumItems() const { return _items.size(); }
 			inline std::size_t getNumActiveItems() const { return _numActiveItems; }
 			inline bool hasPrototype() const { return _prototype != NULL; }
+			inline ParticleSystem* getPrototype() { return _prototype; };
 			void setPrototype(const ParticleSystem& prototype);
 			Item& getAvailableItem();
 			void update();
@@ -90,6 +91,8 @@ namespace sb
 		virtual ~ParticleSystem();
 
 		inline float getEmissionRatePerSecond() const { return _emissionRatePerSecond; }
+
+		inline ParticleSystem* getSubSystemOnParticleDeath() { return _pool.getPrototype(); }
 
 		inline void setTexture(Texture& texture) { _texture = &texture; }
 

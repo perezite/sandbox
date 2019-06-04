@@ -760,8 +760,115 @@ void demo11() {
 	}
 }
 
+struct Propulsion : public sb::Drawable, public sb::Body {
+	sb::ParticleSystem emission;
+
+	Propulsion()
+		: emission(1000)
+	{
+		emission.setParticleLifetimeRange(sb::Vector2f(1, 1));
+		emission.setParticleSpeedRange(sb::Vector2f(1, 1));
+		emission.setParticleSizeRange(0.8f * sb::Vector2f(0.175f, 0.65f));
+		emission.setParticleColor(sb::Color(1, 1, 1, 0.3f));
+		emission.setEmissionRatePerSecond(100);
+		emission.setParticleDrag(0.1f);
+		emission.setParticleColorChannelOverLifetime(3, sb::Tween().linear(1, 0, 1));
+		emission.setParticleScaleOverLifetime(sb::Tween().bounceOut(0, 1, 0.1f).quadInOut(1, 0, 0.9f));
+		emission.setEmissionShape(sb::Disk(0, 0.6f, (270 - 28) * sb::ToRadian, (270 + 28) * sb::ToRadian));
+
+		sb::ParticleSystem subSystem(10);
+		subSystem.setLifetime(1);
+		subSystem.canDie(true);
+		subSystem.setParticleLifetimeRange(sb::Vector2f(0.5f, 0.5f));
+		subSystem.setParticleSpeedRange(sb::Vector2f(0.5f, 0.5f));
+		subSystem.setParticleSizeRange(1.0f * sb::Vector2f(0.01f, 0.1f));
+		subSystem.setParticleColor(sb::Color(1, 1, 1, 0.3f));
+		subSystem.hasRandomEmissionDirection(true);
+		subSystem.setEmissionRatePerSecond(0);
+		subSystem.addBurst(0, 1);
+		subSystem.setParticleDrag(50);
+		subSystem.setParticleColorChannelOverLifetime(3, sb::Tween().linear(1, 0, 1));
+
+		emission.setSubSystemOnParticleDeath(subSystem);
+
+		emission.setScale(0.3f);
+		setVelocity(0.1f * sb::randomOnCircle(1));
+	} 
+
+	void setVelocity(const sb::Vector2f& velocity_) {
+		emission.velocity = velocity_;
+		emission.setRotation(sb::angle(sb::Vector2f(0, 1), emission.velocity));
+	}
+
+	void setTexture(sb::Texture& texture) {
+		emission.setTexture(texture);
+		emission.getSubSystemOnParticleDeath()->setTexture(texture);
+	}
+
+	void physics(float ds) {
+		const sb::Vector2f& position = emission.getPosition();
+		if (position.x < -0.5f) {
+			emission.setPosition(-0.5f, position.y);
+			setVelocity(sb::Vector2f(-emission.velocity.x, emission.velocity.y));
+		}
+
+		if (position.x > 0.5f) {
+			emission.setPosition(0.5f, position.y);
+			setVelocity(sb::Vector2f(-emission.velocity.x, emission.velocity.y));
+		}
+
+		if (position.y < -0.5f) {
+			emission.setPosition(position.x, -0.5f);
+			setVelocity(sb::Vector2f(emission.velocity.x, -emission.velocity.y));
+		}
+
+		if (position.y > 0.5f) {
+			emission.setPosition(position.x, 0.5f);
+			setVelocity(sb::Vector2f(emission.velocity.x, -emission.velocity.y));
+		}
+	}
+
+	void update(float ds) {
+		emission.update(ds);
+		emission.translate(ds * emission.velocity);
+		 physics(ds);
+	}
+
+	virtual void draw(sb::DrawTarget& target, sb::DrawStates states)
+	{
+		states.transform *= getTransform();
+		target.draw(emission, states);
+	}
+};
+
+void demo12() {
+	srand(512);
+	sb::Window window(400, 711);
+	sb::Texture texture;
+	sb::Quad quad;
+	Propulsion propulsion;
+
+	window.getCamera().setWidth(2);
+	texture.loadFromAsset("Textures/GreenPropulsion.png");
+	propulsion.setTexture(texture);
+
+	while (window.isOpen()) {
+		float ds = getDeltaSeconds();
+		sb::Input::update();
+		window.update();
+		propulsion.update(ds);
+
+		window.clear(sb::Color(1, 1, 1, 1));
+		window.draw(quad);
+		window.draw(propulsion);
+		window.display();
+	}
+}
+
 int main() {
-	demo11();
+	demo12();
+
+	//demo11();
 
 	//demo10();
 
