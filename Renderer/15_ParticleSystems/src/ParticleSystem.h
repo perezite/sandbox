@@ -37,6 +37,11 @@ namespace sb
 			{ }
 		};
 
+		struct ParticleSystemPoolItem {
+			ParticleSystem* particleSystem;
+			bool isActive;
+		};
+
 	public:
 		ParticleSystem(std::size_t maxNumParticles)
 			: _mesh(maxNumParticles * 6, PrimitiveType::TriangleStrip), _texture(NULL),
@@ -47,7 +52,7 @@ namespace sb
 			_particleRotationRange(0, 0), _particleSpeedRange(1, 1), _particleVertexColors(4, Color(1, 1, 1, 1)),
 			_hasParticleColorChannelsOverLifetime(4, false), _particleColorChannelsOverLifetime(4), 
 			_hasParticleScaleOverLifetime(false), _emissionShape(new Disk(0)), _hasRandomEmissionDirection(false),
-			_subSystemOnParticleDeath(NULL)
+			_subSystemOnParticleDeath(NULL), _numActiveSubSystems(0)
 		{ }
 
 		ParticleSystem(const ParticleSystem& other);
@@ -114,6 +119,10 @@ namespace sb
 
 	protected:
 
+		void cloneSubSystemPool(std::vector<ParticleSystemPoolItem>& result) const;
+
+		void clearSubSystemPool();
+
 		void updateParticleSystem(float ds);
 
 		inline static bool isParticleSystemDead(ParticleSystem* particleSystem) { return !particleSystem->isAlive(); }
@@ -121,6 +130,10 @@ namespace sb
 		static bool isParticleDead(const Particle& particle);
 
 		void deactivateParticleInMesh(std::size_t meshIndex);
+
+		ParticleSystemPoolItem& resizeSubSystemPool();
+
+		ParticleSystemPoolItem& getAvailableSubSystemPoolItem();
 
 		void emitSubSystem(const Particle& particle);
 
@@ -165,6 +178,10 @@ namespace sb
 		void updateMesh(float ds);
 
 		void updateParticles(float ds);
+		
+		void shrinkSubSystemPool();
+
+		void updateSubSystemPool();
 
 		void updateSubSystems(float ds);
 
@@ -201,6 +218,7 @@ namespace sb
 		bool _hasRandomEmissionDirection;
 
 		ParticleSystem* _subSystemOnParticleDeath;
-		std::vector<ParticleSystem*> _subSystems;
+		std::size_t _numActiveSubSystems;
+		std::vector<ParticleSystemPoolItem> _subSystemPool;
 	};
 }

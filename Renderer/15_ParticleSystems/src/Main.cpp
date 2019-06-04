@@ -631,13 +631,16 @@ void demo9() {
 
 void init10(sb::ParticleSystem& particleSystem, sb::ParticleSystem& subParticleSystem) {
 	subParticleSystem.setParticleColor(sb::Color(1, 0, 0, 1));
+	subParticleSystem.setLifetime(1);
 	subParticleSystem.setEmissionRatePerSecond(0);
-	subParticleSystem.addBurst(0, 2);
+	subParticleSystem.addBurst(0, 1);
 	subParticleSystem.hasRandomEmissionDirection(true);
+	subParticleSystem.id = "sub";
 
 	setParticleRainbowColor(particleSystem);
 	particleSystem.setScale(0.1f, 0.1f);
 	particleSystem.setSubSystemOnParticleDeath(subParticleSystem);
+	particleSystem.id = "main";
 }
 
 void input10(sb::Window& window, sb::ParticleSystem& system) {
@@ -656,7 +659,7 @@ void demo10() {
 	sb::Window window;
 	sb::Texture texture;
 	sb::ParticleSystem particleSystem(1000);
-	sb::ParticleSystem subParticleSystem(10);
+	sb::ParticleSystem subParticleSystem(1);
 
 	init10(particleSystem, subParticleSystem);
 

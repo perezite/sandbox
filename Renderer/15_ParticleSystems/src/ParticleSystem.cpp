@@ -1,6 +1,7 @@
 #include "ParticleSystem.h"
 #include "DrawTarget.h"
 #include "Logger.h"
+#include <algorithm>
 
 namespace sb
 {
@@ -9,13 +10,12 @@ namespace sb
 		*this = other;
 		this->_emissionShape = other._emissionShape->clone();
 		copy(this->_subSystemOnParticleDeath, other._subSystemOnParticleDeath);
-		copyVector(this->_subSystems, other._subSystems);
+		other.cloneSubSystemPool(this->_subSystemPool);
 	}
 
 	ParticleSystem::~ParticleSystem()
 	{
-		for (std::size_t i = 0; i < _subSystems.size(); i++)
-			delete _subSystems[i];
+		clearSubSystemPool();
 		if (_subSystemOnParticleDeath)
 			delete _subSystemOnParticleDeath;
 		delete _emissionShape;
@@ -73,7 +73,7 @@ namespace sb
 
 	bool ParticleSystem::isAlive() 
 	{
-		return !_canDie || _secondsSinceBirth < _lifetime || !_subSystems.empty() || _numActiveParticles > 0;
+		return !_canDie || _secondsSinceBirth < _lifetime || _numActiveSubSystems > 0 || _numActiveParticles > 0;
 	}
 
 	void ParticleSystem::reset()
@@ -85,8 +85,11 @@ namespace sb
 		for (std::size_t i = 0; i < _particles.size(); i++)
 			_particles[i].isActive = false;
 
-		for (std::size_t i = 0; i < _subSystems.size(); i++)
-			_subSystemOnParticleDeath[i].reset();
+		for (std::size_t i = 0; i < _bursts.size(); i++)
+			_bursts[i].emitted = false;
+
+		for (std::size_t i = 0; i < _subSystemPool.size(); i++)
+			_subSystemPool[i].particleSystem->reset();
 
 		std::vector<Vertex>& vertices = _mesh.getVertices();
 		std::fill(vertices.begin(), vertices.end(), sb::Vertex(sb::Vector2f(0, 0), sb::Color(0, 0, 0, 0)));
@@ -100,7 +103,8 @@ namespace sb
 		updateParticles(ds);
 		updateSubSystems(ds);
 
-		SB_DEBUG_IF(id == "main", _subSystems.size());
+		if (id == "main")
+			SB_DEBUG(_subSystemPool.size() << " " << _numActiveSubSystems);
 	}
 
 	void ParticleSystem::draw(DrawTarget& target, DrawStates states) {
@@ -110,6 +114,25 @@ namespace sb
 			target.draw(_mesh.getVertices(), _mesh.getPrimitiveType(), states);
 			drawSubSystems(target, states);
 		}
+	}
+
+	void ParticleSystem::cloneSubSystemPool(std::vector<ParticleSystemPoolItem>& result) const
+	{
+		result.clear();
+		result.reserve(_subSystemPool.size());
+
+		for (std::size_t i = 0; i < _subSystemPool.size(); i++) {
+			ParticleSystemPoolItem item;
+			item.isActive = _subSystemPool[i].isActive;
+			item.particleSystem = new ParticleSystem(*_subSystemPool[i].particleSystem);
+		}
+	}
+
+	void ParticleSystem::clearSubSystemPool()
+	{
+		for (std::size_t i = 0; i < _subSystemPool.size(); i++)
+			delete _subSystemPool[i].particleSystem;
+		_subSystemPool.clear();
 	}
 
 	void ParticleSystem::updateParticleSystem(float ds)
@@ -138,14 +161,46 @@ namespace sb
 		_mesh[meshIndex * 6 + 5].position = Vector2f(0, 0);
 	}
 
+	ParticleSystem::ParticleSystemPoolItem& ParticleSystem::resizeSubSystemPool()
+	{
+		std::size_t oldSize = _subSystemPool.size();
+		std::size_t newSize = oldSize == 0 ? 1 : oldSize * 2;
+		std::size_t newElements = newSize - oldSize;
+
+		for (std::size_t i = 0; i < newElements; i++) {
+			ParticleSystemPoolItem item;
+			item.particleSystem = new ParticleSystem(*_subSystemOnParticleDeath);
+			item.isActive = false;
+			_subSystemPool.push_back(item);
+		}
+
+		return _subSystemPool[oldSize];
+	}
+
+	ParticleSystem::ParticleSystemPoolItem& ParticleSystem::getAvailableSubSystemPoolItem() {
+		for (std::size_t i = 0; i < _subSystemPool.size(); i++) {
+			if (!_subSystemPool[i].isActive) {
+				_subSystemPool[i].isActive = true;
+				_numActiveSubSystems++;
+				_subSystemPool[i].particleSystem->reset();
+				return _subSystemPool[i];
+			}
+		}
+
+		ParticleSystemPoolItem& item = resizeSubSystemPool();
+		item.isActive = true;
+		_numActiveSubSystems++;
+		item.particleSystem->reset();
+		return item;
+	}
+
 	void ParticleSystem::emitSubSystem(const Particle& particle) 
 	{
-		ParticleSystem* subSystem = new ParticleSystem(*_subSystemOnParticleDeath);
+		ParticleSystem* subSystem = getAvailableSubSystemPoolItem().particleSystem;
 		subSystem->setPosition(particle.getPosition());
 		subSystem->setRotation(particle.getRotation());
 		subSystem->velocity = particle.velocity;
 		subSystem->angularVelocity = particle.angularVelocity;
-		_subSystems.push_back(subSystem);
 	}
 
 	void ParticleSystem::removeDeadParticles() 
@@ -209,6 +264,9 @@ namespace sb
 
 	void ParticleSystem::emitParticles(float ds) 
 	{
+		if (_emissionRatePerSecond == 0)
+			return;
+
 		_secondsSinceLastEmission += ds;
 		float emissionInterval = 1 / _emissionRatePerSecond;
 		while (_secondsSinceLastEmission > emissionInterval) {
@@ -338,17 +396,52 @@ namespace sb
 		}
 	}
 
+	void ParticleSystem::shrinkSubSystemPool()
+	{
+		std::size_t currentSize = _subSystemPool.size();
+		std::size_t newSize = _numActiveSubSystems + (currentSize - _numActiveSubSystems) / 2;
+
+		std::vector<ParticleSystemPoolItem> newPool;
+		newPool.reserve(newSize);
+
+		for (std::size_t i = 0; i < _subSystemPool.size(); i++) {
+			if (_subSystemPool[i].isActive)
+				newPool.push_back(_subSystemPool[i]);
+			else
+				delete _subSystemPool[i].particleSystem;
+		}
+
+		_subSystemPool = newPool;
+	}
+
+	void ParticleSystem::updateSubSystemPool()
+	{
+		for (std::size_t i = 0; i < _subSystemPool.size(); i++) {
+			if (_subSystemPool[i].isActive && !_subSystemPool[i].particleSystem->isAlive()) {
+				_subSystemPool[i].isActive = false;
+				_numActiveSubSystems--;
+			}
+		}
+
+		if (_numActiveSubSystems < _subSystemPool.size() / 2)
+			shrinkSubSystemPool();
+	}
+	
 	void ParticleSystem::updateSubSystems(float ds)
 	{
-		deleteFromVector(_subSystems, isParticleSystemDead);
+		updateSubSystemPool();
 
-		for (std::size_t i = 0; i < _subSystems.size(); i++)
-			_subSystems[i]->update(ds);
+		for (std::size_t i = 0; i < _subSystemPool.size(); i++) {
+			if (_subSystemPool[i].isActive)
+				_subSystemPool[i].particleSystem->update(ds);
+		}
 	}
 
 	void ParticleSystem::drawSubSystems(DrawTarget& target, DrawStates& states)
 	{
-		for (std::size_t i = 0; i < _subSystems.size(); i++)
-			target.draw(_subSystems[i], states);
+		for (std::size_t i = 0; i < _subSystemPool.size(); i++) {
+			if (_subSystemPool[i].isActive)
+				target.draw(*_subSystemPool[i].particleSystem, states);
+		}
 	}
 }
