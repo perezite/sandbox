@@ -9,7 +9,8 @@ namespace sb
 	const float Pi = (float)M_PI;
 
 	const float ToRadian = 0.01745329251f;
-
+	const float ToDegrees = 57.295779513f;
+	
 	inline float random() {
 		return float(rand()) / float(RAND_MAX);
 	}
@@ -29,6 +30,14 @@ namespace sb
 	inline Vector2f randomOnCircle(float radius) {
 		float angle = random(0, 2 * Pi);
 		return sb::Vector2f(radius * cosf(angle), radius * sinf(angle));
+	}
+
+	inline float angle(const sb::Vector2f& from, const sb::Vector2f& to) {
+		float angle = atan2(to.y, to.x) - atan2(from.y, from.x);
+		/*if (angle < 0)
+			angle += 2 * sb::Pi;*/
+
+		return angle;
 	}
 
 	inline int nextPowerOfTwo(int number) {

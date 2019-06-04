@@ -12,6 +12,8 @@
 #include <iostream>
 #include <vector>		
 #include <algorithm>
+#include <math.h>
+#include <time.h>
 
 float getSeconds() {
 	static sb::Stopwatch sw;
@@ -579,6 +581,53 @@ void demo8() {
 	}
 }
 
+void init9(sb::ParticleSystem& particleSystem, sb::ParticleSystem& subParticleSystem) {
+	subParticleSystem.setParticleColor(sb::Color(1, 0, 0, 1));
+	subParticleSystem.setLifetime(1);
+	subParticleSystem.setEmissionRatePerSecond(0);
+	subParticleSystem.addBurst(0, 2);
+	subParticleSystem.hasRandomEmissionDirection(true);
+	subParticleSystem.id = "sub";
+
+	setParticleRainbowColor(particleSystem);
+	particleSystem.setScale(0.1f, 0.1f);
+	particleSystem.setSubSystemOnParticleDeath(subParticleSystem);
+	particleSystem.id = "main";
+}
+
+void input9(sb::Window& window, sb::ParticleSystem& system) {
+	if (sb::Input::isTouchGoingDown(1)) {
+		const sb::Vector2f touch = sb::Input::getTouchPosition(window);
+		if (touch.x <= 0)
+			system.setEmissionRatePerSecond(sb::clamp(system.getEmissionRatePerSecond() - 5, 0, 1000));
+		else
+			system.setEmissionRatePerSecond(system.getEmissionRatePerSecond() + 5);
+
+		SB_MESSAGE("Emsision rate:" << system.getEmissionRatePerSecond());
+	}
+}
+
+void demo9() {
+	sb::Window window;
+	sb::Texture texture;
+	sb::ParticleSystem particleSystem(1000);
+	sb::ParticleSystem subParticleSystem(2);
+
+	init9(particleSystem, subParticleSystem);
+
+	while (window.isOpen()) {
+		float ds = getDeltaSeconds();
+		sb::Input::update();
+		window.update();
+		particleSystem.update(ds);
+		input9(window, particleSystem);
+
+		window.clear(sb::Color(1, 1, 1, 1));
+		window.draw(particleSystem);
+		window.display();
+	}
+}
+
 void init10(sb::ParticleSystem& system, sb::ParticleSystem& subSystem, sb::Texture& texture) {
 	system.setParticleLifetimeRange(sb::Vector2f(1, 1));
 	system.setParticleSpeedRange(sb::Vector2f(1, 1));
@@ -629,55 +678,92 @@ void demo10() {
 	}
 }
 
-void init9(sb::ParticleSystem& particleSystem, sb::ParticleSystem& subParticleSystem) {
-	subParticleSystem.setParticleColor(sb::Color(1, 0, 0, 1));
-	subParticleSystem.setLifetime(1);
-	subParticleSystem.setEmissionRatePerSecond(0);
-	subParticleSystem.addBurst(0, 2);
-	subParticleSystem.hasRandomEmissionDirection(true);
-	subParticleSystem.id = "sub";
-
-	setParticleRainbowColor(particleSystem);
-	particleSystem.setScale(0.1f, 0.1f);
-	particleSystem.setSubSystemOnParticleDeath(subParticleSystem);
-	particleSystem.id = "main";
+void test11() {
+	float x = 10.0;
+	float y = -10.0;
+	float result = atan2(y, x) * sb::ToDegrees;
+	printf("The arc tangent for (x=%f, y=%f) is %f degrees\n", x, y, result);
+	std::cin.get();
 }
 
-void input9(sb::Window& window, sb::ParticleSystem& system) {
-	if (sb::Input::isTouchGoingDown(1)) {
-		const sb::Vector2f touch = sb::Input::getTouchPosition(window);
-		if (touch.x <= 0)
-			system.setEmissionRatePerSecond(sb::clamp(system.getEmissionRatePerSecond() - 5, 0, 1000));
-		else
-			system.setEmissionRatePerSecond(system.getEmissionRatePerSecond() + 5);
+void test11b(const sb::Vector2f& from, const sb::Vector2f& to) {
+	std::cout << "The angle is " << sb::angle(from, to) * sb::ToDegrees << " degrees" << std::endl;
+	std::cin.get();
+}
 
-		SB_MESSAGE("Emsision rate:" << system.getEmissionRatePerSecond());
+struct Ball : public sb::Drawable, public sb::Body {
+	sb::Quad quad;
+
+	Ball() {
+		setVelocity(sb::randomOnCircle(1).normalized());
+		setScale(0.1f, 0.1f);
 	}
-}
 
-void demo9() {
-	sb::Window window;
-	sb::Texture texture;
-	sb::ParticleSystem particleSystem(1000);
-	sb::ParticleSystem subParticleSystem(2);
+	void setVelocity(const sb::Vector2f& velocity_) {
+		velocity = velocity_;
+		setRotation(sb::angle(sb::Vector2f(0, 1), velocity));
+	}
 
-	init9(particleSystem, subParticleSystem);
+	void physics() {
+		const sb::Vector2f& position = getPosition();
+		
+		if (position.x < -0.5f) {
+			setPosition(-0.5f, getPosition().y);
+			setVelocity(sb::Vector2f(-velocity.x, velocity.y));
+		}
+
+		if (position.x > 0.5f) {
+			setPosition(0.5f, getPosition().y);
+			setVelocity(sb::Vector2f(-velocity.x, velocity.y));
+		}
+
+		if (position.y < -0.5f) {
+			setPosition(getPosition().x, -0.5f);
+			setVelocity(sb::Vector2f(velocity.x, -velocity.y));
+		}
+
+		if (position.y > 0.5f) {
+			setPosition(getPosition().x, 0.5f);
+			setVelocity(sb::Vector2f(velocity.x, -velocity.y));
+		}
+	}
+
+	void update(float ds) {
+		translate(ds * velocity);
+
+		physics();
+	}
+
+	virtual void draw(sb::DrawTarget& target, sb::DrawStates states) 
+	{
+		states.transform *= getTransform();
+		target.draw(quad, states);
+	}
+};
+
+void demo11() {
+	srand(512);
+	sb::Window window(400, 711);
+	Ball ball;
+
+	window.getCamera().setWidth(2);
 
 	while (window.isOpen()) {
 		float ds = getDeltaSeconds();
 		sb::Input::update();
 		window.update();
-		particleSystem.update(ds);
-		input9(window, particleSystem);
+		ball.update(ds);
 
 		window.clear(sb::Color(1, 1, 1, 1));
-		window.draw(particleSystem);
+		window.draw(ball);
 		window.display();
 	}
 }
 
 int main() {
-	demo10();
+	demo11();
+
+	//demo10();
 
 	//demo9();
 
