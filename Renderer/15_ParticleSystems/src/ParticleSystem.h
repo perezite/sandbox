@@ -42,6 +42,37 @@ namespace sb
 			bool isActive;
 		};
 
+		class Pool {
+		public:
+			struct Item { 
+				ParticleSystem* particleSystem; 
+				bool isActive;
+			};
+
+			Pool();
+			virtual ~Pool();
+			inline std::vector<Item>& getAllItems() { return _items; }
+			inline static bool isItemActive(const Item& item) { return item.isActive; }
+			inline std::size_t getNumItems() const { return _items.size(); }
+			inline std::size_t getNumActiveItems() const { return _numActiveItems; }
+			inline bool hasPrototype() const { return _prototype != NULL; }
+			void setPrototype(const ParticleSystem& prototype);
+			Item& getAvailableItem();
+			void update();
+			void clone(Pool& result) const;
+			void clear();
+
+		protected:
+			void activate(Item& item);
+			void shrink();
+			void expand();
+
+		private:
+			ParticleSystem* _prototype;
+			std::vector<Item> _items;
+			std::size_t _numActiveItems;
+		};
+
 	public:
 		ParticleSystem(std::size_t maxNumParticles)
 			: _mesh(maxNumParticles * 6, PrimitiveType::TriangleStrip), _texture(NULL),
@@ -51,8 +82,7 @@ namespace sb
 			_particleDrag(0), _angularParticleDrag(0),_particleLifetimeRange(1, 1), _particleSizeRange(0.1f, 0.1f),
 			_particleRotationRange(0, 0), _particleSpeedRange(1, 1), _particleVertexColors(4, Color(1, 1, 1, 1)),
 			_hasParticleColorChannelsOverLifetime(4, false), _particleColorChannelsOverLifetime(4), 
-			_hasParticleScaleOverLifetime(false), _emissionShape(new Disk(0)), _hasRandomEmissionDirection(false),
-			_subSystemOnParticleDeath(NULL), _numActiveSubSystems(0)
+			_hasParticleScaleOverLifetime(false), _emissionShape(new Disk(0)), _hasRandomEmissionDirection(false)
 		{ }
 
 		ParticleSystem(const ParticleSystem& other);
@@ -119,10 +149,6 @@ namespace sb
 
 	protected:
 
-		void cloneSubSystemPool(std::vector<ParticleSystemPoolItem>& result) const;
-
-		void clearSubSystemPool();
-
 		void updateParticleSystem(float ds);
 
 		inline static bool isParticleSystemDead(ParticleSystem* particleSystem) { return !particleSystem->isAlive(); }
@@ -130,10 +156,6 @@ namespace sb
 		static bool isParticleDead(const Particle& particle);
 
 		void deactivateParticleInMesh(std::size_t meshIndex);
-
-		ParticleSystemPoolItem& resizeSubSystemPool();
-
-		ParticleSystemPoolItem& getAvailableSubSystemPoolItem();
 
 		void emitSubSystem(const Particle& particle);
 
@@ -178,10 +200,6 @@ namespace sb
 		void updateMesh(float ds);
 
 		void updateParticles(float ds);
-		
-		void shrinkSubSystemPool();
-
-		void updateSubSystemPool();
 
 		void updateSubSystems(float ds);
 
@@ -217,8 +235,6 @@ namespace sb
 		Shape* _emissionShape;
 		bool _hasRandomEmissionDirection;
 
-		ParticleSystem* _subSystemOnParticleDeath;
-		std::size_t _numActiveSubSystems;
-		std::vector<ParticleSystemPoolItem> _subSystemPool;
+		Pool _pool;
 	};
 }
