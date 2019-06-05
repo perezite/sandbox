@@ -33,11 +33,7 @@ namespace sb
 	}
 
 	inline float angle(const sb::Vector2f& from, const sb::Vector2f& to) {
-		float angle = atan2(to.y, to.x) - atan2(from.y, from.x);
-		/*if (angle < 0)
-			angle += 2 * sb::Pi;*/
-
-		return angle;
+		return atan2(to.y, to.x) - atan2(from.y, from.x);
 	}
 
 	inline int nextPowerOfTwo(int number) {

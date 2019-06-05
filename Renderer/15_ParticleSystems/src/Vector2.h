@@ -14,7 +14,7 @@ namespace sb
 		inline Vector2(T s_)
 			: x(s_), y(s_)
 		{ }
-
+		
 		inline Vector2<T>(T x_, T y_)
 			: x(x_), y(y_)
 		{ }
@@ -31,6 +31,12 @@ namespace sb
 		inline Vector2<float> normalized() const {
 			float inverseLength = 1 / getLength();
 			return Vector2<float>(inverseLength * this->x, inverseLength * this->y);
+		}
+
+		inline Vector2<float> rotated(float radians) const {
+			float c = cosf(radians);
+			float s = sinf(radians);
+			return sb::Vector2f(c * x - s * y, s * x + c * y);
 		}
 
 		T x, y;

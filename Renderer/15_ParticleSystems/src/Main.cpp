@@ -9,6 +9,7 @@
 #include "Easing.h"
 #include "Disk.h"
 #include "ParticleSystem.h"
+#include "Sprite.h"
 #include <iostream>
 #include <vector>		
 #include <algorithm>
@@ -865,36 +866,47 @@ void demo13() {
 	}
 }
 
-void init12(sb::ParticleSystem& system, sb::Texture& texture) {
+void init12(sb::ParticleSystem& system) {
 	system.setParticleLifetimeRange(sb::Vector2f(1, 1));
 	system.setParticleSpeedRange(sb::Vector2f(1, 1));
-	system.setParticleSizeRange(0.8f * sb::Vector2f(0.175f, 0.65f));
-	system.setParticleColor(sb::Color(1, 1, 1, 0.3f));
+	system.setParticleSizeRange(sb::Vector2f(0.1f, 0.1f));
+	setParticleRainbowColor(system);
 	system.setEmissionRatePerSecond(100);
-	system.setParticleDrag(0.1f);
-	system.setParticleColorChannelOverLifetime(3, sb::Tween().linear(1, 0, 1));
-	system.setParticleScaleOverLifetime(sb::Tween().bounceOut(0, 1, 0.1f).quadInOut(1, 0, 0.9f));
-	system.setEmissionShape(sb::Disk(0, 0.6f, (270 - 28) * sb::ToRadian, (270 + 28) * sb::ToRadian));
-	system.setTexture(texture);
+	system.setParticleScaleOverLifetime(sb::Tween().bounceOut(0, 1, 0.3f).quadInOut(1, 0, 0.7f));
+	system.setEmissionShape(sb::Disk(0, 0.6f, (270 - 45) * sb::ToRadian, (270 + 45) * sb::ToRadian));
+
+	system.setRotation(90 * sb::ToRadian);
+	system.setPosition(-0.25f, -0.25f);
+	system.setScale(0.1f, 0.1f);
 }
 
 void demo12() {
 	sb::Window window;
 	sb::Texture texture;
+	sb::Sprite sprite;
 	sb::ParticleSystem particleSystem(1000);
+	sb::Quad quad;
 
 	window.getCamera().setWidth(4);
-	texture.loadFromAsset("Textures/GreenPropulsion.png");
-	init12(particleSystem, texture);
+	texture.loadFromAsset("Textures/CoordinateSystem.png");
+	sprite.setTexture(texture);
+	init12(particleSystem);
+	quad.setScale(0.1f, 0.1f);
 
 	while (window.isOpen()) {
 		float ds = getDeltaSeconds();
 		sb::Input::update();
 		window.update();
 		particleSystem.update(ds);
+		particleSystem.rotate(ds);
+		particleSystem.translate(0.1f * sb::Vector2f(ds , ds));
+		particleSystem.scale(0.1f * sb::Vector2f(ds, ds));
+		quad.setPosition(particleSystem.getPosition());
 
 		window.clear(sb::Color(1, 1, 1, 1));
+		window.draw(sprite);
 		window.draw(particleSystem);
+		window.draw(quad);
 		window.display();
 	}
 }

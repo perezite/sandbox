@@ -103,7 +103,7 @@ namespace sb
 
 	void ParticleSystem::draw(DrawTarget& target, DrawStates states) {
 		if (isAlive()) {
-			states.transform *= getTransform();
+			//states.transform *= getTransform();
 			states.texture = _texture;
 			target.draw(_mesh.getVertices(), _mesh.getPrimitiveType(), states);
 			drawSubSystems(target, states);
@@ -174,18 +174,21 @@ namespace sb
 	Vector2f ParticleSystem::getDirection(Particle& particle) 
 	{
 		bool randomDirection = _hasRandomEmissionDirection || _emissionShape->getBoundingRadius() < 0.0001f;
-		return randomDirection ? randomOnCircle(1) : particle.getPosition().normalized();
+		return randomDirection ? randomOnCircle(1) : (particle.getPosition() - getPosition()).normalized();
 	}
 
 	void ParticleSystem::initParticle(Particle& particle) 
 	{
-		particle.setPosition(_emissionShape->random());
-		float size = random(_particleSizeRange.x, _particleSizeRange.y);
+		const sb::Vector2f& scale = getScale();
+
+		particle.setPosition(getTransform() * _emissionShape->random());
+		float size = random(_particleSizeRange.x * scale.x, _particleSizeRange.y * scale.y);
 		particle.setScale(size, size);
 		particle.startScale = Vector2f(size, size);
 		particle.setRotation(random(_particleRotationRange.x, _particleRotationRange.y));
 		Vector2f direction = getDirection(particle);
-		particle.velocity = random(_particleSpeedRange.x, _particleSpeedRange.y) * direction;
+		Vector2f scaledDirection(scale.x * direction.x, scale.y * direction.y);
+		particle.velocity = random(_particleSpeedRange.x, _particleSpeedRange.y) * scaledDirection;
 		particle.angularVelocity = random(_particleAngularVelocityRange.x, _particleAngularVelocityRange.y);
 		particle.lifetime = random(_particleLifetimeRange.x, _particleLifetimeRange.y);
 		particle.vertexColors = _particleVertexColors;
