@@ -30,10 +30,14 @@ import android.media.*;
 import android.hardware.*;
 import android.content.pm.ActivityInfo;
 
+import org.libsdl.app.Test;
+
 /**
     SDL Activity
 */
 public class SDLActivity extends Activity {
+	private static boolean DisableSdlAudio = false;
+
     private static final String TAG = "SDL";
 
     // Keep track of the paused state
@@ -121,6 +125,8 @@ public class SDLActivity extends Activity {
         Log.v(TAG, "onCreate(): " + mSingleton);
         super.onCreate(savedInstanceState);
 
+
+
         SDLActivity.initialize();
         // So we can call stuff from static callbacks
         mSingleton = this;
@@ -195,6 +201,8 @@ public class SDLActivity extends Activity {
                 SDLActivity.onNativeDropFile(filename);
             }
         }
+
+		Audio.init(this);
     }
 
     // Events
@@ -207,6 +215,7 @@ public class SDLActivity extends Activity {
            return;
         }
 
+		Audio.pause();
         SDLActivity.handlePause();
     }
 
@@ -229,6 +238,8 @@ public class SDLActivity extends Activity {
             View.SYSTEM_UI_FLAG_FULLSCREEN;
 
         getWindow().getDecorView().setSystemUiVisibility(iFlags);    
+
+		Audio.resume();
     }
 
 
@@ -273,6 +284,8 @@ public class SDLActivity extends Activity {
         // Send a quit message to the application
         SDLActivity.mExitCalledFromJava = true;
         SDLActivity.nativeQuit();
+
+
 
         // Now wait for the SDL thread to quit
         if (SDLActivity.mSDLThread != null) {
@@ -562,6 +575,9 @@ public class SDLActivity extends Activity {
      * This method is called by SDL using JNI.
      */
     public static int audioInit(int sampleRate, boolean is16Bit, boolean isStereo, int desiredFrames) {
+		if (DisableSdlAudio)
+			return 0;
+
         int channelConfig = isStereo ? AudioFormat.CHANNEL_CONFIGURATION_STEREO : AudioFormat.CHANNEL_CONFIGURATION_MONO;
         int audioFormat = is16Bit ? AudioFormat.ENCODING_PCM_16BIT : AudioFormat.ENCODING_PCM_8BIT;
         int frameSize = (isStereo ? 2 : 1) * (is16Bit ? 2 : 1);
@@ -599,6 +615,9 @@ public class SDLActivity extends Activity {
      * This method is called by SDL using JNI.
      */
     public static void audioWriteShortBuffer(short[] buffer) {
+		if (DisableSdlAudio)
+			return;
+
         for (int i = 0; i < buffer.length; ) {
             int result = mAudioTrack.write(buffer, i, buffer.length - i);
             if (result > 0) {
@@ -620,6 +639,9 @@ public class SDLActivity extends Activity {
      * This method is called by SDL using JNI.
      */
     public static void audioWriteByteBuffer(byte[] buffer) {
+		if (DisableSdlAudio)
+			return;
+
         for (int i = 0; i < buffer.length; ) {
             int result = mAudioTrack.write(buffer, i, buffer.length - i);
             if (result > 0) {
@@ -641,6 +663,9 @@ public class SDLActivity extends Activity {
      * This method is called by SDL using JNI.
      */
     public static void audioQuit() {
+		if (DisableSdlAudio)
+			return;
+
         if (mAudioTrack != null) {
             mAudioTrack.stop();
             mAudioTrack = null;
