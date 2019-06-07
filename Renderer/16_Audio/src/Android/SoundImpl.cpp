@@ -1,6 +1,6 @@
 #include "AndroidSound.h"
 #include "AndroidAudio.h"
-#include "Logger.h"
+#include "../Logger.h"
 #include <SDL2/SDL.h>
 
 namespace sb
@@ -8,7 +8,7 @@ namespace sb
 	void AndroidSound::load(std::string assetPath)
 	{
 		#ifdef __ANDROID__
-			SB_WARNING() << "The AndroidSound class is deprecated, use the Sound class instead!" << std::endl;
+			SB_WARNING("The AndroidSound class is deprecated, use the Sound class instead!");
 
 			if (!AndroidAudio::isInit())
 				AndroidAudio::init();
@@ -16,7 +16,7 @@ namespace sb
 			m_assetPath = assetPath;
 
 			m_id = sb::Java::callStaticIntMethod("org/libsdl/app/Sound", "loadAsync", "(Ljava/lang/String;)I", sb::Java::newUtfString(assetPath));
-			SB_WARNING_IF2(m_id != jint(1), true) << "unable to load android sound " << assetPath << std::endl;
+			SB_WARNING_IF(m_id != jint(1), "unable to load android sound " << assetPath);
 
 			jint result = jint(0);
 			while (result == jint(0)) {
@@ -24,7 +24,7 @@ namespace sb
 				SDL_Delay(1);
 			}
 
-			SB_WARNING_IF2(result != jint(1), true) << "unable to complete loading of android sound " << assetPath << std::endl;
+			SB_WARNING_IF(result != jint(1), "unable to complete loading of android sound " << assetPath);
 		#endif
 	}
 
@@ -32,7 +32,7 @@ namespace sb
 	{
 		#ifdef __ANDROID__
 			jint result = sb::Java::callStaticIntMethod("org/libsdl/app/Sound", "play", "(I)I", m_id);
-			SB_WARNING_IF2(result != jint(1), true) << "unable to play android sound " << m_assetPath << std::endl;
+			SB_WARNING_IF(result != jint(1), "unable to play android sound " << m_assetPath);
 		#endif
 	}
 }

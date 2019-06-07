@@ -1,15 +1,9 @@
 #include "Window.h"
 #include "Input.h"
 #include "Quad.h"
-#include "Triangle.h"
 #include "Stopwatch.h"
 #include "Math.h"
-#include "Body.h"
 #include "Tween.h"
-#include "Easing.h"
-#include "Disk.h"
-#include "ParticleSystem.h"
-#include "Sprite.h"
 #include <iostream>
 #include <vector>		
 #include <algorithm>
@@ -28,6 +22,15 @@ float getDeltaSeconds()
 	float delta = elapsed - lastElapsed;
 	lastElapsed = elapsed;
 	return delta;
+}
+
+void version() {
+	#ifdef _DEBUG
+		std::string configuration = "Debug";
+	#else
+		std::string configuration = "Release";
+	#endif	
+	SB_MESSAGE("Audio - Build: " << configuration << ", " << __DATE__ << ", " << __TIME__);
 }
 
 void demo0() {
@@ -51,8 +54,9 @@ void demo0() {
 	}
 }
 
-
 int main() {
+	version();
+
 	demo0();
 
 	return 0;

@@ -30,8 +30,6 @@ import android.media.*;
 import android.hardware.*;
 import android.content.pm.ActivityInfo;
 
-import org.libsdl.app.Test;
-
 /**
     SDL Activity
 */

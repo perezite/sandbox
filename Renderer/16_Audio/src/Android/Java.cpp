@@ -37,7 +37,7 @@ namespace sb
 	{
 		static JNIEnv* jni = getJavaNativeInterface();
 		jclass theClass = jni->FindClass(classDescriptor.c_str());
-		SB_ERROR_IF(theClass == NULL) << "unable to load java android class with descriptor " << classDescriptor << std::endl;
+		SB_ERROR_IF(theClass == NULL, "unable to load java android class with descriptor " << classDescriptor);
 
 		m_classes[classDescriptor] = theClass;
 	}
@@ -46,7 +46,7 @@ namespace sb
 	{
 		static JNIEnv* jni = getJavaNativeInterface();
 		jmethodID methodId = jni->GetStaticMethodID(javaMethod.theClass, javaMethod.name.c_str(), javaMethod.descriptor.c_str());
-		SB_ERROR_IF(methodId == NULL) << "unable to load java android method " << javaMethod.name << std::endl;
+		SB_ERROR_IF(methodId == NULL, "unable to load java android method " << javaMethod.name);
 
 		m_methods[javaMethod] = methodId;
 	}

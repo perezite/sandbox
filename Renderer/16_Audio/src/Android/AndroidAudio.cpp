@@ -14,12 +14,12 @@ namespace sb
 	void AndroidAudio::init()
 	{
 		#ifdef __ANDROID__
-			SB_ERROR_IF(m_isInit) << "AndroidAudio::init() can only be called once" << std::endl;
+			SB_ERROR_IF(m_isInit, "AndroidAudio::init() can only be called once");
 
 			// initialize android playback
 			jint result = sb::Java::callStaticIntMethod("org/libsdl/app/Audio", "isInit", "()I");
-			SB_WARNING_IF2(result == 0, true) << "android audio was not init. Make sure you called Audio.init(this) in the java android activity" << std::endl;
-			SB_WARNING_IF2(result == -1, true) << "unable to initialize android audio" << std::endl;
+			SB_WARNING_IF(result == 0, "android audio was not init. Make sure you called Audio.init(this) in the java android activity");
+			SB_WARNING_IF(result == -1, "unable to initialize android audio");
 
 			m_isValid = (result == 1);
 			m_isInit = true;

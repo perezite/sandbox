@@ -10,7 +10,7 @@ namespace sb
 	{
 		#ifdef __ANDROID__
 			jint result = sb::Java::callStaticIntMethod("org/libsdl/app/Music", "release", "(I)I", m_id);
-			SB_WARNING_IF2(result == jint(-1), true) << "unable to release music track " << m_assetPath << std::endl;
+			SB_WARNING_IF(result == jint(-1), "unable to release music track " << m_assetPath);
 		#endif		
 	}
 
@@ -23,7 +23,7 @@ namespace sb
 			m_assetPath = assetPath;
 
 			m_id = sb::Java::callStaticIntMethod("org/libsdl/app/Music", "loadAsync", "(Ljava/lang/String;)I", sb::Java::newUtfString(assetPath));
-			SB_WARNING_IF2(m_id == jint(-1), true) << "unable to load music track " << assetPath << std::endl;
+			SB_WARNING_IF(m_id == jint(-1), "unable to load music track " << assetPath);
 			
 			jint loadResult = 0;
 			while (loadResult == jint(0)) {
@@ -31,7 +31,7 @@ namespace sb
 				SDL_Delay(1);
 			}
 
-			SB_WARNING_IF2(m_id == jint(-1), true) << "unable to complete loading of music track " << assetPath << std::endl;
+			SB_WARNING_IF(m_id == jint(-1), "unable to complete loading of music track " << assetPath);
 		#endif
 	}
 
@@ -41,7 +41,7 @@ namespace sb
 			if (!AndroidAudio::isValid()) return;
 
 			jint result = sb::Java::callStaticIntMethod("org/libsdl/app/Music", "play", "(I)I", m_id);
-			SB_WARNING_IF2(result == jint(-1), true) << "unable to play music track " << m_assetPath << std::endl;
+			SB_WARNING_IF(result == jint(-1), "unable to play music track " << m_assetPath);
 		#endif
 	}
 
@@ -51,7 +51,7 @@ namespace sb
 			if (!AndroidAudio::isValid()) return;
 
 			jint result = sb::Java::callStaticIntMethod("org/libsdl/app/Music", "stop", "(I)I", m_id);
-			SB_WARNING_IF2(result == jint(-1), true) << "unable to stop music track " << m_assetPath << std::endl;
+			SB_WARNING_IF(result == jint(-1), "unable to stop music track " << m_assetPath);
 		#endif
 	}
 
@@ -61,7 +61,7 @@ namespace sb
 			if (!AndroidAudio::isValid()) return;
 
 			jint result = sb::Java::callStaticIntMethod("org/libsdl/app/Music", "setLooping", "(IZ)I", m_id, jboolean(looping));
-			SB_WARNING_IF2(result == jint(-1), true) << "unable to set looping on music track " << m_assetPath << std::endl;
+			SB_WARNING_IF(result == jint(-1), "unable to set looping on music track " << m_assetPath);
 		#endif
 	}
 
@@ -71,7 +71,7 @@ namespace sb
 			if (!AndroidAudio::isValid()) return;
 
 			jint result = sb::Java::callStaticIntMethod("org/libsdl/app/Music", "setVolume", "(IF)I", m_id, jfloat(volume));
-			SB_WARNING_IF2(result == jint(-1), true) << "unable to set volume on music track " << m_assetPath << std::endl;
+			SB_WARNING_IF(result == jint(-1), "unable to set volume on music track " << m_assetPath);
 		#endif
 	}
 }
