@@ -10,10 +10,10 @@
 
 namespace sb
 {	
-	void MusicImpl::load(std::string assetPath)
+	void MusicImpl::loadFromFile(std::string filePath)
 	{
-		if (!m_music.openFromFile(assetPath))
-			SB_ERROR("unable to load music track " << assetPath);
+		if (!m_music.openFromFile(filePath))
+			SB_ERROR("unable to load music track " << filePath);
 	}
 
 	void MusicImpl::play()

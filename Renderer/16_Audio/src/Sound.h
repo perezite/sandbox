@@ -11,7 +11,7 @@ namespace sb
 		
 		~Sound();
 
-		void load(std::string assetPath);
+		void loadFromAsset(std::string assetPath);
 
 		void play();
 

@@ -14,16 +14,16 @@ namespace sb
 		#endif		
 	}
 
-	void MusicImpl::load(std::string assetPath)
+	void MusicImpl::loadFromFile(std::string filePath)
 	{
 		#ifdef __ANDROID__
 			if (!AndroidAudio::isInit()) AndroidAudio::init();
 			if (!AndroidAudio::isValid()) return;
 
-			m_assetPath = assetPath;
+			m_assetPath = filePath;
 
-			m_id = sb::Java::callStaticIntMethod("org/libsdl/app/Music", "loadAsync", "(Ljava/lang/String;)I", sb::Java::newUtfString(assetPath));
-			SB_WARNING_IF(m_id == jint(-1), "unable to load music track " << assetPath);
+			m_id = sb::Java::callStaticIntMethod("org/libsdl/app/Music", "loadAsync", "(Ljava/lang/String;)I", sb::Java::newUtfString(filePath));
+			SB_WARNING_IF(m_id == jint(-1), "unable to load music track " << filePath);
 			
 			jint loadResult = 0;
 			while (loadResult == jint(0)) {
@@ -31,7 +31,7 @@ namespace sb
 				SDL_Delay(1);
 			}
 
-			SB_WARNING_IF(m_id == jint(-1), "unable to complete loading of music track " << assetPath);
+			SB_WARNING_IF(m_id == jint(-1), "unable to complete loading of music track " << filePath);
 		#endif
 	}
 

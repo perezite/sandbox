@@ -10,13 +10,13 @@
 #define JNI_WARN(f) {																			\
 	jint result = f;																			\
 	if (result == jint(-1))																		\
-		sb::Logger().warning(true) << "The following jni call failed " << #f << std::endl;		\
+		SB_WARNING("The following jni call failed " << #f);										\
 	}
 
-#define JNI_CHECK(f) {																		\
-	jint result = f;																		\
-	if (result == jint(-1))																	\
-		sb::Logger().error() << "The following jni call failed " << #f << std::endl;		\
+#define JNI_CHECK(f) {																			\
+	jint result = f;																			\
+	if (result == jint(-1))																		\
+		SB_ERROR("The following jni call failed " << #f);										\
 	}
 
 namespace sb 

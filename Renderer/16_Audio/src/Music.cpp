@@ -1,4 +1,5 @@
 #include "Music.h"
+#include "Asset.h"
 #include "Logger.h"
 
 #ifdef __ANDROID__
@@ -20,10 +21,10 @@ namespace sb
 		delete m_musicImpl;
 	}
 
-	void Music::load(std::string assetPath)
+	void Music::loadFromAsset(std::string assetPath)
 	{
 		validateFileEnding(assetPath);
-		m_musicImpl->load(assetPath);
+		m_musicImpl->loadFromFile(Asset::getFilePath(assetPath));
 	}
 
 	void Music::play()

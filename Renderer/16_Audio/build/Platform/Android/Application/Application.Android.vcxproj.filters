@@ -13,9 +13,6 @@
     <ClCompile Include="..\..\..\..\src\Android\MusicImpl.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\Android\SoundImpl.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="Precompiled.cpp">
       <Filter>Precompiled</Filter>
     </ClCompile>
@@ -25,9 +22,6 @@
       <Filter>Sources</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\src\Android\AndroidAudio.h">
-      <Filter>Sources</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\src\Android\AndroidSound.h">
       <Filter>Sources</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\src\Android\Java.h">

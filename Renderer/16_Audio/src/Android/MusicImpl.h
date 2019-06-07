@@ -11,7 +11,7 @@ namespace sb
 	public:
 		~MusicImpl();
 
-		void load(std::string assetPath);
+		void loadFromFile(std::string assetPath);
 
 		void play();
 

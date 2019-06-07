@@ -1,5 +1,6 @@
 #include "Sound.h"
 #include "Logger.h"
+#include "Asset.h"
 #include <SDL2/SDL_mixer.h>
 
 namespace sb
@@ -21,17 +22,18 @@ namespace sb
 			Mix_FreeChunk(m_sound);
 	}
 
-	void Sound::load(std::string assetPath)
+	void Sound::loadFromAsset(std::string assetPath)
 	{
 		if (!m_isInit) init();
 		if (!m_isValid) return;
 
 		m_assetPath = assetPath;
-		validateFileEnding(assetPath);
+		std::string filePath = Asset::getFilePath(m_assetPath);
+		validateFileEnding(filePath);
 
 		// note: the Mix_LoadWAV method can actually load file types other than WAV as well..
-		m_sound = Mix_LoadWAV(assetPath.c_str());
-		SB_WARNING_IF(m_sound == NULL, "unable to load sound " << assetPath);
+		m_sound = Mix_LoadWAV(filePath.c_str());
+		SB_WARNING_IF(m_sound == NULL, "unable to load sound " << filePath);
 	}
 
 	void Sound::play()
