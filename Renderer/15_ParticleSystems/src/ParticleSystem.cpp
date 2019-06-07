@@ -56,18 +56,19 @@ namespace sb
 
 	void ParticleSystem::setLifetime(float lifetime)
 	{
-		_canDie = true;
+		_hasLifetime = true;
 		_lifetime = lifetime;
 	}
 
 	void ParticleSystem::setSubSystemOnParticleDeath(const ParticleSystem& subSystem)
 	{
+		SB_ERROR_IF(!subSystem._hasLifetime, "sub particle systems must have a lifetime to prevent zombie systems");
 		_pool.setPrototype(subSystem);
 	}
 
 	bool ParticleSystem::isAlive() 
 	{
-		return !_canDie || _secondsSinceBirth < _lifetime || _pool.getNumActiveItems() > 0 || _numActiveParticles > 0;
+		return !_hasLifetime || _secondsSinceBirth < _lifetime || _pool.getNumActiveItems() > 0 || _numActiveParticles > 0;
 	}
 
 	void ParticleSystem::reset()
@@ -103,7 +104,6 @@ namespace sb
 
 	void ParticleSystem::draw(DrawTarget& target, DrawStates states) {
 		if (isAlive()) {
-			//states.transform *= getTransform();
 			states.texture = _texture;
 			target.draw(_mesh.getVertices(), _mesh.getPrimitiveType(), states);
 			drawSubSystems(target, states);
@@ -136,10 +136,12 @@ namespace sb
 		_mesh[meshIndex * 6 + 5].position = Vector2f(0, 0);
 	}
 
-
 	void ParticleSystem::emitSubSystem(const Particle& emittingParticle) 
 	{
 		ParticleSystem* subSystem = _pool.getAvailableItem().particleSystem;
+		sb::Vector2f parentScale = getScale();
+		sb::Vector2f scale = subSystem->getScale();
+		subSystem->setScale(parentScale.x * scale.x, parentScale.y * scale.y);
 		subSystem->setPosition(emittingParticle.getPosition());
 		subSystem->setRotation(emittingParticle.getRotation());
 		subSystem->velocity = emittingParticle.velocity;
@@ -159,8 +161,7 @@ namespace sb
 		}
 	}
 
-	bool ParticleSystem::isParticleInactive(const Particle& particle) 
-	{
+	bool ParticleSystem::isParticleInactive(const Particle& particle) {
 		return !particle.isActive;
 	}
 
@@ -188,7 +189,7 @@ namespace sb
 		particle.setRotation(random(_particleRotationRange.x, _particleRotationRange.y));
 		Vector2f direction = getDirection(particle);
 		Vector2f scaledDirection(scale.x * direction.x, scale.y * direction.y);
-		particle.velocity = random(_particleSpeedRange.x, _particleSpeedRange.y) * scaledDirection;
+		particle.velocity = random(_particleSpeedRange.x, _particleSpeedRange.y) * scaledDirection + velocity;
 		particle.angularVelocity = random(_particleAngularVelocityRange.x, _particleAngularVelocityRange.y);
 		particle.lifetime = random(_particleLifetimeRange.x, _particleLifetimeRange.y);
 		particle.vertexColors = _particleVertexColors;
@@ -314,7 +315,6 @@ namespace sb
 		edges[2] = particle.getTransform() * Vector2f(-0.5f, 0.5f);
 		edges[3] = particle.getTransform() * Vector2f(0.5f, 0.5f);
 
-		const Color color(1, 0, 0, 1);
 		_mesh[index * 6 + 0] = Vertex(edges[0], particle.vertexColors[0], Vector2f(0, 0));
 		_mesh[index * 6 + 1] = Vertex(edges[0], particle.vertexColors[0], Vector2f(0, 0));
 		_mesh[index * 6 + 2] = Vertex(edges[1], particle.vertexColors[1], Vector2f(1, 0));
@@ -460,10 +460,18 @@ namespace sb
 		_items.clear();
 	}
 
+	void ParticleSystem::Pool::reset(ParticleSystem& particleSystem)
+	{
+		particleSystem.reset();
+		particleSystem.setPosition(_prototype->getPosition());
+		particleSystem.setScale(_prototype->getScale());
+		particleSystem.setRotation(_prototype->getRotation());
+	}
+
 	void ParticleSystem::Pool::activate(Item& item)
 	{
 		item.isActive = true;
-		item.particleSystem->reset();
+		reset(*item.particleSystem);
 		_numActiveItems++;
 	}
 }

@@ -64,6 +64,7 @@ namespace sb
 			void clear();
 
 		protected:
+			void reset(ParticleSystem& particleSystem);
 			void activate(Item& item);
 			void shrink();
 			void expand();
@@ -79,7 +80,7 @@ namespace sb
 			: _mesh(maxNumParticles * 6, PrimitiveType::TriangleStrip), _texture(NULL),
 			_particles(maxNumParticles), _numActiveParticles(0),
 			_secondsSinceLastEmission(1), _secondsSinceBirth(0),
-			_canDie(false), _lifetime(1), _emissionRatePerSecond(1), _drag(0), _angularDrag(0),
+			_hasLifetime(false), _lifetime(1), _emissionRatePerSecond(1), _drag(0), _angularDrag(0),
 			_particleDrag(0), _angularParticleDrag(0),_particleLifetimeRange(1, 1), _particleSizeRange(0.1f, 0.1f),
 			_particleRotationRange(0, 0), _particleSpeedRange(1, 1), _particleVertexColors(4, Color(1, 1, 1, 1)),
 			_hasParticleColorChannelsOverLifetime(4, false), _particleColorChannelsOverLifetime(4), 
@@ -114,7 +115,7 @@ namespace sb
 
 		inline void setParticleAngularVelocityRange(const Vector2f& range) { _particleAngularVelocityRange = range; }
 
-		inline void canDie(bool canDie) { _canDie = canDie; }
+		inline void hasLifetime(bool hasLifetime) { _hasLifetime = hasLifetime; }
 
 		inline void hasRandomEmissionDirection(bool hasRandomEmission) { _hasRandomEmissionDirection = hasRandomEmission; }
 
@@ -218,7 +219,7 @@ namespace sb
 		float _secondsSinceLastEmission;
 		float _secondsSinceBirth;
 
-		bool _canDie;
+		bool _hasLifetime;
 		float _lifetime;
 		float _emissionRatePerSecond;
 		float _drag;

@@ -642,7 +642,7 @@ void init10(sb::ParticleSystem& system, sb::ParticleSystem& subSystem, sb::Textu
 	system.setTexture(texture);
 
 	subSystem.setLifetime(1);
-	subSystem.canDie(true);
+	subSystem.hasLifetime(true);
 	subSystem.setParticleLifetimeRange(sb::Vector2f(0.5f, 0.5f));
 	subSystem.setParticleSpeedRange(sb::Vector2f(0.5f, 0.5f));
 	subSystem.setParticleSizeRange(1.0f * sb::Vector2f(0.01f, 0.1f));
@@ -842,7 +842,7 @@ struct Propulsion : public sb::Drawable, public sb::Body {
 	}
 };
 
-void demo13() {
+void demo99() {
 	srand(512);
 	sb::Window window(400, 711);
 	sb::Texture texture;
@@ -860,7 +860,6 @@ void demo13() {
 		propulsion.update(ds);
 
 		window.clear(sb::Color(1, 1, 1, 1));
-		//window.draw(quad);
 		window.draw(propulsion);
 		window.display();
 	}
@@ -878,6 +877,13 @@ void init12(sb::ParticleSystem& system) {
 	system.setRotation(90 * sb::ToRadian);
 	system.setPosition(-0.25f, -0.25f);
 	system.setScale(0.1f, 0.1f);
+}
+
+void spiral(sb::ParticleSystem& particleSystem, sb::Quad& marker, float ds, float speed = 1) {
+	particleSystem.rotate(ds * speed);
+	particleSystem.translate(0.1f * sb::Vector2f(ds * speed, ds * speed));
+	particleSystem.scale(0.1f * sb::Vector2f(ds * speed, ds * speed));
+	marker.setPosition(particleSystem.getPosition());
 }
 
 void demo12() {
@@ -898,10 +904,7 @@ void demo12() {
 		sb::Input::update();
 		window.update();
 		particleSystem.update(ds);
-		particleSystem.rotate(ds);
-		particleSystem.translate(0.1f * sb::Vector2f(ds , ds));
-		particleSystem.scale(0.1f * sb::Vector2f(ds, ds));
-		quad.setPosition(particleSystem.getPosition());
+		spiral(particleSystem, quad, ds);
 
 		window.clear(sb::Color(1, 1, 1, 1));
 		window.draw(sprite);
@@ -911,10 +914,96 @@ void demo12() {
 	}
 }
 
+void init13a(sb::ParticleSystem& system, sb::ParticleSystem& subSystem) {
+	system.setParticleLifetimeRange(sb::Vector2f(1, 1));
+	system.setParticleSpeedRange(sb::Vector2f(0.5f, 0.5f));
+	system.setParticleSizeRange(sb::Vector2f(0.1f, 0.1f));
+	system.setEmissionShape(sb::Disk(0, 0.2f, (270 - 45) * sb::ToRadian, (270 + 45) * sb::ToRadian));
+	setParticleRainbowColor(system);
+	system.setEmissionRatePerSecond(50);
+
+	subSystem.addBurst(0, 2);
+	subSystem.setEmissionRatePerSecond(0);
+	subSystem.setParticleLifetimeRange(sb::Vector2f(1, 1));
+	subSystem.setLifetime(1);
+	subSystem.setParticleColor(sb::Color(1, 0, 0, 1));
+	subSystem.setParticleSpeedRange(sb::Vector2f(0.1f, 0.1f));
+	subSystem.setParticleSizeRange(sb::Vector2f(0.05f, 0.05f));
+	
+	system.setSubSystemOnParticleDeath(subSystem);
+}
+
+void init13b(sb::ParticleSystem& system) {
+	system.setPosition(0.25f, 0.25f);
+	system.setRotation(-90 * sb::ToRadian);
+	system.setScale(0.5f, 0.5f);
+}
+
+void demo13() {
+	sb::Window window;
+	sb::Texture texture;
+	sb::Sprite sprite;
+	sb::ParticleSystem particleSystem(1000);
+	sb::ParticleSystem subParticleSystem(2);
+
+	window.getCamera().setWidth(2);
+
+	texture.loadFromAsset("Textures/CoordinateSystem.png");
+	sprite.setTexture(texture);
+	init13a(particleSystem, subParticleSystem);
+	init13b(particleSystem);
+
+	while (window.isOpen()) {
+		float ds = getDeltaSeconds();
+		sb::Input::update();
+		window.update();
+		particleSystem.update(ds);
+
+		window.clear(sb::Color(1, 1, 1, 1));
+		window.draw(sprite);
+		window.draw(particleSystem);
+		window.display();
+	}
+}
+
+void demo14() {
+	sb::Window window;
+	sb::Texture texture;
+	sb::Sprite sprite;
+	sb::ParticleSystem particleSystem(1000);
+	sb::ParticleSystem subParticleSystem(2);
+	sb::Quad marker;
+
+	window.getCamera().setWidth(2);
+	texture.loadFromAsset("Textures/CoordinateSystem.png");
+	sprite.setTexture(texture);
+	init13a(particleSystem, subParticleSystem);
+	particleSystem.setScale(0.25f);
+	marker.setScale(0.05f);
+
+	while (window.isOpen()) {
+		float ds = getDeltaSeconds();
+		sb::Input::update();
+		window.update();
+		particleSystem.update(ds);
+		spiral(particleSystem, marker, ds, 0.2f);
+
+		window.clear(sb::Color(1, 1, 1, 1));
+		window.draw(sprite);
+		window.draw(particleSystem);
+		window.draw(marker);
+		window.display();
+	}
+}
+
 int main() {
-	demo12();
+	demo14();
 
 	//demo13();
+
+	 //demo12();
+
+	//demo99();
 
 	//demo11();
 
