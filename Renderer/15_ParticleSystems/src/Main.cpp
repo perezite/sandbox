@@ -938,7 +938,7 @@ struct Propulsion : public sb::Drawable, public sb::Body {
 	sb::Vector2f trailOffset;
 
 	Propulsion()
-		: trail(1000), center(1000)
+		: center(1000), trail(1000)
 	{
 		center.setParticleLifetimeRange(sb::Vector2f(0.5f, 0.5f));
 		center.setParticleSpeedRange(0.7f * sb::Vector2f(2, 2));

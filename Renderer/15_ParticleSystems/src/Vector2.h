@@ -36,7 +36,7 @@ namespace sb
 		inline Vector2<float> rotated(float radians) const {
 			float c = cosf(radians);
 			float s = sinf(radians);
-			return sb::Vector2f(c * x - s * y, s * x + c * y);
+			return Vector2<float>(c * x - s * y, s * x + c * y);
 		}
 
 		T x, y;
