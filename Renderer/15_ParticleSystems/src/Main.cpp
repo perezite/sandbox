@@ -983,6 +983,8 @@ struct Propulsion : public sb::Drawable, public sb::Body {
 
 	inline const sb::Vector2f& getCenterPosition() { return center.getPosition(); }
 
+	inline float getCenterRotation() { return center.getRotation(); }
+
 	void setCenterSpeed(float speed) {
 		if (center.velocity.getLength() == 0)
 			center.velocity = sb::randomOnCircle(1);
@@ -1051,24 +1053,43 @@ struct Propulsion : public sb::Drawable, public sb::Body {
 	}
 };
 
-void update16(sb::Sprite& ball, Propulsion& propulsion) {
+void update16(sb::Sprite& ball, Propulsion& propulsion, sb::Camera& camera, bool followCamera) {
 	ball.setPosition(propulsion.getCenterPosition());
+	ball.setRotation(propulsion.getCenterRotation());
+
+	if (followCamera) {
+		camera.setPosition(propulsion.getCenterPosition());
+		camera.setRotation(propulsion.getCenterRotation());
+	}
+}
+
+void toggleFollowCamera(bool& followCamera, sb::Camera& camera) {
+	followCamera = !followCamera;
+	if (!followCamera) {
+		camera.setPosition(sb::Vector2f(0, 0));
+		camera.setRotation(0);
+	}
 }
 
 void demo16() {
 	srand(512);
 	sb::Window window(400, 711);
+	sb::Texture coordinatesTex;
 	sb::Texture propulsionTex;
 	sb::Texture ballTex;
 	sb::Sprite ball;
+	sb::Sprite coordinates;
 	Propulsion propulsion;
+	bool followCamera = false;
 
 	window.getCamera().setWidth(2);
+	coordinatesTex.loadFromAsset("Textures/CoordinateSystem.png");
 	propulsionTex.loadFromAsset("Textures/GreenPropulsion.png");
 	ballTex.loadFromAsset("Textures/Ball.png");
 	ballTex.enableMipmap(true);
 	ball.setTexture(ballTex);
 	ball.setScale(0.13f);
+	coordinates.setTexture(coordinatesTex);
 	propulsion.setTexture(propulsionTex);
 	propulsion.setCenterSpeed(0.5f);
 
@@ -1077,9 +1098,12 @@ void demo16() {
 		sb::Input::update();
 		window.update();
 		propulsion.update(ds);
-		update16(ball, propulsion);
+		if (sb::Input().isTouchGoingDown(1))
+			toggleFollowCamera(followCamera, window.getCamera());
+		update16(ball, propulsion, window.getCamera(), followCamera);
 
 		window.clear(sb::Color(1, 1, 1, 1));
+		window.draw(coordinates);
 		window.draw(propulsion);
 		window.draw(ball);
 		window.display();
