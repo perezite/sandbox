@@ -9,7 +9,7 @@ namespace sb
 
 	void Sound::init() {
 		int result = Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);
-		SB_WARNING_IF2(result == -1, true) << "unable to initialize SDL mixer" << std::endl;
+		SB_WARNING_IF(result == -1, "unable to initialize SDL mixer");
 
 		m_isValid = (result == 0);
 		m_isInit = true;
@@ -31,7 +31,7 @@ namespace sb
 
 		// note: the Mix_LoadWAV method can actually load file types other than WAV as well..
 		m_sound = Mix_LoadWAV(assetPath.c_str());
-		SB_WARNING_IF2(m_sound == NULL, true) << "unable to load sound " << assetPath << std::endl;
+		SB_WARNING_IF(m_sound == NULL, "unable to load sound " << assetPath);
 	}
 
 	void Sound::play()
@@ -39,7 +39,7 @@ namespace sb
 		if (!m_isValid) return;
 
 		int result = Mix_PlayChannel(-1, m_sound, 0);
-		SB_WARNING_IF(result == -1) << "unable to play sound " << m_assetPath << std::endl;
+		SB_WARNING_IF(result == -1, "unable to play sound " << m_assetPath << std::endl);
 	}
 
 	void Sound::validateFileEnding(std::string assetPath)
@@ -47,6 +47,6 @@ namespace sb
 		std::size_t pos = assetPath.rfind(".");
 		std::string ending = assetPath.substr(pos, std::string::npos);
 
-		SB_ERROR_IF(ending != ".ogg" && ending != ".wav") << "Sound files must be in .ogg or .wav format" << std::endl;
+		SB_ERROR_IF(ending != ".ogg" && ending != ".wav", "Sound files must be in .ogg or .wav format" << std::endl);
 	}
 }

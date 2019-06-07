@@ -53,6 +53,6 @@ namespace sb
 		std::size_t pos = assetPath.rfind(".");    
 		std::string ending = assetPath.substr(pos, std::string::npos);
 
-		SB_ERROR_IF(ending != ".ogg") << "Music files must be in .ogg format" << std::endl;
+		SB_ERROR_IF(ending != ".ogg", "Music files must be in .ogg format");
 	}
 }
