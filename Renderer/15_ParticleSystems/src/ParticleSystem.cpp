@@ -189,7 +189,7 @@ namespace sb
 		particle.setRotation(random(_particleRotationRange.x, _particleRotationRange.y));
 		Vector2f direction = getDirection(particle);
 		Vector2f scaledDirection(scale.x * direction.x, scale.y * direction.y);
-		particle.velocity = random(_particleSpeedRange.x, _particleSpeedRange.y) * scaledDirection + velocity;
+		particle.velocity = random(_particleSpeedRange.x, _particleSpeedRange.y) * scaledDirection + _particleIntertia * velocity;
 		particle.angularVelocity = random(_particleAngularVelocityRange.x, _particleAngularVelocityRange.y);
 		particle.lifetime = random(_particleLifetimeRange.x, _particleLifetimeRange.y);
 		particle.vertexColors = _particleVertexColors;

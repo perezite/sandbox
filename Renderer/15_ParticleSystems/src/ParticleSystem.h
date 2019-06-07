@@ -81,10 +81,11 @@ namespace sb
 			_particles(maxNumParticles), _numActiveParticles(0),
 			_secondsSinceLastEmission(1), _secondsSinceBirth(0),
 			_hasLifetime(false), _lifetime(1), _emissionRatePerSecond(1), _drag(0), _angularDrag(0),
-			_particleDrag(0), _angularParticleDrag(0),_particleLifetimeRange(1, 1), _particleSizeRange(0.1f, 0.1f),
-			_particleRotationRange(0, 0), _particleSpeedRange(1, 1), _particleVertexColors(4, Color(1, 1, 1, 1)),
-			_hasParticleColorChannelsOverLifetime(4, false), _particleColorChannelsOverLifetime(4), 
-			_hasParticleScaleOverLifetime(false), _emissionShape(new Disk(0)), _hasRandomEmissionDirection(false)
+			_particleDrag(0), _angularParticleDrag(0), _particleIntertia(1), _particleLifetimeRange(1, 1),
+			_particleSizeRange(0.1f, 0.1f), _particleRotationRange(0, 0), _particleSpeedRange(1, 1),
+			_particleVertexColors(4, Color(1, 1, 1, 1)), _hasParticleColorChannelsOverLifetime(4, false), 
+			_particleColorChannelsOverLifetime(4), _hasParticleScaleOverLifetime(false), _emissionShape(new Disk(0)), 
+			_hasRandomEmissionDirection(false)
 		{ }
 
 		ParticleSystem(const ParticleSystem& other);
@@ -104,6 +105,8 @@ namespace sb
 		inline void setParticleDrag(float drag) { _particleDrag = drag; }
 
 		inline void setAngularParticleDrag(float angularDrag) { _angularParticleDrag = angularDrag; }
+
+		inline void setParticleInertia(float intertia) { _particleIntertia = intertia; }
 
 		inline void setParticleLifetimeRange(const Vector2f& lifetimeRange) { _particleLifetimeRange = lifetimeRange; }
 
@@ -226,6 +229,7 @@ namespace sb
 		float _angularDrag;
 		float _particleDrag;
 		float _angularParticleDrag;
+		float _particleIntertia;
 		Vector2f _particleLifetimeRange;
 		Vector2f _particleSizeRange;
 		Vector2f _particleRotationRange;
