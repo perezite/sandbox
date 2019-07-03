@@ -126,9 +126,13 @@ void scene2(Window& window) {
 	Entity& firstEntity = scene.addEntity(new Entity());
 	firstEntity.addComponent(new Component("TestComponent4"));
 	runScene2(scene, window);
+
+	std::cout << "The End!" << std::endl;
+	std::cin.get();
+
 }
 
-void game() {
+void demo0() {
 	Window window;
 	scene1(window);
 	scene2(window);
@@ -136,9 +140,7 @@ void game() {
 
 int main() {
 	std::cout << "Build: " << __DATE__ << " " << __TIME__ << std::endl;
-	game();
-	std::cout << "The End!" << std::endl;
-	std::cin.get();
+	demo0();
 
 	return 0;
 }
