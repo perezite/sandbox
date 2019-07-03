@@ -3,25 +3,25 @@
 #include <iostream>
 #include <sstream>
 
-class Window;
-class Drawable {
+class Window2;
+class Drawable2 {
 public:
-	virtual void draw(const Window& window) = 0;
+	virtual void draw(const Window2& window) = 0;
 };
 
-class Window {
+class Window2 {
 public:
 	void update() { }
-	void draw(Drawable& drawable) const {
+	void draw(Drawable2& drawable) const {
 		drawable.draw(*this);
 	}
 	void display() const {
-		std::cout << "Window::display(), Press any key for next frame" << std::endl;
+		std::cout << "Window2::display(), Press any key for next frame" << std::endl;
 		std::cin.get();
 	}
 };
 
-class Component : public Drawable {
+class Component : public Drawable2 {
 	std::string _name;
 public:
 	Component(std::string name) : _name(name)
@@ -29,12 +29,12 @@ public:
 	virtual void update() {
 		std::cout << "Component::update(" << _name << ")" << std::endl;
 	}
-	virtual void draw(const Window& window) {
+	virtual void draw(const Window2& window) {
 		std::cout << "Component::draw(" << _name << ")" << std::endl;
 	}
 };
 
-class Entity : public Drawable {
+class Entity : public Drawable2 {
 	std::string _name;
 	std::vector<Component*> _components;
 public:
@@ -49,7 +49,7 @@ public:
 		for (std::size_t i = 0; i < _components.size(); i++)
 			_components[i]->update();
 	}
-	virtual void draw(const Window& window) {
+	virtual void draw(const Window2& window) {
 		for (std::size_t i = 0; i < _components.size(); i++)
 			_components[i]->draw(window);
 	}
@@ -58,7 +58,7 @@ public:
 	}
 };
 
-struct Scene : public Drawable {
+struct Scene : public Drawable2 {
 	virtual ~Scene() {
 		for (std::size_t i = 0; i < _entities.size(); i++)
 			delete _entities[i];
@@ -69,7 +69,7 @@ struct Scene : public Drawable {
 		for (std::size_t i = 0; i < _entities.size(); i++)
 			_entities[i]->update();
 	}
-	void draw(const Window& window) {
+	void draw(const Window2& window) {
 		for (std::size_t i = 0; i < _entities.size(); i++)
 			_entities[i]->draw(window);
 	}
@@ -84,7 +84,7 @@ private:
 	std::vector<Entity*> _entities;
 };
 
-void runScene1(Scene& scene, Window& window) {
+void runScene1(Scene& scene, Window2& window) {
 	std::size_t counter = 0;
 	while (scene.isOpen()) {
 		window.update();
@@ -98,7 +98,7 @@ void runScene1(Scene& scene, Window& window) {
 	}
 }
 
-void scene1(Window& window) {
+void scene1(Window2& window) {
 	Scene scene;
 
 	Entity& firstEntity = scene.addEntity(new Entity());
@@ -110,7 +110,7 @@ void scene1(Window& window) {
 	runScene1(scene, window);
 }
 
-void runScene2(Scene& scene, Window& window) {
+void runScene2(Scene& scene, Window2& window) {
 	while (scene.isOpen()) {
 		window.update();
 		scene.update();
@@ -120,7 +120,7 @@ void runScene2(Scene& scene, Window& window) {
 	}
 }
 
-void scene2(Window& window) {
+void scene2(Window2& window) {
 	Scene scene;
 
 	Entity& firstEntity = scene.addEntity(new Entity());
@@ -132,18 +132,86 @@ void scene2(Window& window) {
 }
 
 void demo0() {
-	Window window;
+	Window2 window;
 	scene1(window);
 	scene2(window);
 }
 
+struct Nameable {
+	std::string name;
+};
+
+class Window : public Nameable {
+public:
+	void update() { }
+	void display() { }
+	bool isOpen() { return true; }
+};
+
+class Texture : public Nameable {
+	std::string _assetPath;
+public:
+	void loadFromAsset(const std::string& assetPath) {
+		_assetPath = assetPath;
+	}
+};
+
+template <class T>
+struct Vector2 {
+	T x;
+	T y;
+	Vector2(T x_, T y_) : x(x_), y(y_)
+	{ }
+	Vector2(T v_) : x(v_), y(v_)
+	{ }
+};
+
+typedef Vector2<float> Vector2f;
+
+class Transformable {
+	Vector2f _position;
+	Vector2f _scale;
+public:
+	inline void setPosition(const Vector2f& position) { _position = position; }
+	inline void setScale(const Vector2f& scale) { _scale = scale; }
+};
+
+class Drawable {
+public:
+	virtual void draw(Window& window) = 0;
+};
+
+class Sprite : public Drawable, public Nameable {
+	Texture* _texture;
+public:
+	void setTexture(Texture& texture) {
+		_texture = &texture;
+	}
+
+	virtual void draw(Window& window) {
+		std::cout << "Sprite=" << name << "::draw(Window=" << window.name << ")" << std::endl;
+	}
+};
+
 void demo98() {
-	/*
 	Window window;
 	Texture blockTex;
 	Sprite block;
 
-	blockTex.loadFromAsset("block.png");
+	window.name = "myWindow";
+	block.name = "myBlock";
+
+	while(window.isOpen()) {
+		block.draw(window);
+		std::cin.get();
+	}
+
+	//DrawBatch batch(512);
+	//Window window;
+	//Texture blockTex;
+	//Sprite block;
+
+	/*blockTex.loadFromAsset("block.png");
 	block.setTexture(blockTex);
 	block.setScale(0.5f);
 	block.getConfetti().setPosition(-0-5f);
@@ -154,7 +222,8 @@ void demo98() {
 		block.update();
 		block.getConfetti().update();
 
-		window.draw(block);
+		block.draw(batch);
+		batch.draw(window);
 		block.getConfetti().draw(block.getTransform());
 		window.display();
 	}
@@ -180,16 +249,24 @@ void demo99() {
 
 	while(window.isOpen()) {
 		scene.update();
-		batch.draw(scene);
-		window.draw(batch);
+		scene.draw(batch);
+		batch.draw(window);
 		window.display();
 	}
 	*/
 }
 
+void demo() {
+	demo98();
+	
+	//demo0();
+}
+
 int main() {
 	std::cout << "Build: " << __DATE__ << " " << __TIME__ << std::endl;
-	demo0();
+	demo();
 
 	return 0;
 }
+
+
