@@ -141,11 +141,21 @@ struct Nameable {
 	std::string name;
 };
 
+class Window;
+
+class Drawable : public Nameable {
+public:
+	virtual void draw(Window& window) = 0;
+};
+
 class Window : public Nameable {
 public:
+	bool isOpen() { return true; }
 	void update() { }
 	void display() { }
-	bool isOpen() { return true; }
+	void draw(Drawable& drawable) {
+		std::cout << "Window=" << name << "::draw(Drawable=" << drawable.name << ") " << std::endl;
+	}
 };
 
 class Texture : public Nameable {
@@ -176,12 +186,7 @@ public:
 	inline void setScale(const Vector2f& scale) { _scale = scale; }
 };
 
-class Drawable {
-public:
-	virtual void draw(Window& window) = 0;
-};
-
-class Sprite : public Drawable, public Nameable {
+class Sprite : public Drawable {
 	Texture* _texture;
 public:
 	void setTexture(Texture& texture) {
@@ -189,7 +194,7 @@ public:
 	}
 
 	virtual void draw(Window& window) {
-		std::cout << "Sprite=" << name << "::draw(Window=" << window.name << ")" << std::endl;
+		window.draw(*this);
 	}
 };
 
