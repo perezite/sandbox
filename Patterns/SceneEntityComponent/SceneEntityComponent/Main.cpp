@@ -129,13 +129,62 @@ void scene2(Window& window) {
 
 	std::cout << "The End!" << std::endl;
 	std::cin.get();
-
 }
 
 void demo0() {
 	Window window;
 	scene1(window);
 	scene2(window);
+}
+
+void demo98() {
+	/*
+	Window window;
+	Texture blockTex;
+	Sprite block;
+
+	blockTex.loadFromAsset("block.png");
+	block.setTexture(blockTex);
+	block.setScale(0.5f);
+	block.getConfetti().setPosition(-0-5f);
+	block.getConfetti().setScale(0.2f, 0.2f);
+
+	while(window.isOpen()) {
+		window.update();
+		block.update();
+		block.getConfetti().update();
+
+		window.draw(block);
+		block.getConfetti().draw(block.getTransform());
+		window.display();
+	}
+
+	*/
+}
+
+void demo99() {
+	/*
+	DrawBatch batch(512);
+	Window window;
+	Texture blockTex;
+	Scene scene;
+
+	blockTex.loadFromAsset("block.png");
+	auto block = scene.add<Sprite>();
+	block.setTexture(blockTex);
+	block.setScale(0.5f);
+	auto confetti = block.add<Confetti>(50); // number of confetti particles
+	confetti.setPosition(-0.5f);
+	confetti.setScale(0.2f);
+	confetti.setDrawLayer(1);		// default is 0
+
+	while(window.isOpen()) {
+		scene.update();
+		batch.draw(scene);
+		window.draw(batch);
+		window.display();
+	}
+	*/
 }
 
 int main() {
