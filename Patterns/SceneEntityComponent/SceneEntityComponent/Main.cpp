@@ -143,7 +143,12 @@ struct Nameable {
 
 class Window;
 
-class Drawable : public Nameable {
+class Dumpable {
+public:
+	virtual void dump() = 0;
+};
+
+class Drawable : public Nameable, public Dumpable {
 public:
 	virtual void draw(Window& window) = 0;
 };
@@ -155,12 +160,21 @@ public:
 	void display() { }
 	void draw(Drawable& drawable) {
 		std::cout << "Window=" << name << "::draw(Drawable=" << drawable.name << ") " << std::endl;
+		std::cout << "Drawable=" << drawable.name << "::dump()" << std::endl;
+		drawable.dump();
 	}
 };
 
-class Texture : public Nameable {
+class Texture : public Dumpable {
 	std::string _assetPath;
 public:
+	inline std::string assetPath() { return _assetPath; }
+
+	virtual void dump() {
+		std::cout << "Texture::dump()" << std::endl;
+		std::cout << "_assetPath=" << _assetPath << std::endl;
+	}
+
 	void loadFromAsset(const std::string& assetPath) {
 		_assetPath = assetPath;
 	}
@@ -196,6 +210,12 @@ public:
 	virtual void draw(Window& window) {
 		window.draw(*this);
 	}
+
+	virtual void dump() {
+		std::cout << "Sprite=" << name << "::dump()" << std::endl;
+		if (_texture) _texture->dump();
+	}
+
 };
 
 void demo98() {
@@ -205,6 +225,8 @@ void demo98() {
 
 	window.name = "myWindow";
 	block.name = "myBlock";
+	blockTex.loadFromAsset("myBlock.png");
+	block.setTexture(blockTex);
 
 	while(window.isOpen()) {
 		block.draw(window);
