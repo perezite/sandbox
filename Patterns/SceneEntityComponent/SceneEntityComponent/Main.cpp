@@ -58,8 +58,8 @@ public:
 	}
 };
 
-struct Scene : public Drawable2 {
-	virtual ~Scene() {
+struct Scene2 : public Drawable2 {
+	virtual ~Scene2() {
 		for (std::size_t i = 0; i < _entities.size(); i++)
 			delete _entities[i];
 		_entities.clear();
@@ -84,7 +84,7 @@ private:
 	std::vector<Entity*> _entities;
 };
 
-void runScene1(Scene& scene, Window2& window) {
+void runScene1(Scene2& scene, Window2& window) {
 	std::size_t counter = 0;
 	while (scene.isOpen()) {
 		window.update();
@@ -99,7 +99,7 @@ void runScene1(Scene& scene, Window2& window) {
 }
 
 void scene1(Window2& window) {
-	Scene scene;
+	Scene2 scene;
 
 	Entity& firstEntity = scene.addEntity(new Entity());
 	Entity& secondEntity = scene.addEntity(new Entity());
@@ -110,7 +110,7 @@ void scene1(Window2& window) {
 	runScene1(scene, window);
 }
 
-void runScene2(Scene& scene, Window2& window) {
+void runScene2(Scene2& scene, Window2& window) {
 	while (scene.isOpen()) {
 		window.update();
 		scene.update();
@@ -121,7 +121,7 @@ void runScene2(Scene& scene, Window2& window) {
 }
 
 void scene2(Window2& window) {
-	Scene scene;
+	Scene2 scene;
 
 	Entity& firstEntity = scene.addEntity(new Entity());
 	firstEntity.addComponent(new Component("TestComponent4"));
@@ -148,19 +148,24 @@ public:
 	virtual void dump() = 0;
 };
 
+class DrawTarget;
 class Drawable : public Nameable, public Dumpable {
 public:
-	virtual void draw(Window& window) = 0;
+	virtual void draw(DrawTarget& window) = 0;
 };
 
-class Window : public Nameable {
+class DrawTarget {
+public:
+	virtual void draw(Drawable& drawable) = 0;
+};
+
+class Window : public Nameable, public DrawTarget {
 public:
 	bool isOpen() { return true; }
 	void update() { }
 	void display() { }
-	void draw(Drawable& drawable) {
-		std::cout << "Window=" << name << "::draw(Drawable=" << drawable.name << ") " << std::endl;
-		std::cout << "Drawable=" << drawable.name << "::dump()" << std::endl;
+	virtual void draw(Drawable& drawable) {
+		std::cout << "[Window=" << name << "]::draw([Drawable=" << drawable.name << "]) " << std::endl;
 		drawable.dump();
 	}
 };
@@ -171,10 +176,9 @@ public:
 	inline std::string assetPath() { return _assetPath; }
 
 	virtual void dump() {
-		std::cout << "Texture::dump()" << std::endl;
+		std::cout << "Texture::dump(): " << std::endl;
 		std::cout << "_assetPath=" << _assetPath << std::endl;
 	}
-
 	void loadFromAsset(const std::string& assetPath) {
 		_assetPath = assetPath;
 	}
@@ -184,41 +188,50 @@ template <class T>
 struct Vector2 {
 	T x;
 	T y;
-	Vector2(T x_, T y_) : x(x_), y(y_)
+	Vector2(T x_ = 0, T y_ = 0) : x(x_), y(y_)
 	{ }
 	Vector2(T v_) : x(v_), y(v_)
 	{ }
 };
-
 typedef Vector2<float> Vector2f;
 
 class Transformable {
 	Vector2f _position;
 	Vector2f _scale;
 public:
+	inline const Vector2f& getPosition() { return _position; }
+	inline const Vector2f& getScale() { return _scale; }
 	inline void setPosition(const Vector2f& position) { _position = position; }
 	inline void setScale(const Vector2f& scale) { _scale = scale; }
 };
 
-class Sprite : public Drawable {
+class Sprite : public Drawable, public Transformable {
 	Texture* _texture;
 public:
 	void setTexture(Texture& texture) {
 		_texture = &texture;
 	}
-
-	virtual void draw(Window& window) {
-		window.draw(*this);
+	virtual void draw(DrawTarget& target) {
+		target.draw(*this);
 	}
-
 	virtual void dump() {
-		std::cout << "Sprite=" << name << "::dump()" << std::endl;
+		std::cout << "[Sprite=" << name << "]::dump()" << std::endl;
 		if (_texture) _texture->dump();
 	}
+};
 
+class DrawBatch : public DrawTarget, public Drawable {
+	std::vector<Drawable*> _buffer;
+
+public:
+	DrawBatch() { }
+	virtual void draw(Drawable& drawable) { }
+	virtual void draw(DrawTarget& target) { }
+	virtual void dump() { }
 };
 
 void demo98() {
+	DrawBatch batch;
 	Window window;
 	Texture blockTex;
 	Sprite block;
@@ -227,57 +240,43 @@ void demo98() {
 	block.name = "myBlock";
 	blockTex.loadFromAsset("myBlock.png");
 	block.setTexture(blockTex);
+	//block.setScale(0.5f);
+	//block.getConfetti().setPosition(-0-5f);
+	//block.getConfetti().setScale(0.2f, 0.2f);
 
 	while(window.isOpen()) {
+	//	window.update();
+	//	block.update();
+	//	block.getConfetti().update();
 		block.draw(window);
 		std::cin.get();
+	//	block.draw(batch);
+	//	batch.draw(window);
+	//	block.getConfetti().draw(block.getTransform());
+	//	window.display();
 	}
-
-	//DrawBatch batch(512);
-	//Window window;
-	//Texture blockTex;
-	//Sprite block;
-
-	/*blockTex.loadFromAsset("block.png");
-	block.setTexture(blockTex);
-	block.setScale(0.5f);
-	block.getConfetti().setPosition(-0-5f);
-	block.getConfetti().setScale(0.2f, 0.2f);
-
-	while(window.isOpen()) {
-		window.update();
-		block.update();
-		block.getConfetti().update();
-
-		block.draw(batch);
-		batch.draw(window);
-		block.getConfetti().draw(block.getTransform());
-		window.display();
-	}
-
-	*/
 }
 
 void demo99() {
-	/*
-	DrawBatch batch(512);
 	Window window;
 	Texture blockTex;
-	Scene scene;
+	/*Scene scene;
 
 	blockTex.loadFromAsset("block.png");
 	auto block = scene.add<Sprite>();
 	block.setTexture(blockTex);
 	block.setScale(0.5f);
-	auto confetti = block.add<Confetti>(50); // number of confetti particles
+	auto confetti = block.add<Confetti>(50);	// number of confetti particles
+												// - block (Sprite)
+												//   - confetti (ParticleSystem)
 	confetti.setPosition(-0.5f);
 	confetti.setScale(0.2f);
-	confetti.setDrawLayer(1);		// default is 0
+	confetti.setDrawLayer(1);					// default is 0
 
 	while(window.isOpen()) {
 		scene.update();
-		scene.draw(batch);
-		batch.draw(window);
+		window.clear();
+		scene.draw(window);
 		window.display();
 	}
 	*/
@@ -295,5 +294,3 @@ int main() {
 
 	return 0;
 }
-
-
