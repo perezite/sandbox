@@ -145,43 +145,7 @@ class Window;
 
 class Dumpable {
 public:
-	virtual void dump() = 0;
-};
-
-class DrawTarget;
-class Drawable : public Nameable, public Dumpable {
-public:
-	virtual void draw(DrawTarget& window) = 0;
-};
-
-class DrawTarget {
-public:
-	virtual void draw(Drawable& drawable) = 0;
-};
-
-class Window : public Nameable, public DrawTarget {
-public:
-	bool isOpen() { return true; }
-	void update() { }
-	void display() { }
-	virtual void draw(Drawable& drawable) {
-		std::cout << "[Window=" << name << "]::draw([Drawable=" << drawable.name << "]) " << std::endl;
-		drawable.dump();
-	}
-};
-
-class Texture : public Dumpable {
-	std::string _assetPath;
-public:
-	inline std::string assetPath() { return _assetPath; }
-
-	virtual void dump() {
-		std::cout << "Texture::dump(): " << std::endl;
-		std::cout << "_assetPath=" << _assetPath << std::endl;
-	}
-	void loadFromAsset(const std::string& assetPath) {
-		_assetPath = assetPath;
-	}
+	virtual void dump() const { std::cout << "Generic dumpable"; };
 };
 
 template <class T>
@@ -195,14 +159,86 @@ struct Vector2 {
 };
 typedef Vector2<float> Vector2f;
 
-class Transformable {
-	Vector2f _position;
-	Vector2f _scale;
+inline Vector2f& operator+=(Vector2f& left, const Vector2f& right) {
+	left.x += right.x;
+	left.y += right.y;
+	return left;
+}
+
+struct Transform : public Dumpable {
+	Vector2f position;
+	void dump() const {
+		std::cout << "position: " << position.x << " " << position.y;
+	}
+};
+
+Transform& operator *=(Transform& left, const Transform& right) {
+	left.position += right.position;
+	return left;
+}
+
+class Texture : public Dumpable {
+	std::string _assetPath;
 public:
-	inline const Vector2f& getPosition() { return _position; }
-	inline const Vector2f& getScale() { return _scale; }
-	inline void setPosition(const Vector2f& position) { _position = position; }
-	inline void setScale(const Vector2f& scale) { _scale = scale; }
+	inline std::string assetPath() { return _assetPath; }
+	virtual void dump() const {
+		std::cout << "_assetPath=" << _assetPath << std::endl;
+	}
+	void loadFromAsset(const std::string& assetPath) {
+		_assetPath = assetPath;
+	}
+};
+
+struct DrawState {
+	Transform transform;
+	const Texture* texture = NULL;
+	static DrawState default() {
+		static DrawState state;
+		return state;
+	}
+	DrawState() { }
+	DrawState(const Transform& transform_) : transform(transform_)
+	{ }
+	DrawState(const Texture& texture_) : texture(&texture_)
+	{ }
+};
+
+class DrawTarget;
+class Drawable : public Nameable, public Dumpable {
+public:
+	virtual void draw(DrawTarget& window, DrawState& state = DrawState::default()) = 0;
+};
+
+class DrawTarget {
+public:
+	virtual void draw(DrawState& state) = 0;
+};
+
+class Window : public DrawTarget {
+public:
+	bool isOpen() { return true; }
+	void update() { }
+	void display() { }
+	virtual void draw(DrawState& state) {
+		std::cout << "Window::draw():" << std::endl;
+		std::cout << "\tstate.transform=" << "\n\t\t";
+		state.transform.dump();
+		std::cout << std::endl;
+		std::cout << "\tstate.texture=" << "\n\t\t";
+		if (state.texture != NULL)
+			state.texture->dump();
+		else
+			std::cout << "NULL";
+		std::cout << std::endl;
+	}
+};
+
+class Transformable {
+	Transform _transform;
+public:
+	inline Transform& getTransform() { return _transform; }
+	inline const Vector2f& getPosition() { return _transform.position; }
+	inline void setPosition(const Vector2f& position) { _transform.position = position; }
 };
 
 class Sprite : public Drawable, public Transformable {
@@ -211,70 +247,292 @@ public:
 	void setTexture(Texture& texture) {
 		_texture = &texture;
 	}
-	virtual void draw(DrawTarget& target) {
-		target.draw(*this);
-	}
-	virtual void dump() {
-		std::cout << "[Sprite=" << name << "]::dump()" << std::endl;
-		if (_texture) _texture->dump();
+	virtual void draw(DrawTarget& target, DrawState& state) {
+		state.texture = _texture;
+		state.transform *= getTransform();
+		target.draw(state);
 	}
 };
 
 class DrawBatch : public DrawTarget, public Drawable {
 	std::vector<Drawable*> _buffer;
-
 public:
 	DrawBatch() { }
-	virtual void draw(Drawable& drawable) { }
-	virtual void draw(DrawTarget& target) { }
+	virtual void draw(DrawState& state) { }
+	virtual void draw(DrawTarget& target, DrawState& state) { }
 	virtual void dump() { }
 };
 
-void demo98() {
+class Confetti : public Drawable, public Transformable {
+	size_t _count;
+public:
+	Confetti(size_t count) : _count(count)
+	{ }
+	virtual void draw(DrawTarget& target, DrawState& state) {
+		std::cout << "[Confetti=" << name << "]::draw()" << std::endl;
+		state.transform *= getTransform();
+		target.draw(state);
+	}
+	void update() {
+		std::cout << "[Confetti=" << name << "]::update()" << std::endl;
+	}
+};
+
+class Block : public Sprite {
+	Confetti _confetti;
+public:
+	Block() : _confetti(42) 
+	{
+		_confetti.name = "myConfetti";
+	}
+	void update() {
+		std::cout << "[Block=" << name << "]::update()" << std::endl;
+		_confetti.update();
+	}
+	inline Confetti& getConfetti() { return _confetti; }
+	virtual void draw(DrawTarget& target, DrawState& state = DrawState::default()) {
+		std::cout << "[Block=" << name << "]::draw()" << std::endl;
+		Sprite::draw(target, state);
+	}
+	void drawConfetti(DrawTarget& target, DrawState& state = DrawState::default()) {
+		state.transform *= getTransform();
+		_confetti.draw(target, state);
+	}
+};
+
+void demo0250() {
 	DrawBatch batch;
 	Window window;
 	Texture blockTex;
-	Sprite block;
+	Block block;
 
-	window.name = "myWindow";
 	block.name = "myBlock";
 	blockTex.loadFromAsset("myBlock.png");
 	block.setTexture(blockTex);
-	//block.setScale(0.5f);
-	//block.getConfetti().setPosition(-0-5f);
-	//block.getConfetti().setScale(0.2f, 0.2f);
+	block.setPosition(Vector2f(1, 1));
+	block.getConfetti().setPosition(Vector2f(0.5f, 0.5f));
 
 	while(window.isOpen()) {
-	//	window.update();
-	//	block.update();
-	//	block.getConfetti().update();
+		window.update();
+		block.update();
 		block.draw(window);
+		block.drawConfetti(window);
 		std::cin.get();
-	//	block.draw(batch);
-	//	batch.draw(window);
-	//	block.getConfetti().draw(block.getTransform());
-	//	window.display();
+		window.display();
 	}
 }
 
-void demo99() {
+#define REFLECT_TYPE(name) 										\
+	inline virtual std::string getTypeName() { return #name; }		\
+	inline static std::string getStaticTypeName()					\
+	{																\
+		static bool mustInit = true;								\
+		if (mustInit)												\
+		{															\
+			assertTypeNameIsUnique(#name);							\
+			mustInit = false;										\
+		}															\
+		return #name;												\
+	}
+
+class NamedType {
+	static std::vector<std::string> RegisteredTypeNames;
+public:
+	virtual std::string getTypeName() = 0;
+	static void assertTypeNameIsUnique(std::string name) {
+		auto& registered = RegisteredTypeNames;
+		if (std::find(registered.begin(), registered.end(), name) != registered.end()) {
+			std::cout << "Error: duplicate named type declaration " << name << std::endl;
+			std::cin.get();
+			exit(0);
+		}
+
+		RegisteredTypeNames.push_back(name);
+	}
+};
+
+std::vector<std::string> NamedType::RegisteredTypeNames;
+
+class MySprite : public NamedType {
+public:
+	MySprite()
+	{ }
+
+	REFLECT_TYPE(MySprite)
+
+	void update() {
+		std::cout << "MySprite::update()" << std::endl;
+	}
+};
+
+class MyParticleSystem : public NamedType {
+public:
+	MyParticleSystem()
+	{ }
+
+	REFLECT_TYPE(MyParticleSystem)
+
+	void update() {
+		std::cout << "MyParticleSystem::update()" << std::endl;
+	}
+};
+
+template <class T>
+T* find(std::vector<NamedType*> namedTypes) {
+	for (size_t i = 0; i < namedTypes.size(); i++) {
+		if (namedTypes[i]->getTypeName() == T::getStaticTypeName())
+			return (T*)namedTypes[i];
+	}
+
+	return NULL;
+}
+
+void demo0375() {
 	Window window;
 	Texture blockTex;
-	/*Scene scene;
+
+	std::vector<NamedType*> namedTypes;
+	namedTypes.push_back(new MySprite());
+	namedTypes.push_back(new MyParticleSystem());
+
+	std::cout << MySprite::getStaticTypeName() << std::endl;
+	std::cout << MyParticleSystem::getStaticTypeName() << std::endl;
+	std::cout << namedTypes[0]->getTypeName() << std::endl;
+	std::cout << namedTypes[1]->getTypeName() << std::endl;
+
+	auto particleSystem = find<MyParticleSystem>(namedTypes);
+	particleSystem->update();
+	auto sprite = find<MySprite>(namedTypes);
+	sprite->update();
+
+	for (size_t i = 0; i < namedTypes.size(); i++)
+		delete namedTypes[i];
+
+	std::cin.get();
+	
+}
+
+class Empty { };
+
+template <class T>
+class Node {
+	T *_element;
+	std::vector<Node<T>*> _children;
+public:
+	Node() {
+		_element = new T();
+	}
+	virtual ~Node() {
+		for (size_t i = 0; i < _children.size(); i++)
+			delete _children[i];
+		delete _element;
+	}
+	inline std::vector<Node<T>*>& getChildren() { return _children; }
+};
+
+class Scene : public Node<Empty> {
+public:
+	template <class T>
+	Node& add() {
+				
+		//getChildren()
+	}
+};
+
+/*
+class OtherBlockBehaviour {
+	void update(Transformable& parent, float ds) {
+		parent.rotate(3 * ds);
+	}
+}
+
+class OtherBlock : public Sprite {
+	OtherBlockBehaviour _behaviour;
+	ParticleSystem _confetti;
+public:
+	OtherBlock {
+		_confetti.setPosition(-0.5f);
+		_confetti.setScale(0.2f);
+	}
+
+	void update(float ds) {
+		_behaviour.update(*this, ds); 
+	}
+
+	virtual void draw(DrawTarget& target, DrawState state = DrawState::default()) {
+		Sprite::draw(target, state);
+		_confetti.draw(target, state);
+	}
+}
+*/
+
+void demo0500() {
+	Window window;
+	Texture blockTex;
+	/* OtherBlock block;
+	Stopwatch sw;
 
 	blockTex.loadFromAsset("block.png");
-	auto block = scene.add<Sprite>();
 	block.setTexture(blockTex);
 	block.setScale(0.5f);
-	auto confetti = block.add<Confetti>(50);	// number of confetti particles
-												// - block (Sprite)
-												//   - confetti (ParticleSystem)
-	confetti.setPosition(-0.5f);
-	confetti.setScale(0.2f);
-	confetti.setDrawLayer(1);					// default is 0
+
+	sw.reset();
+
+	while (window.isOpen()) {
+		float ds = sw.reset();
+
+		window.update();
+		block.update(ds);
+
+		window.clear();
+		block.draw(window);
+		block.getConfett().draw(window);
+		window.display();
+	}
+	*/
+}
+
+/*
+class BlockBehaviour : public Node {
+public:
+	virtual void update(Scene& scene) {
+		scene.getParent(this).rotate(3 * scene.getDeltaSeconds());
+	}
+}
+
+class Block : public Sprite {
+public:
+	Block() {
+		auto confetti = addNode<ParticleSystem>();
+		confetti.setPosition(-0.5f);
+		confetti.setScale(0.2f);
+		auto behaviour = addNode<BlockBehaviour>();
+	}
+}
+*/
+
+void demo1000() {
+	Window window;
+	Texture blockTex;
+	Texture groundTex;
+	Scene scene;
+
+	/*blockTex.loadFromAsset("block.png");
+	groundTex.loadFromAsset("ground.png");
+
+	auto block = scene.addNode<Sprite>();
+	block.setTexture(blockTex);
+	block.setScale(0.5f);
+	block.getNode<ParticleSystem>().setDrawLayer(1);	// default is 0
+
+	auto ground = scene.addNode<Sprite>();
+	ground.setTexture(groundTex);
+	ground.setPosition(0, -0.4f);
 
 	while(window.isOpen()) {
+		window.update();
 		scene.update();
+		
 		window.clear();
 		scene.draw(window);
 		window.display();
@@ -283,8 +541,10 @@ void demo99() {
 }
 
 void demo() {
-	demo98();
+	//demo0250();
 	
+	demo0375();
+
 	//demo0();
 }
 
