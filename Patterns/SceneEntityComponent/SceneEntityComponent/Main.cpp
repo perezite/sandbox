@@ -323,7 +323,7 @@ void demo0250() {
 	}
 }
 
-class NamedTypeBase {
+class BaseNamedType {
 public:
 	virtual const int getTypeId() const = 0;
 };
@@ -335,7 +335,7 @@ const int generateTypeId() {
 }
 
 template <class T>
-class NamedType : public NamedTypeBase {
+class NamedType : public BaseNamedType {
 public:
 	static int getStaticTypeId() {
 		static int typeId = generateTypeId();
@@ -362,7 +362,7 @@ public:
 };
 
 template <class T>
-T* find(std::vector<NamedTypeBase*> namedTypes) {
+T* find(std::vector<BaseNamedType*> namedTypes) {
 	for (size_t i = 0; i < namedTypes.size(); i++) {
 		if (namedTypes[i]->getTypeId() == T::getStaticTypeId())
 			return (T*)namedTypes[i];
@@ -375,7 +375,7 @@ void demo0375() {
 	Window window;
 	Texture blockTex;
 
-	std::vector<NamedTypeBase*> namedTypes;
+	std::vector<BaseNamedType*> namedTypes;
 	namedTypes.push_back(new MySprite());
 	namedTypes.push_back(new MyParticleSystem());
 
