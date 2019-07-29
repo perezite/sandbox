@@ -2,6 +2,7 @@
 #include <vector>
 #include <iostream>
 #include <sstream>
+#include <map>
 
 class Window2;
 class Drawable2 {
@@ -322,65 +323,48 @@ void demo0250() {
 	}
 }
 
-#define REFLECT_TYPE(name) 										\
-	inline virtual std::string getTypeName() { return #name; }		\
-	inline static std::string getStaticTypeName()					\
-	{																\
-		static bool mustInit = true;								\
-		if (mustInit)												\
-		{															\
-			assertTypeNameIsUnique(#name);							\
-			mustInit = false;										\
-		}															\
-		return #name;												\
+class NamedTypeBase {
+public:
+	virtual const int getTypeId() const = 0;
+};
+
+const int generateTypeId() {
+	static int typeId = -1;
+	typeId++;
+	return typeId;
+}
+
+template <class T>
+class NamedType : public NamedTypeBase {
+public:
+	static int getStaticTypeId() {
+		static int typeId = generateTypeId();
+		return typeId;
 	}
 
-class NamedType {
-	static std::vector<std::string> RegisteredTypeNames;
-public:
-	virtual std::string getTypeName() = 0;
-	static void assertTypeNameIsUnique(std::string name) {
-		auto& registered = RegisteredTypeNames;
-		if (std::find(registered.begin(), registered.end(), name) != registered.end()) {
-			std::cout << "Error: duplicate named type declaration " << name << std::endl;
-			std::cin.get();
-			exit(0);
-		}
-
-		RegisteredTypeNames.push_back(name);
+	virtual const int getTypeId() const {
+		return getStaticTypeId();
 	}
 };
 
-std::vector<std::string> NamedType::RegisteredTypeNames;
-
-class MySprite : public NamedType {
+class MySprite : public NamedType<MySprite> {
 public:
-	MySprite()
-	{ }
-
-	REFLECT_TYPE(MySprite)
-
 	void update() {
 		std::cout << "MySprite::update()" << std::endl;
 	}
 };
 
-class MyParticleSystem : public NamedType {
+class MyParticleSystem : public NamedType<MyParticleSystem> {
 public:
-	MyParticleSystem()
-	{ }
-
-	REFLECT_TYPE(MyParticleSystem)
-
 	void update() {
 		std::cout << "MyParticleSystem::update()" << std::endl;
 	}
 };
 
 template <class T>
-T* find(std::vector<NamedType*> namedTypes) {
+T* find(std::vector<NamedTypeBase*> namedTypes) {
 	for (size_t i = 0; i < namedTypes.size(); i++) {
-		if (namedTypes[i]->getTypeName() == T::getStaticTypeName())
+		if (namedTypes[i]->getTypeId() == T::getStaticTypeId())
 			return (T*)namedTypes[i];
 	}
 
@@ -391,14 +375,14 @@ void demo0375() {
 	Window window;
 	Texture blockTex;
 
-	std::vector<NamedType*> namedTypes;
+	std::vector<NamedTypeBase*> namedTypes;
 	namedTypes.push_back(new MySprite());
 	namedTypes.push_back(new MyParticleSystem());
 
-	std::cout << MySprite::getStaticTypeName() << std::endl;
-	std::cout << MyParticleSystem::getStaticTypeName() << std::endl;
-	std::cout << namedTypes[0]->getTypeName() << std::endl;
-	std::cout << namedTypes[1]->getTypeName() << std::endl;
+	std::cout << MySprite::getStaticTypeId() << std::endl;
+	std::cout << MyParticleSystem::getStaticTypeId() << std::endl;
+	std::cout << namedTypes[0]->getTypeId() << std::endl;
+	std::cout << namedTypes[1]->getTypeId() << std::endl;
 
 	auto particleSystem = find<MyParticleSystem>(namedTypes);
 	particleSystem->update();
@@ -409,7 +393,6 @@ void demo0375() {
 		delete namedTypes[i];
 
 	std::cin.get();
-	
 }
 
 class Empty { };
