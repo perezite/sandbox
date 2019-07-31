@@ -242,7 +242,7 @@ public:
 	inline void setPosition(const Vector2f& position) { _transform.position = position; }
 };
 
-class Sprite : public Drawable, public Transformable {
+class OldSprite : public Drawable, public Transformable {
 	Texture* _texture;
 public:
 	void setTexture(Texture& texture) {
@@ -279,7 +279,7 @@ public:
 	}
 };
 
-class Block : public Sprite {
+class Block : public OldSprite {
 	Confetti _confetti;
 public:
 	Block() : _confetti(42) 
@@ -293,7 +293,7 @@ public:
 	inline Confetti& getConfetti() { return _confetti; }
 	virtual void draw(DrawTarget& target, DrawState& state = DrawState::default()) {
 		std::cout << "[Block=" << name << "]::draw()" << std::endl;
-		Sprite::draw(target, state);
+		OldSprite::draw(target, state);
 	}
 	void drawConfetti(DrawTarget& target, DrawState& state = DrawState::default()) {
 		state.transform *= getTransform();
@@ -395,48 +395,53 @@ void demo0375() {
 	std::cin.get();
 }
 
-class Empty { };
+class BaseNode : public Drawable, public Transformable {
+public:
+	virtual void draw(DrawTarget& target, DrawState& state) { }
+};
 
 template <class T>
-class Node {
-	T *_element;
-	std::vector<Node<T>*> _children;
-public:
-	Node() {
-		_element = new T();
-	}
-	virtual ~Node() {
-		for (size_t i = 0; i < _children.size(); i++)
-			delete _children[i];
-		delete _element;
-	}
-	inline std::vector<Node<T>*>& getChildren() { return _children; }
+class Node : public BaseNode, public NamedType<T> {
 };
 
-class Scene : public Node<Empty> {
+class Sprite : public Node<Sprite> {
+	Texture* _texture;
 public:
-	template <class T>
-	Node& add() {
-				
-		//getChildren()
+	void setTexture(Texture& texture) {
+		_texture = &texture;
+	}
+	virtual void draw(DrawTarget& target, DrawState& state) {
+		state.texture = _texture;
+		state.transform *= getTransform();
+		target.draw(state);
 	}
 };
 
-/*
-class OtherBlockBehaviour {
+class ParticleSystem : public Node<ParticleSystem> {
+public:
+	virtual void draw(DrawTarget& target, DrawState& state = DrawState::default()) {
+		state.transform *= getTransform();
+		target.draw(state);
+	}
+};
+
+class OtherBlockBehaviour : public Node<OtherBlockBehaviour> {
+	public:	
 	void update(Transformable& parent, float ds) {
-		parent.rotate(3 * ds);
+		const Vector2f pos = getPosition();
+		parent.setPosition(Vector2f(pos.x + ds, pos.y + ds));
 	}
-}
+};
 
 class OtherBlock : public Sprite {
 	OtherBlockBehaviour _behaviour;
 	ParticleSystem _confetti;
 public:
-	OtherBlock {
-		_confetti.setPosition(-0.5f);
-		_confetti.setScale(0.2f);
+	OtherBlock() {
+		_confetti.setPosition(Vector2f(0.5f, 0.5f));
 	}
+
+	inline ParticleSystem& getConfetti() { return _confetti; }
 
 	void update(float ds) {
 		_behaviour.update(*this, ds); 
@@ -446,33 +451,24 @@ public:
 		Sprite::draw(target, state);
 		_confetti.draw(target, state);
 	}
-}
-*/
+};
 
 void demo0500() {
 	Window window;
 	Texture blockTex;
-	/* OtherBlock block;
-	Stopwatch sw;
+	OtherBlock block;
 
 	blockTex.loadFromAsset("block.png");
 	block.setTexture(blockTex);
-	block.setScale(0.5f);
-
-	sw.reset();
 
 	while (window.isOpen()) {
-		float ds = sw.reset();
-
 		window.update();
-		block.update(ds);
+		block.update(0.1f);
 
-		window.clear();
 		block.draw(window);
-		block.getConfett().draw(window);
+		block.getConfetti().draw(window);
 		window.display();
 	}
-	*/
 }
 
 /*
@@ -498,15 +494,15 @@ void demo1000() {
 	Window window;
 	Texture blockTex;
 	Texture groundTex;
-	Scene scene;
+	//Scene scene;
 
 	/*blockTex.loadFromAsset("block.png");
 	groundTex.loadFromAsset("ground.png");
 
-	auto block = scene.addNode<Sprite>();
+	auto block = scene.add<Sprite>();
 	block.setTexture(blockTex);
 	block.setScale(0.5f);
-	block.getNode<ParticleSystem>().setDrawLayer(1);	// default is 0
+	block.get<ParticleSystem>().setDrawLayer(1);	// default is 0
 
 	auto ground = scene.addNode<Sprite>();
 	ground.setTexture(groundTex);
@@ -524,9 +520,11 @@ void demo1000() {
 }
 
 void demo() {
+	demo0500();
+
+	//demo0375();
+
 	//demo0250();
-	
-	demo0375();
 
 	//demo0();
 }
