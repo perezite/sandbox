@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <map>
+#include <algorithm>
 
 class Window2;
 class Drawable2 {
@@ -279,20 +280,20 @@ public:
 	}
 };
 
-class Block : public OldSprite {
+class MyBlock : public OldSprite {
 	Confetti _confetti;
 public:
-	Block() : _confetti(42) 
+	MyBlock() : _confetti(42) 
 	{
 		_confetti.name = "myConfetti";
 	}
 	void update() {
-		std::cout << "[Block=" << name << "]::update()" << std::endl;
+		std::cout << "[MyBlock=" << name << "]::update()" << std::endl;
 		_confetti.update();
 	}
 	inline Confetti& getConfetti() { return _confetti; }
 	virtual void draw(DrawTarget& target, DrawState& state = DrawState::default()) {
-		std::cout << "[Block=" << name << "]::draw()" << std::endl;
+		std::cout << "[MyBlock=" << name << "]::draw()" << std::endl;
 		OldSprite::draw(target, state);
 	}
 	void drawConfetti(DrawTarget& target, DrawState& state = DrawState::default()) {
@@ -305,7 +306,7 @@ void demo0250() {
 	DrawBatch batch;
 	Window window;
 	Texture blockTex;
-	Block block;
+	MyBlock block;
 
 	block.name = "myBlock";
 	blockTex.loadFromAsset("myBlock.png");
@@ -395,13 +396,73 @@ void demo0375() {
 	std::cin.get();
 }
 
+class Scene;
 class BaseNode : public Drawable, public Transformable {
+	BaseNode* _parent;
+	std::vector<BaseNode*> _children;
+protected:
+	void updateInScene(Scene& scene) {
+		for (size_t i = 0; i < _children.size(); i++)
+			_children[i]->updateInScene(scene);
+		update(scene);
+	}
+	inline void drawChildren(DrawTarget& target, DrawState& state) {
+		for (size_t i = 0; i < _children.size(); i++)
+			_children[i]->drawInScene(target, state);
+	}
+	void drawInScene(DrawTarget& target, DrawState& state) {
+		drawChildren(target, state);
+		draw(target, state);
+	}
 public:
+	BaseNode() : _parent(NULL)
+	{ }
+	virtual ~BaseNode() {
+		std::vector<BaseNode*> childrenToDelete(_children);
+		_children.clear();
+		for (size_t i = 0; i < childrenToDelete.size(); i++)
+			delete childrenToDelete[i];
+		getParent().removeChild(this);
+	}
+	virtual const int getTypeId() const = 0;
+	virtual void update(Scene& scene) { };
 	virtual void draw(DrawTarget& target, DrawState& state) { }
+	inline BaseNode& getParent() { return *_parent; }
+	inline std::vector<BaseNode*>& getChildren() { return _children; }
+	template <class T>
+	inline T& addChild() { 
+		T* node = new T();
+		node->_parent = this;
+		_children.push_back(node);
+		return *node;
+	};
+	inline void removeChild(BaseNode* node) {
+		_children.erase(std::remove( _children.begin(), _children.end(), node), _children.end());
+	}
 };
 
 template <class T>
-class Node : public BaseNode, public NamedType<T> {
+class Node : public BaseNode {
+public:
+	static int getStaticTypeId() {
+		static int typeId = generateTypeId();
+		return typeId;
+	}
+
+	virtual const int getTypeId() const {
+		return getStaticTypeId();
+	}
+
+	template <class U>
+	inline U* findChild() {
+		auto children = getChildren();
+		for (size_t i = 0; i < children.size(); i++) {
+			if (children[i]->getTypeId() == U::getStaticTypeId())
+				return (U*)children[i];
+		}
+
+		return NULL;
+	}
 };
 
 class Sprite : public Node<Sprite> {
@@ -471,56 +532,67 @@ void demo0500() {
 	}
 }
 
-/*
-class BlockBehaviour : public Node {
+class Scene : public Node<Scene> { 
+public:
+	void update() {
+		updateInScene(*this);
+	}
+
+	virtual void draw(DrawTarget& target, DrawState& state = DrawState::default()) {
+		drawChildren(target, state);
+	}
+};
+
+class BlockBehaviour : public Node<BlockBehaviour> {
 public:
 	virtual void update(Scene& scene) {
-		scene.getParent(this).rotate(3 * scene.getDeltaSeconds());
+		getParent().setPosition(Vector2f(3, 2));
 	}
-}
+};
 
 class Block : public Sprite {
 public:
-	Block() {
-		auto confetti = addNode<ParticleSystem>();
-		confetti.setPosition(-0.5f);
-		confetti.setScale(0.2f);
-		auto behaviour = addNode<BlockBehaviour>();
+	Block() { 
+		addChild<ParticleSystem>();
+		findChild<ParticleSystem>()->setPosition(Vector2f(0.5f, 0.5f));
+		addChild<BlockBehaviour>();
 	}
-}
-*/
+};
 
 void demo1000() {
 	Window window;
 	Texture blockTex;
 	Texture groundTex;
-	//Scene scene;
+	Scene scene;
 
-	/*blockTex.loadFromAsset("block.png");
+	blockTex.loadFromAsset("block.png");
 	groundTex.loadFromAsset("ground.png");
 
-	auto block = scene.add<Sprite>();
+	auto block = scene.addChild<Block>();
 	block.setTexture(blockTex);
-	block.setScale(0.5f);
-	block.get<ParticleSystem>().setDrawLayer(1);	// default is 0
+	block.setPosition(Vector2f(0.5f, 0.5f));
+	//block.getChild<ParticleSystem>()->setDrawLayer(1);	// default is 0
 
-	auto ground = scene.addNode<Sprite>();
+	auto ground = scene.addChild<Sprite>();
 	ground.setTexture(groundTex);
-	ground.setPosition(0, -0.4f);
+	ground.setPosition(Vector2f(0, -0.4f));
 
 	while(window.isOpen()) {
+		std::cout << "begin" << std::endl;
 		window.update();
 		scene.update();
 		
-		window.clear();
 		scene.draw(window);
 		window.display();
+		std::cout << "end" << std::endl;
 	}
-	*/
+
 }
 
 void demo() {
-	demo0500();
+	demo1000();
+
+	//demo0500();
 
 	//demo0375();
 
