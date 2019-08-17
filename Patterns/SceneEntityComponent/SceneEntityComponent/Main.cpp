@@ -208,7 +208,7 @@ struct DrawState {
 class DrawTarget;
 class Drawable : public Nameable, public Dumpable {
 public:
-	virtual void draw(DrawTarget& window, DrawState& state = DrawState::default()) = 0;
+	virtual void draw(DrawTarget& window, DrawState state = DrawState::default()) = 0;
 };
 
 class DrawTarget {
@@ -249,7 +249,7 @@ public:
 	void setTexture(Texture& texture) {
 		_texture = &texture;
 	}
-	virtual void draw(DrawTarget& target, DrawState& state) {
+	virtual void draw(DrawTarget& target, DrawState state) {
 		state.texture = _texture;
 		state.transform *= getTransform();
 		target.draw(state);
@@ -261,7 +261,7 @@ class DrawBatch : public DrawTarget, public Drawable {
 public:
 	DrawBatch() { }
 	virtual void draw(DrawState& state) { }
-	virtual void draw(DrawTarget& target, DrawState& state) { }
+	virtual void draw(DrawTarget& target, DrawState state) { }
 	virtual void dump() { }
 };
 
@@ -270,7 +270,7 @@ class Confetti : public Drawable, public Transformable {
 public:
 	Confetti(size_t count) : _count(count)
 	{ }
-	virtual void draw(DrawTarget& target, DrawState& state) {
+	virtual void draw(DrawTarget& target, DrawState state) {
 		std::cout << "[Confetti=" << name << "]::draw()" << std::endl;
 		state.transform *= getTransform();
 		target.draw(state);
@@ -292,11 +292,11 @@ public:
 		_confetti.update();
 	}
 	inline Confetti& getConfetti() { return _confetti; }
-	virtual void draw(DrawTarget& target, DrawState& state = DrawState::default()) {
+	virtual void draw(DrawTarget& target, DrawState state = DrawState::default()) {
 		std::cout << "[MyBlock=" << name << "]::draw()" << std::endl;
 		OldSprite::draw(target, state);
 	}
-	void drawConfetti(DrawTarget& target, DrawState& state = DrawState::default()) {
+	void drawConfetti(DrawTarget& target, DrawState state = DrawState::default()) {
 		state.transform *= getTransform();
 		_confetti.draw(target, state);
 	}
@@ -410,8 +410,10 @@ protected:
 		for (size_t i = 0; i < _children.size(); i++)
 			_children[i]->drawInScene(target, state);
 	}
-	void drawInScene(DrawTarget& target, DrawState& state) {
-		drawChildren(target, state);
+	void drawInScene(DrawTarget& target, DrawState state) {
+		DrawState childState = state;
+		childState.transform *= getTransform();
+		drawChildren(target, childState);
 		draw(target, state);
 	}
 public:
@@ -426,7 +428,7 @@ public:
 	}
 	virtual const int getTypeId() const = 0;
 	virtual void update(Scene& scene) { };
-	virtual void draw(DrawTarget& target, DrawState& state) { }
+	virtual void draw(DrawTarget& target, DrawState state) { }
 	inline BaseNode& getParent() { return *_parent; }
 	inline std::vector<BaseNode*>& getChildren() { return _children; }
 	template <class T>
@@ -471,7 +473,7 @@ public:
 	void setTexture(Texture& texture) {
 		_texture = &texture;
 	}
-	virtual void draw(DrawTarget& target, DrawState& state) {
+	virtual void draw(DrawTarget& target, DrawState state) {
 		state.texture = _texture;
 		state.transform *= getTransform();
 		target.draw(state);
@@ -480,7 +482,7 @@ public:
 
 class ParticleSystem : public Node<ParticleSystem> {
 public:
-	virtual void draw(DrawTarget& target, DrawState& state = DrawState::default()) {
+	virtual void draw(DrawTarget& target, DrawState state = DrawState::default()) {
 		state.transform *= getTransform();
 		target.draw(state);
 	}
@@ -538,7 +540,7 @@ public:
 		updateInScene(*this);
 	}
 
-	virtual void draw(DrawTarget& target, DrawState& state = DrawState::default()) {
+	virtual void draw(DrawTarget& target, DrawState state = DrawState::default()) {
 		drawChildren(target, state);
 	}
 };
@@ -555,7 +557,7 @@ public:
 	Block() { 
 		addChild<ParticleSystem>();
 		findChild<ParticleSystem>()->setPosition(Vector2f(0.5f, 0.5f));
-		addChild<BlockBehaviour>();
+		/*addChild<BlockBehaviour>();*/
 	}
 };
 
@@ -568,14 +570,14 @@ void demo1000() {
 	blockTex.loadFromAsset("block.png");
 	groundTex.loadFromAsset("ground.png");
 
-	auto block = scene.addChild<Block>();
+	auto& block = scene.addChild<Block>();
 	block.setTexture(blockTex);
 	block.setPosition(Vector2f(0.5f, 0.5f));
 	//block.getChild<ParticleSystem>()->setDrawLayer(1);	// default is 0
 
-	auto ground = scene.addChild<Sprite>();
+	/*auto& ground = scene.addChild<Sprite>();
 	ground.setTexture(groundTex);
-	ground.setPosition(Vector2f(0, -0.4f));
+	ground.setPosition(Vector2f(0, -0.4f));*/
 
 	while(window.isOpen()) {
 		std::cout << "begin" << std::endl;
@@ -585,6 +587,7 @@ void demo1000() {
 		scene.draw(window);
 		window.display();
 		std::cout << "end" << std::endl;
+		std::cin.get();
 	}
 
 }
