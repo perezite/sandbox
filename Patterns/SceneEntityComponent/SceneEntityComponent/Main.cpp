@@ -184,7 +184,7 @@ class Texture : public Dumpable {
 public:
 	inline std::string assetPath() { return _assetPath; }
 	virtual void dump() const {
-		std::cout << "_assetPath=" << _assetPath << std::endl;
+		std::cout << "_assetPath=" << _assetPath;
 	}
 	void loadFromAsset(const std::string& assetPath) {
 		_assetPath = assetPath;
@@ -194,6 +194,7 @@ public:
 struct DrawState {
 	Transform transform;
 	const Texture* texture = NULL;
+	int drawLayer = 0;
 	static DrawState default() {
 		static DrawState state;
 		return state;
@@ -231,6 +232,9 @@ public:
 			state.texture->dump();
 		else
 			std::cout << "NULL";
+		std::cout << std::endl;
+		std::cout << "\tstate.drawLayer=" << "\n\t\t";
+		std::cout << state.drawLayer;
 		std::cout << std::endl;
 	}
 };
@@ -469,21 +473,25 @@ public:
 
 class Sprite : public Node<Sprite> {
 	Texture* _texture;
+	int _drawLayer;
 public:
-	void setTexture(Texture& texture) {
-		_texture = &texture;
-	}
+	void setTexture(Texture& texture) { _texture = &texture; }
+	void setDrawLayer(int drawLayer) { _drawLayer = drawLayer; }
 	virtual void draw(DrawTarget& target, DrawState state) {
 		state.texture = _texture;
+		state.drawLayer = _drawLayer;
 		state.transform *= getTransform();
 		target.draw(state);
 	}
 };
 
 class ParticleSystem : public Node<ParticleSystem> {
+	int _drawLayer;
 public:
+	void setDrawLayer(int drawLayer) { _drawLayer = drawLayer; }
 	virtual void draw(DrawTarget& target, DrawState state = DrawState::default()) {
 		state.transform *= getTransform();
+		state.drawLayer = _drawLayer;
 		target.draw(state);
 	}
 };
@@ -573,11 +581,11 @@ void demo1000() {
 	auto& block = scene.addChild<Block>();
 	block.setTexture(blockTex);
 	block.setPosition(Vector2f(0.5f, 0.5f));
-	//block.getChild<ParticleSystem>()->setDrawLayer(1);	// default is 0
+	block.findChild<ParticleSystem>()->setDrawLayer(1);
 
-	/*auto& ground = scene.addChild<Sprite>();
+	auto& ground = scene.addChild<Sprite>();
 	ground.setTexture(groundTex);
-	ground.setPosition(Vector2f(0, -0.4f));*/
+	ground.setPosition(Vector2f(0, -0.4f));
 
 	while(window.isOpen()) {
 		std::cout << "begin" << std::endl;
