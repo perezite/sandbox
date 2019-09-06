@@ -619,7 +619,6 @@ namespace demo1
 	}
 
 	void run() {
-		std::cout << "Build: " << __DATE__ << " " << __TIME__ << std::endl;
 		demo();
 	}
 }

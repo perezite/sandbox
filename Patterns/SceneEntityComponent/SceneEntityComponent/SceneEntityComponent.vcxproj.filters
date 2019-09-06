@@ -13,9 +13,15 @@
     <ClCompile Include="Demo1.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Demo2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Demo1.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Demo2.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

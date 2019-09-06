@@ -21,18 +21,17 @@ public:
 	}
 }
 
-class Scene : public DrawTarget {
+class Scene : public DrawTarget, public Drawable {
 	typedef std::vector<Drawable*> Layer;
 	typedef std::map<DrawState, Layer> LayerMap;
-	LayerMap _layers;
+	LayerMap _layers;	
 	DrawBatch _batch;
-	DrawTarget& _target;
 	size_t _bufferCapacity;
 	size_t _bufferCount;
 	std::vector<Node> _nodes;
 public:
-	Scene(DrawTarget& target, bufferCapacity = 8192) : 
-		_target(target), _bufferCapacity(bufferCapacity), _bufferCount(0) 
+	Scene(bufferCapacity = 8192) : 
+		_bufferCapacity(bufferCapacity), _bufferCount(0) 
 	{ }
 
 	inline bool mustFlush() {
@@ -54,27 +53,28 @@ public:
 			flush();
 	}
 	
-	virtual void draw(DrawTarget& target, DrawState& state) {
+	virtual void draw(DrawTarget& target, DrawState state) {
 		Mesh::lock();
 		
 		for (size_t i = 0; i < _nodes.size(); i++)
 			draw(_nodes[i], state);
+		flush(target);
 		
 		Mesh::unlock();
 	}
 	
-	void flush() {
+	void flush(DrawTarget& target) {
 		for(LayerMap::iterator it = _layers.begin(); it != _layers.end(); it++) 
-			flush(it->first, it->second);
+			flush(target, it->first, it->second);
 		
 		_bufferCount = 0;
 	}
 	
-	void flush(DrawState& state, Layer& layer) {
+	void flush(DrawTarget& target, DrawState& state, Layer& layer) {
 		for (size_t i = 0; i < layer.size(); i++) 
 			_batch.draw(layer[i]);
 		
-		_target.draw(_batch);
+		target.draw(_batch);
 	}
 }
 
