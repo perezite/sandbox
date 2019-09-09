@@ -17,9 +17,23 @@ namespace demo2
 		float x, y;
 	};
 
+	Vector2f& operator+=(Vector2f& left, const Vector2f& right)
+	{
+		left.x += right.x;
+		left.y += right.y;
+		return left;
+	}
+
 	struct Transform {
 		Vector2f position;
 	};
+
+
+	Transform& operator*=(Transform& left, const Transform& right)
+	{		
+		left.position += right.position;
+		return left;
+	}
 
 	struct DrawState {
 		Transform transform;
@@ -43,12 +57,12 @@ namespace demo2
 	class DrawTarget;
 	class Drawable {
 	public:
-		virtual void draw(DrawTarget& target, const DrawState state) = 0;
+		virtual void draw(DrawTarget& target, DrawState state) = 0;
 	};
 
 	class DrawTarget {
 	public:
-		virtual void draw(Mesh& mesh, DrawState &state = DrawState()) = 0;
+		virtual void draw(Mesh& mesh, const DrawState &state = DrawState()) = 0;
 
 		void DrawTarget::draw(Drawable& drawable, const DrawState& state) {
 			drawable.draw(*this, state);
@@ -57,7 +71,7 @@ namespace demo2
 
 	class Window : public DrawTarget {
 	public:
-		virtual void draw(Mesh& mesh, DrawState &state = DrawState()) {
+		virtual void draw(Mesh& mesh, const DrawState &state = DrawState()) {
 			std::cout << "Window::draw()" << std::endl;
 		}
 	};
@@ -69,11 +83,21 @@ namespace demo2
 			: _capacity(capacity)
 		{ }
 
-		virtual void draw(Mesh& mesh, DrawState &state = DrawState()) {
+		virtual void draw(Mesh& mesh, const DrawState &state = DrawState()) {
 		}
 	};
 
-	class Node;
+	struct Transformable {
+		Transform transform;
+	};
+
+	class Scene;
+	class Node : public Drawable, public Transformable {
+	public:
+		virtual void update(Scene& scene) { };
+		virtual void draw(DrawTarget& target, DrawState state = DrawState()) { }
+	};
+
 	class Scene : public DrawTarget, public Drawable {
 		typedef std::vector<Drawable*> Layer;
 		typedef std::map<DrawState, Layer> LayerMap;
@@ -87,15 +111,21 @@ namespace demo2
 			: _capacity(capacity), _drawableCount(0)
 		{ }
 
-		virtual void draw(Mesh& mesh, DrawState &state = DrawState()) { }
-		
-		virtual void draw(DrawTarget& target, const DrawState state = DrawState()) { }
-	};
+		~Scene() {
+			for (size_t i = _nodes.size() - 1; i >= 0; i--)
+				delete _nodes[i];
+		}
 
-	class Node : public Drawable {
-	public:
-		virtual void update(Scene& scene) { };
-		virtual void draw(DrawTarget& target, const DrawState state = DrawState()) { }
+		template <class T>
+		T& create() {
+			T* node = new T();
+			_nodes.push_back(node);
+			return *node;
+		}
+
+		virtual void draw(Mesh& mesh, const DrawState &state = DrawState()) { }
+		
+		virtual void draw(DrawTarget& target, DrawState state = DrawState()) { }
 	};
 
 	class Quad : public Node {
@@ -109,21 +139,36 @@ namespace demo2
 				Vertex(Vector2f(+.5f, +.5f))})
 		{ }
 
-		virtual void draw(DrawTarget& target, const DrawState state = DrawState()) {
+		virtual void draw(DrawTarget& target, DrawState state = DrawState()) {
+			state.transform *= transform;
+			target.draw(_mesh);
+		}
+	};
 
+	class Triangle : public Node {
+		Mesh _mesh;
+	public:
+		Triangle()
+			: _mesh({
+			Vertex(Vector2f(-.5f, -.5f)),
+			Vertex(Vector2f(+.5f, -.5f)),
+			Vertex(Vector2f( .0f, +.5f)) })
+		{ }
+
+		virtual void draw(DrawTarget& target, DrawState state = DrawState()) {
+			state.transform *= transform;
+			target.draw(_mesh);
 		}
 	};
 
 	void demo1() {
-
 		Window window;
 		Scene scene;
-
-		/*
+		
 		Quad& quad = scene.create<Quad>();
-		Triangle& triangle = quad.create<Triangle>();
+		Triangle& triangle = scene.create<Triangle>();
 
-		while (window.isOpen()) {
+		/*while (window.isOpen()) {
 			window.update();
 			scene.update();
 
