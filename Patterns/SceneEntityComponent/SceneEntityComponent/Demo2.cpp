@@ -17,8 +17,8 @@ namespace demo2
 		float x, y;
 	};
 
-	Vector2f& operator+=(Vector2f& left, const Vector2f& right)
-	{
+	Vector2f& operator+=(Vector2f& left, const Vector2f& right) {
+
 		left.x += right.x;
 		left.y += right.y;
 		return left;
@@ -29,18 +29,26 @@ namespace demo2
 	};
 
 
-	Transform& operator*=(Transform& left, const Transform& right)
-	{		
+	Transform& operator*=(Transform& left, const Transform& right) {		
 		left.position += right.position;
 		return left;
 	}
 
 	struct DrawState {
+		size_t drawLayer;
 		Transform transform;
 	};
 
+	const bool operator<(const DrawState& left, const DrawState& right) {
+		return std::tie(left.drawLayer) < std::tie(right.drawLayer);
+	}
+
+	const bool operator!=(const DrawState& left, const DrawState& right) {
+		return std::tie(left.drawLayer) != std::tie(right.drawLayer);
+	}
+
 	struct Vertex {
-		Vertex(const Vector2f position_)
+		Vertex(const Vector2f position_ = Vector2f())
 			: position(position_)
 		{ }
 		Vector2f position;
@@ -48,7 +56,6 @@ namespace demo2
 
 	struct Mesh {
 		std::vector<Vertex> vertices;
-
 		Mesh(std::vector<Vertex> vertices_ = std::vector<Vertex>())
 			: vertices(vertices_)
 		{ }
@@ -62,29 +69,70 @@ namespace demo2
 
 	class DrawTarget {
 	public:
-		virtual void draw(Mesh& mesh, const DrawState &state = DrawState()) = 0;
-
-		void DrawTarget::draw(Drawable& drawable, const DrawState& state) {
+		virtual void draw(const Mesh& mesh, const DrawState &state = DrawState()) = 0;
+		void draw(Drawable& drawable, const DrawState& state = DrawState()) {
 			drawable.draw(*this, state);
 		}
 	};
 
-	class Window : public DrawTarget {
+	class ImmediateDrawTarget : public DrawTarget {
 	public:
-		virtual void draw(Mesh& mesh, const DrawState &state = DrawState()) {
-			std::cout << "Window::draw()" << std::endl;
-		}
+		virtual void drawImmediate(const std::vector<Vertex>& vertices, const DrawState& state) = 0;
 	};
 
-	class DrawBatch : public DrawTarget {
-		size_t _capacity;
+	class Window : public ImmediateDrawTarget {
 	public:
-		DrawBatch(size_t capacity = 512) 
-			: _capacity(capacity)
-		{ }
-
-		virtual void draw(Mesh& mesh, const DrawState &state = DrawState()) {
+		using DrawTarget::draw;
+		virtual void draw(const Mesh& mesh, const DrawState &state = DrawState()) { drawImmediate(mesh.vertices, state); }
+		virtual void drawImmediate(const std::vector<Vertex>& vertices, const DrawState& state) { 
+			std::cout << "Window::drawImmediate() begin" << std::endl;
+			for (size_t i = 0; i < vertices.size(); i++)
+				std::cout << "x = " << vertices[i].position.x << ", y = " << vertices[i].position.y << std::endl;
+			std::cout << "Window::drawImmediate() end" << std::endl;
 		}
+		bool isOpen() { return true; }
+		void update() { }
+		void clear() { }
+		void display() { }
+	};
+
+	class DrawBatch  {
+		ImmediateDrawTarget& _target;
+		DrawState _currentState;
+		std::vector<Vertex> _buffer;
+	protected:
+		bool mustFlush(const Mesh& mesh, const DrawState& state) {
+			if (_buffer.empty())
+				return false;
+			if (state != _currentState)
+				return true;
+			if (_buffer.size() + mesh.vertices.size() > _buffer.capacity())
+				return true;
+			return false;
+		}
+		void flush() {
+			_target.drawImmediate(_buffer, _currentState);
+			_buffer.clear();
+		}
+		void insert(const Mesh& mesh, const DrawState& state) {
+			_buffer.insert(_buffer.end(), mesh.vertices.begin(), mesh.vertices.end());
+			_currentState = state;
+		}
+	public:
+		DrawBatch(ImmediateDrawTarget& target, size_t capacity = 512)
+			: _target(target)
+		{ 
+			_buffer.reserve(capacity);
+		}
+		void draw(const Mesh& mesh, const DrawState &state = DrawState()) { 
+			if (mustFlush(mesh, state))
+				flush();
+			insert(mesh, state);
+		}
+		virtual void draw() {
+			if (!_buffer.empty())
+				flush();
+		}	
 	};
 
 	struct Transformable {
@@ -99,33 +147,60 @@ namespace demo2
 	};
 
 	class Scene : public DrawTarget, public Drawable {
-		typedef std::vector<Drawable*> Layer;
+		typedef std::vector<const Mesh*> Layer;
 		typedef std::map<DrawState, Layer> LayerMap;
 		LayerMap _layers;
 		DrawBatch _batch;
 		size_t _capacity;
 		size_t _drawableCount;
 		std::vector<Node*> _nodes;
-	public:
-		Scene(size_t capacity = 8192)
-			: _capacity(capacity), _drawableCount(0)
-		{ }
+	protected:
+		bool mustFlush() {
+			return _nodes.size() >= _capacity;
+		}
+		void flush() {
+			for (LayerMap::iterator it = _layers.begin(); it != _layers.end(); it++)
+				flush(it->second, it->first);	
 
+			_layers.clear();
+		}
+		void flush(const std::vector<const Mesh*> layer, const DrawState& state) {
+			for (size_t i = 0; i < layer.size(); i++)
+				_batch.draw(*layer[i], state);
+			_batch.draw();
+		}
+	public:
+		Scene(ImmediateDrawTarget& target, size_t capacity = 8192)
+			: _batch(target), _capacity(capacity), _drawableCount(0)
+		{ }
 		~Scene() {
 			for (size_t i = _nodes.size() - 1; i >= 0; i--)
 				delete _nodes[i];
 		}
-
-		template <class T>
+		template <class T> 
 		T& create() {
 			T* node = new T();
 			_nodes.push_back(node);
 			return *node;
 		}
+		using DrawTarget::draw;
+		virtual void draw(const Mesh& mesh, const DrawState &state = DrawState()) {
+			_layers[state].push_back(&mesh);
+			if (mustFlush())
+				flush();
+		}
+		using Drawable::draw;
+		virtual void draw(DrawTarget& target, DrawState state = DrawState()) {
+			for (size_t i = 0; i < _nodes.size(); i++)
+				draw(*_nodes[i], state);
 
-		virtual void draw(Mesh& mesh, const DrawState &state = DrawState()) { }
-		
-		virtual void draw(DrawTarget& target, DrawState state = DrawState()) { }
+			if (!_nodes.empty())
+				flush();
+		}
+		void update() { 
+			for (size_t i = 0; i < _nodes.size(); i++)
+				_nodes[i]->update(*this);
+		}
 	};
 
 	class Quad : public Node {
@@ -138,13 +213,11 @@ namespace demo2
 				Vertex(Vector2f(-.5f, +.5f)),
 				Vertex(Vector2f(+.5f, +.5f))})
 		{ }
-
 		virtual void draw(DrawTarget& target, DrawState state = DrawState()) {
 			state.transform *= transform;
 			target.draw(_mesh);
 		}
 	};
-
 	class Triangle : public Node {
 		Mesh _mesh;
 	public:
@@ -154,30 +227,34 @@ namespace demo2
 			Vertex(Vector2f(+.5f, -.5f)),
 			Vertex(Vector2f( .0f, +.5f)) })
 		{ }
-
 		virtual void draw(DrawTarget& target, DrawState state = DrawState()) {
 			state.transform *= transform;
 			target.draw(_mesh);
 		}
 	};
 
+	class Test : public DrawTarget {
+		public:
+	};
+
 	void demo1() {
 		Window window;
-		Scene scene;
+		Scene scene(window);
 		
 		Quad& quad = scene.create<Quad>();
 		Triangle& triangle = scene.create<Triangle>();
 
-		/*while (window.isOpen()) {
+		while (window.isOpen()) {
+			std::cout << "main loop begin" << std::endl;
 			window.update();
 			scene.update();
 
 			window.clear();
+				
 			window.draw(scene);
-			
-		}
-
-		*/
+			window.display();
+			std::cout << "main loop end" << std::endl;
+		}	
 	}
 
 	void run() {
