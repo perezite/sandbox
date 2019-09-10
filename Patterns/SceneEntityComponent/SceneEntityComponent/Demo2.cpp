@@ -53,12 +53,25 @@ namespace demo2
 		Vector2f position;
 	};
 
-	struct Mesh {
-		std::vector<Vertex> vertices;
-		Mesh(std::vector<Vertex> vertices_ = std::vector<Vertex>())
-			: vertices(vertices_)
+
+
+	class Mesh {
+		static bool Locked;
+		std::vector<Vertex> _vertices;
+	public:
+		static void lock(bool locked) { Locked = locked; }
+		static inline void assertUnlocked() {
+			if (Locked)
+				throw new std::exception("Modifying a mesh while rendering is not allowed.");
+		}
+		Mesh(std::vector<Vertex> vertices = std::vector<Vertex>())
+			: _vertices(vertices)
 		{ }
+		const std::vector<Vertex>& getVertices() const { return _vertices; }
+		std::vector<Vertex>& getVertices() { assertUnlocked(); return _vertices; }
 	};
+
+	bool Mesh::Locked = false;
 
 	class DrawTarget;
 	class Drawable {
@@ -82,7 +95,7 @@ namespace demo2
 	class Window : public ImmediateDrawTarget {
 	public:
 		using DrawTarget::draw;
-		virtual void draw(const Mesh& mesh, const DrawState &state = DrawState()) { drawImmediate(mesh.vertices, state); }
+		virtual void draw(const Mesh& mesh, const DrawState &state = DrawState()) { drawImmediate(mesh.getVertices(), state); }
 		virtual void drawImmediate(const std::vector<Vertex>& vertices, const DrawState& state) { 
 			std::cout << "Window::drawImmediate() begin" << std::endl;
 			for (size_t i = 0; i < vertices.size(); i++)
@@ -105,7 +118,7 @@ namespace demo2
 				return false;
 			if (state != _currentState)
 				return true;
-			if (_buffer.size() + mesh.vertices.size() > _buffer.capacity())
+			if (_buffer.size() + mesh.getVertices().size() > _buffer.capacity())
 				return true;
 			return false;
 		}
@@ -114,7 +127,7 @@ namespace demo2
 			_buffer.clear();
 		}
 		void insert(const Mesh& mesh, const DrawState& state) {
-			_buffer.insert(_buffer.end(), mesh.vertices.begin(), mesh.vertices.end());
+			_buffer.insert(_buffer.end(), mesh.getVertices().begin(), mesh.getVertices().end());
 			_currentState = state;
 		}
 	public:
@@ -181,8 +194,9 @@ namespace demo2
 				_batch.draw(*layer[i], state);
 		}
 		void drawRecursively(Node& node, DrawState& state) {
-			for (size_t i = 0; i < node.getChildren().size(); i++)
-				drawRecursively(*node.getChildren()[i], state);
+			auto& children = node.getChildren();
+			for (size_t i = 0; i < children.size(); i++) 
+				drawRecursively(*children[i], state);
 			draw(node, state);
 		}
 	public:
@@ -207,11 +221,13 @@ namespace demo2
 		}
 		using Drawable::draw;
 		virtual void draw(DrawTarget& target, DrawState state = DrawState()) {
+			Mesh::lock(true);
 			for (size_t i = 0; i < _nodes.size(); i++)
 				drawRecursively(*_nodes[i], state);
 
 			if (!_nodes.empty())
 				flush();
+			Mesh::lock(false);
 		}
 		void update() { 
 			for (size_t i = 0; i < _nodes.size(); i++)
@@ -255,7 +271,7 @@ namespace demo2
 			target.draw(_mesh, state);
 		}
 		void deform() {
-			_mesh.vertices[2].position.y *= 1.5f;
+			_mesh.getVertices()[2].position.y *= 1.5f;
 		}
 	};
 
