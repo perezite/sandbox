@@ -44,7 +44,7 @@ namespace demo2
 	}
 
 	const bool operator!=(const DrawState& left, const DrawState& right) {
-		return std::tie(left.drawLayer) != std::tie(right.drawLayer);
+		 return std::tie() != std::tie();
 	}
 
 	struct Vertex {
@@ -162,12 +162,12 @@ namespace demo2
 			for (LayerMap::iterator it = _layers.begin(); it != _layers.end(); it++)
 				flush(it->second, it->first);	
 
+			_batch.draw();
 			_layers.clear();
 		}
 		void flush(const std::vector<const Mesh*> layer, const DrawState& state) {
 			for (size_t i = 0; i < layer.size(); i++)
 				_batch.draw(*layer[i], state);
-			_batch.draw();
 		}
 	public:
 		Scene(ImmediateDrawTarget& target, size_t capacity = 8192)
@@ -205,6 +205,7 @@ namespace demo2
 
 	class Quad : public Node {
 		Mesh _mesh;
+		size_t _drawLayer;
 	public:
 		Quad() 
 			: _mesh({ 
@@ -213,9 +214,11 @@ namespace demo2
 				Vertex(Vector2f(-.5f, +.5f)),
 				Vertex(Vector2f(+.5f, +.5f))})
 		{ }
+		void setDrawLayer(size_t drawLayer) { _drawLayer = drawLayer; }
 		virtual void draw(DrawTarget& target, DrawState state = DrawState()) {
 			state.transform *= transform;
-			target.draw(_mesh);
+			state.drawLayer = _drawLayer;
+			target.draw(_mesh, state);
 		}
 	};
 	class Triangle : public Node {
@@ -223,18 +226,14 @@ namespace demo2
 	public:
 		Triangle()
 			: _mesh({
-			Vertex(Vector2f(-.5f, -.5f)),
-			Vertex(Vector2f(+.5f, -.5f)),
-			Vertex(Vector2f( .0f, +.5f)) })
+			Vertex(Vector2f(-.2f, -.2f)),
+			Vertex(Vector2f(+.2f, -.2f)),
+			Vertex(Vector2f( .0f, +.2f)) })
 		{ }
 		virtual void draw(DrawTarget& target, DrawState state = DrawState()) {
 			state.transform *= transform;
-			target.draw(_mesh);
+			target.draw(_mesh, state);
 		}
-	};
-
-	class Test : public DrawTarget {
-		public:
 	};
 
 	void demo1() {
@@ -242,6 +241,7 @@ namespace demo2
 		Scene scene(window);
 		
 		Quad& quad = scene.create<Quad>();
+		quad.setDrawLayer(2);
 		Triangle& triangle = scene.create<Triangle>();
 
 		while (window.isOpen()) {
@@ -254,6 +254,7 @@ namespace demo2
 			window.draw(scene);
 			window.display();
 			std::cout << "main loop end" << std::endl;
+			std::cin.get();
 		}	
 	}
 
