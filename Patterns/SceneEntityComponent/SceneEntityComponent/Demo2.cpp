@@ -28,7 +28,6 @@ namespace demo2
 		Vector2f position;
 	};
 
-
 	Transform& operator*=(Transform& left, const Transform& right) {		
 		left.position += right.position;
 		return left;
@@ -141,9 +140,21 @@ namespace demo2
 
 	class Scene;
 	class Node : public Drawable, public Transformable {
+		std::vector<Node*> _children;
 	public:
+		virtual ~Node() {
+			for (size_t i = 0; i < _children.size(); i++)
+				delete _children[i];
+		}
+		std::vector<Node*> getChildren() const { return _children; }
 		virtual void update(Scene& scene) { };
 		virtual void draw(DrawTarget& target, DrawState state = DrawState()) { }
+		template <class T> 
+		T& createChild() {
+			T* child = new T();
+			_children.push_back(child);
+			return *child;
+		}
 	};
 
 	class Scene : public DrawTarget, public Drawable {
@@ -169,6 +180,11 @@ namespace demo2
 			for (size_t i = 0; i < layer.size(); i++)
 				_batch.draw(*layer[i], state);
 		}
+		void drawRecursively(Node& node, DrawState& state) {
+			for (size_t i = 0; i < node.getChildren().size(); i++)
+				drawRecursively(*node.getChildren()[i], state);
+			draw(node, state);
+		}
 	public:
 		Scene(ImmediateDrawTarget& target, size_t capacity = 8192)
 			: _batch(target), _capacity(capacity), _drawableCount(0)
@@ -192,7 +208,7 @@ namespace demo2
 		using Drawable::draw;
 		virtual void draw(DrawTarget& target, DrawState state = DrawState()) {
 			for (size_t i = 0; i < _nodes.size(); i++)
-				draw(*_nodes[i], state);
+				drawRecursively(*_nodes[i], state);
 
 			if (!_nodes.empty())
 				flush();
@@ -221,8 +237,10 @@ namespace demo2
 			target.draw(_mesh, state);
 		}
 	};
+
 	class Triangle : public Node {
 		Mesh _mesh;
+		size_t _drawLayer;
 	public:
 		Triangle()
 			: _mesh({
@@ -230,9 +248,14 @@ namespace demo2
 			Vertex(Vector2f(+.2f, -.2f)),
 			Vertex(Vector2f( .0f, +.2f)) })
 		{ }
+		void setDrawLayer(size_t drawLayer) { _drawLayer = drawLayer; }
 		virtual void draw(DrawTarget& target, DrawState state = DrawState()) {
 			state.transform *= transform;
+			state.drawLayer = _drawLayer;
 			target.draw(_mesh, state);
+		}
+		void deform() {
+			_mesh.vertices[2].position.y *= 1.5f;
 		}
 	};
 
@@ -242,6 +265,9 @@ namespace demo2
 		
 		Quad& quad = scene.create<Quad>();
 		quad.setDrawLayer(2);
+		Triangle& childTriangle = quad.createChild<Triangle>();
+		childTriangle.deform();
+		childTriangle.setDrawLayer(3);
 		Triangle& triangle = scene.create<Triangle>();
 
 		while (window.isOpen()) {
