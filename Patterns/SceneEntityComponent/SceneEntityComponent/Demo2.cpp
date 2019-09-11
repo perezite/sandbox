@@ -42,8 +42,8 @@ namespace demo2
 		return std::tie(left.drawLayer) < std::tie(right.drawLayer);
 	}
 
-	const bool operator!=(const DrawState& left, const DrawState& right) {
-		 return std::tie() != std::tie();
+	const bool canBatch(const DrawState& left, const DrawState& right) {
+		 return std::tie() == std::tie();
 	}
 
 	struct Vertex {
@@ -52,8 +52,6 @@ namespace demo2
 		{ }
 		Vector2f position;
 	};
-
-
 
 	class Mesh {
 		static bool Locked;
@@ -116,7 +114,7 @@ namespace demo2
 		bool mustFlush(const Mesh& mesh, const DrawState& state) {
 			if (_buffer.empty())
 				return false;
-			if (state != _currentState)
+			if (!canBatch(state, _currentState))
 				return true;
 			if (_buffer.size() + mesh.getVertices().size() > _buffer.capacity())
 				return true;
@@ -196,7 +194,7 @@ namespace demo2
 		void drawRecursively(Node& node, DrawState& state) {
 			auto& children = node.getChildren();
 			for (size_t i = 0; i < children.size(); i++) 
-				drawRecursively(*children[i], state);
+				drawRecursively((*children[i]), state);
 			draw(node, state);
 		}
 	public:
@@ -254,6 +252,11 @@ namespace demo2
 		}
 	};
 
+	template <class T> 
+	inline const T& toConst(const T& object) {
+		return (const T&)object;
+	}
+
 	class Triangle : public Node {
 		Mesh _mesh;
 		size_t _drawLayer;
@@ -269,22 +272,27 @@ namespace demo2
 			state.transform *= transform;
 			state.drawLayer = _drawLayer;
 			target.draw(_mesh, state);
+			auto& test = toConst(_mesh).getVertices();
 		}
 		void deform() {
 			_mesh.getVertices()[2].position.y *= 1.5f;
 		}
 	};
 
-	void demo1() {
-		Window window;
-		Scene scene(window);
-		
+	void init1(Scene& scene) {
 		Quad& quad = scene.create<Quad>();
 		quad.setDrawLayer(2);
 		Triangle& childTriangle = quad.createChild<Triangle>();
 		childTriangle.deform();
 		childTriangle.setDrawLayer(3);
-		Triangle& triangle = scene.create<Triangle>();
+		Triangle& striangle = scene.create<Triangle>();
+	}
+
+	void demo1() {
+		Window window;
+		Scene scene(window);
+
+		init1(scene);
 
 		while (window.isOpen()) {
 			std::cout << "main loop begin" << std::endl;
