@@ -9,10 +9,10 @@ namespace sb
 		Vertex(Vector2f(0.0f,  0.5f), Color(0, 0, 1, 1))
 	}, PrimitiveType::Triangles);
 
-	void Triangle::draw(DrawTarget& target, DrawStates states)
+	void Triangle::draw(DrawTarget& target, DrawState state)
 	{
-		states.transform *= getTransform();
+		state.transform *= getTransform();
 
-		target.draw(TriangleMesh.getVertices(), TriangleMesh.getPrimitiveType(), states);
+		target.draw(TriangleMesh.getVertices(), TriangleMesh.getPrimitiveType(), state);
 	}
 }

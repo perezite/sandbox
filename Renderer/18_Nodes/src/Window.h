@@ -35,7 +35,7 @@ namespace sb
 		
 		using DrawTarget::draw;
 		virtual void draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType = PrimitiveType::Triangles, 
-			const DrawStates& states = DrawStates::getDefault());
+			const DrawState& state = DrawState::getDefault());
 
 		void display();
 

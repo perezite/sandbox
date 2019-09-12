@@ -69,11 +69,11 @@ namespace sb
 		GL_CHECK(glClear(GL_COLOR_BUFFER_BIT));
 	}
 
-	void Window::draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawStates& states)
+	void Window::draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawState& state)
 	{
 		Transform cameraTransform;
 
-		DrawStates fullStates = states;
+		DrawState fullStates = state;
 		fullStates.transform = m_camera.getTransform() * fullStates.transform;
 
 		m_renderer->render(vertices, primitiveType, fullStates);

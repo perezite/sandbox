@@ -7,6 +7,7 @@ using namespace sb;
 namespace demo {
 
 	class Scene {
+	public:
 	};
 
 	void demo1() {

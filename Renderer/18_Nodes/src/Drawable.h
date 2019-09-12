@@ -1,6 +1,6 @@
 #pragma once
 #include "Mesh.h"
-#include "DrawStates.h"
+#include "DrawState.h"
 
 namespace sb
 {
@@ -12,6 +12,6 @@ namespace sb
 	public:
 		virtual ~Drawable() { };
 
-		virtual void draw(DrawTarget& target, DrawStates drawStates) = 0;
+		virtual void draw(DrawTarget& target, DrawState drawStates) = 0;
 	};
 }

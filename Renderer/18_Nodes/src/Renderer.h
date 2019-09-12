@@ -12,26 +12,26 @@ namespace sb
 	class Renderer
 	{
 	public:
-		void render(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawStates& states);
+		void render(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawState& state);
 
 		static std::size_t getNumDrawCalls();
 		
 		static void resetStatistics();
 
 	protected:
-		Shader* selectShader(const DrawStates& states);
+		Shader* selectShader(const DrawState& state);
 		
-		void setup(Shader* shader, const std::vector<Vertex>& vertices, const DrawStates& states);
+		void setup(Shader* shader, const std::vector<Vertex>& vertices, const DrawState& state);
 
-		void setupShaderUniforms(Shader* shader, const DrawStates& states);
+		void setupShaderUniforms(Shader* shader, const DrawState& state);
 
-		void setupShaderAttributes(Shader* shader, const std::vector<Vertex>& vertices, const DrawStates& states);
+		void setupShaderAttributes(Shader* shader, const std::vector<Vertex>& vertices, const DrawState& state);
 
 		void setShaderAttribute(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, GLvoid* pointer);
 
 		void drawVertices(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType);
 
-		void cleanup(Shader* shader, const DrawStates& states);
+		void cleanup(Shader* shader, const DrawState& state);
 
 	private:
 		static std::size_t m_numDrawCalls;

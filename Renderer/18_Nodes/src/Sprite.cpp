@@ -84,7 +84,7 @@ namespace sb
 	}
 
 	void Sprite::onDraw(DrawTarget& target, const State state) {
-		target.draw(_mesh.getVertices(), _mesh.getPrimitiveType(), states);
+		target.draw(_mesh.getVertices(), _mesh.getPrimitiveType(), state);
 		// target.draw(subSprite, state);
 		subSprite.onDraw(target, state);
 	}
@@ -120,13 +120,13 @@ namespace sb
 
 	*/
 
-	void Sprite::draw(DrawTarget& target, DrawStates states)
+	void Sprite::draw(DrawTarget& target, DrawState state)
 	{
-		states.transform *= getTransform();
-		states.texture = m_texture;
-		states.textureTransform = m_textureTransform;
-		target.draw(m_mesh.getVertices(), m_mesh.getPrimitiveType(), states);
+		state.transform *= getTransform();
+		state.texture = m_texture;
+		state.textureTransform = m_textureTransform;
+		target.draw(m_mesh.getVertices(), m_mesh.getPrimitiveType(), state);
 
-		// subSprite.draw(target, states);
+		// subSprite.draw(target, state);
 	}
 }

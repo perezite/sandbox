@@ -6,7 +6,7 @@ namespace sb
 {
 	class DrawTarget;
 
-	class Drawable
+	class Drawable	
 	{
 
 	public:

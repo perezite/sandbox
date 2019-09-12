@@ -2,7 +2,7 @@
 #include "DrawTarget.h"
 #include "Drawable.h"
 #include "Window.h"
-#include "DrawStates.h"
+#include "DrawState.h"
 #include <map>
 #include <tuple>
 
@@ -12,12 +12,12 @@ namespace sb
 	{
 	private:
 		struct DrawCommand {
-			DrawCommand(Drawable& drawable_, DrawStates states_)
-				: drawable(drawable_), states(states_)
+			DrawCommand(Drawable& drawable_, DrawState state_)
+				: drawable(drawable_), state(state_)
 			{ }
 
 			Drawable& drawable;
-			DrawStates states;
+			DrawState state;
 		};
 
 		class Buffer : public DrawTarget {
@@ -31,19 +31,19 @@ namespace sb
 
 			using DrawTarget::draw;
 			virtual void draw(const std::vector<Vertex>& vertices,
-				const PrimitiveType& primitiveType, const DrawStates& states = DrawStates::getDefault());
+				const PrimitiveType& primitiveType, const DrawState& state = DrawState::getDefault());
 
 			void flush();
 
 		protected:
 			void assertBufferCapacity(const std::vector<Vertex>& vertices);
 
-			bool mustFlush(const std::vector<Vertex>& vertices, const PrimitiveType primitiveType, const DrawStates& states);
+			bool mustFlush(const std::vector<Vertex>& vertices, const PrimitiveType primitiveType, const DrawState& state);
 
 			void insert(const std::vector<Vertex>& vertices, 
-				const PrimitiveType& primitiveType, const DrawStates& states);
+				const PrimitiveType& primitiveType, const DrawState& state);
 
-			inline void transformVertices(std::vector<Vertex>& vertices, const DrawStates& states);
+			inline void transformVertices(std::vector<Vertex>& vertices, const DrawState& state);
 
 			inline void insertTriangles(const std::vector<Vertex>& vertices);
 
@@ -56,7 +56,7 @@ namespace sb
 
 			std::vector<Vertex> m_vertices;
 
-			DrawStates m_currentStates;
+			DrawState m_currentStates;
 
 			PrimitiveType m_currentPrimitiveType;
 		};
@@ -68,9 +68,9 @@ namespace sb
 			m_drawCommands.reserve(bufferCapacity / 4);
 		}
 
-		void draw(Drawable& drawable, const DrawStates& states = DrawStates::getDefault());
+		void draw(Drawable& drawable, const DrawState& state = DrawState::getDefault());
 
-		virtual void draw(DrawTarget& target, DrawStates states);
+		virtual void draw(DrawTarget& target, DrawState state);
 
 	private:
 		Buffer m_buffer;
