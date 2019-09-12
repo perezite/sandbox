@@ -79,6 +79,19 @@ namespace sb
 		m_renderer->render(vertices, primitiveType, fullStates);
 	}
 
+	void Window::draw(const Mesh & mesh, const DrawState & state) {
+		SB_ERROR("please implement!");
+	}
+
+	void Window::drawImmediate(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawState& state) {
+		Transform cameraTransform;
+
+		DrawState fullStates = state;
+		fullStates.transform = m_camera.getTransform() * fullStates.transform;
+
+		m_renderer->render(vertices, primitiveType, fullStates);
+	}
+
 	void Window::display()
 	{
 		SDL_GL_SwapWindow(m_sdlWindow);

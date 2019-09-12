@@ -15,6 +15,8 @@ namespace sb
 		void draw(Drawable& drawable, const DrawState& state = DrawState::getDefault());
 
 		virtual void draw(const std::vector<Vertex>& vertices,
-			const PrimitiveType& primitiveType, const DrawState& state = DrawState::getDefault()) = 0;		
+			const PrimitiveType& primitiveType, const DrawState& state = DrawState::getDefault()) = 0;	
+
+		virtual void draw(const Mesh& mesh, const DrawState &state = DrawState::getDefault()) = 0;
 	};
 }

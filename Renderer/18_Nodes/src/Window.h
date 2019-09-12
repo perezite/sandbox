@@ -2,12 +2,12 @@
 
 #include "Drawable.h"
 #include "Renderer.h"
-#include "DrawTarget.h"
+#include "ImmediateDrawTarget.h"
 #include "Camera.h"
 
 namespace sb
 {
-	class Window : public DrawTarget
+	class Window : public ImmediateDrawTarget
 	{
 	public:
 		Window(sb::Vector2i resolution) : Window(resolution.x, resolution.y)
@@ -35,6 +35,11 @@ namespace sb
 		
 		using DrawTarget::draw;
 		virtual void draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType = PrimitiveType::Triangles, 
+			const DrawState& state = DrawState::getDefault());
+
+		virtual void draw(const Mesh& mesh, const DrawState& state = DrawState::getDefault());
+
+		virtual void drawImmediate(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType = PrimitiveType::Triangles, 
 			const DrawState& state = DrawState::getDefault());
 
 		void display();

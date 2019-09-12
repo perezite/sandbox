@@ -6,75 +6,36 @@
 #include <map>
 #include <tuple>
 
-namespace sb
-{
-	class DrawBatch : public Drawable
-	{
-	private:
-		struct DrawCommand {
-			DrawCommand(Drawable& drawable_, DrawState state_)
-				: drawable(drawable_), state(state_)
-			{ }
+namespace sb {
+	class DrawBatch : public DrawTarget {
+		ImmediateDrawTarget& _target;
+		std::vector<Vertex> _vertices;
+		DrawState _currentState;
+		PrimitiveType _currentPrimitiveType;
 
-			Drawable& drawable;
-			DrawState state;
-		};
+	protected:
+		bool mustFlush(const Mesh& mesh, const DrawState& state);
 
-		class Buffer : public DrawTarget {
-		public:
-			Buffer(std::size_t capacity)
-			{
-				m_vertices.reserve(capacity);
-			}
+		void flush();
 
-			inline void setTarget(DrawTarget& target) { m_target = &target; }
+		void insert(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawState& state);
 
-			using DrawTarget::draw;
-			virtual void draw(const std::vector<Vertex>& vertices,
-				const PrimitiveType& primitiveType, const DrawState& state = DrawState::getDefault());
+		inline void transformVertices(std::vector<Vertex>& vertices, const DrawState& state);
 
-			void flush();
+		inline void insertTriangles(const std::vector<Vertex>& vertices);
 
-		protected:
-			void assertBufferCapacity(const std::vector<Vertex>& vertices);
-
-			bool mustFlush(const std::vector<Vertex>& vertices, const PrimitiveType primitiveType, const DrawState& state);
-
-			void insert(const std::vector<Vertex>& vertices, 
-				const PrimitiveType& primitiveType, const DrawState& state);
-
-			inline void transformVertices(std::vector<Vertex>& vertices, const DrawState& state);
-
-			inline void insertTriangles(const std::vector<Vertex>& vertices);
-
-			inline void insertTriangleStrip(const std::vector<Vertex>& vertices);
-
-		private:
-			static std::size_t BatchingThreshold;
-
-			DrawTarget* m_target;
-
-			std::vector<Vertex> m_vertices;
-
-			DrawState m_currentStates;
-
-			PrimitiveType m_currentPrimitiveType;
-		};
+		inline void insertTriangleStrip(const std::vector<Vertex>& vertices);
 
 	public:
-		DrawBatch(std::size_t bufferCapacity = 512)
-			: m_buffer(bufferCapacity)
+		DrawBatch(ImmediateDrawTarget& target, size_t capacity = 512)
+			: _target(target)
 		{
-			m_drawCommands.reserve(bufferCapacity / 4);
+			_vertices.reserve(capacity);
 		}
+		
+		virtual void draw(const Mesh& mesh, const DrawState& state = DrawState::getDefault());
 
-		void draw(Drawable& drawable, const DrawState& state = DrawState::getDefault());
-
-		virtual void draw(DrawTarget& target, DrawState state);
-
-	private:
-		Buffer m_buffer;
-
-		std::vector<DrawCommand> m_drawCommands;
+		virtual void draw(const std::vector<Vertex>& vertices,
+			const PrimitiveType& primitiveType, const DrawState& state = DrawState::getDefault());
 	};
 }

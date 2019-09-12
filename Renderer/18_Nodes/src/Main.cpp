@@ -11,7 +11,6 @@ void version() {
 	SB_MESSAGE("Audio - Build: " << configuration << ", " << __DATE__ << ", " << __TIME__);
 }
 
-
 int main() {
 	version();
 

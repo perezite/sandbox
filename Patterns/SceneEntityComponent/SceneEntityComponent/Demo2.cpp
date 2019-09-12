@@ -11,14 +11,11 @@ namespace demo2
 	struct Vector2f {
 		Vector2f(float x_ = 0 ,float y_ = 0) 
 			: x(x_), y(y_)
-		{
-
-		}
+		{ }
 		float x, y;
 	};
 
 	Vector2f& operator+=(Vector2f& left, const Vector2f& right) {
-
 		left.x += right.x;
 		left.y += right.y;
 		return left;
@@ -38,11 +35,11 @@ namespace demo2
 		Transform transform;
 	};
 
-	const bool operator<(const DrawState& left, const DrawState& right) {
+	bool operator<(const DrawState& left, const DrawState& right) {
 		return std::tie(left.drawLayer) < std::tie(right.drawLayer);
 	}
 
-	const bool canBatch(const DrawState& left, const DrawState& right) {
+	bool canBatch(const DrawState& left, const DrawState& right) {
 		 return std::tie() == std::tie();
 	}
 
@@ -52,13 +49,13 @@ namespace demo2
 		{ }
 		Vector2f position;
 	};
-
+	
 	class Mesh {
 		static bool Locked;
 		std::vector<Vertex> _vertices;
 	public:
 		static void lock(bool locked) { Locked = locked; }
-		static inline void assertUnlocked() {
+		static inline void checkLock() {
 			if (Locked)
 				throw new std::exception("Modifying a mesh while rendering is not allowed.");
 		}
@@ -66,7 +63,7 @@ namespace demo2
 			: _vertices(vertices)
 		{ }
 		const std::vector<Vertex>& getVertices() const { return _vertices; }
-		std::vector<Vertex>& getVertices() { assertUnlocked(); return _vertices; }
+		std::vector<Vertex>& getVertices() { checkLock(); return _vertices; }
 	};
 
 	bool Mesh::Locked = false;
@@ -106,7 +103,7 @@ namespace demo2
 		void display() { }
 	};
 
-	class DrawBatch  {
+	class DrawBatch : public DrawTarget {
 		ImmediateDrawTarget& _target;
 		DrawState _currentState;
 		std::vector<Vertex> _buffer;
@@ -134,15 +131,16 @@ namespace demo2
 		{ 
 			_buffer.reserve(capacity);
 		}
-		void draw(const Mesh& mesh, const DrawState &state = DrawState()) { 
+		using DrawTarget::draw;
+		virtual void draw(const Mesh& mesh, const DrawState &state = DrawState()) { 
 			if (mustFlush(mesh, state))
 				flush();
 			insert(mesh, state);
-		}
-		virtual void draw() {
+		}	
+		void finalize() {
 			if (!_buffer.empty())
 				flush();
-		}	
+		}
 	};
 
 	struct Transformable {
@@ -184,7 +182,7 @@ namespace demo2
 			for (LayerMap::iterator it = _layers.begin(); it != _layers.end(); it++)
 				flush(it->second, it->first);	
 
-			_batch.draw();
+			_batch.finalize();
 			_layers.clear();
 		}
 		void flush(const std::vector<const Mesh*> layer, const DrawState& state) {
@@ -194,7 +192,7 @@ namespace demo2
 		void drawRecursively(Node& node, DrawState& state) {
 			auto& children = node.getChildren();
 			for (size_t i = 0; i < children.size(); i++) 
-				drawRecursively((*children[i]), state);
+				drawRecursively(*(children[i]), state);
 			draw(node, state);
 		}
 	public:
@@ -285,12 +283,19 @@ namespace demo2
 		Triangle& childTriangle = quad.createChild<Triangle>();
 		childTriangle.deform();
 		childTriangle.setDrawLayer(3);
-		Triangle& striangle = scene.create<Triangle>();
+		scene.create<Triangle>();
 	}
 
 	void demo1() {
 		Window window;
 		Scene scene(window);
+
+		DrawBatch batch(window);
+		Quad quad;
+		Triangle triangle;
+		batch.draw(quad);
+		batch.draw(triangle);
+		batch.finalize();
 
 		init1(scene);
 

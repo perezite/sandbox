@@ -39,5 +39,7 @@ namespace sb
 
 	const bool operator ==(const DrawState& left, const DrawState& right);
 
+	const bool canBatch(const DrawState& left, const DrawState& right);
+
 	inline const bool operator !=(const DrawState& left, const DrawState& right) { return !(left == right); }
 }
