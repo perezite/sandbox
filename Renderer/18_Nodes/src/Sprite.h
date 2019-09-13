@@ -24,7 +24,7 @@ namespace sb
 
 		inline Mesh& getMesh() { return m_mesh; }
 		
-		virtual void draw(DrawTarget& window, DrawState state = DrawState::getDefault());
+		virtual void draw(DrawTarget& window, DrawStates state = DrawStates::getDefault());
 
 	private:
 		static Mesh SpriteMesh;

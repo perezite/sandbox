@@ -2,7 +2,7 @@
 #include "DrawTarget.h"
 #include "Drawable.h"
 #include "Window.h"
-#include "DrawState.h"
+#include "DrawStates.h"
 #include <map>
 #include <tuple>
 
@@ -10,17 +10,17 @@ namespace sb {
 	class DrawBatch : public DrawTarget {
 		ImmediateDrawTarget& _target;
 		std::vector<Vertex> _vertices;
-		DrawState _currentState;
+		DrawStates _currentState;
 		PrimitiveType _currentPrimitiveType;
 
 	protected:
-		bool mustFlush(const Mesh& mesh, const DrawState& state);
+		bool mustFlush(const Mesh& mesh, const DrawStates& state);
 
 		void flush();
 
-		void insert(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawState& state);
+		void insert(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawStates& state);
 
-		inline void transformVertices(std::vector<Vertex>& vertices, const DrawState& state);
+		inline void transformVertices(std::vector<Vertex>& vertices, const DrawStates& state);
 
 		inline void insertTriangles(const std::vector<Vertex>& vertices);
 
@@ -35,10 +35,10 @@ namespace sb {
 		
 		void setTarget(ImmediateDrawTarget& target);
 
-		virtual void draw(const Mesh& mesh, const DrawState& state = DrawState::getDefault());
+		virtual void draw(const Mesh& mesh, const DrawStates& state = DrawStates::getDefault());
 
 		virtual void draw(const std::vector<Vertex>& vertices,
-			const PrimitiveType& primitiveType, const DrawState& state = DrawState::getDefault());
+			const PrimitiveType& primitiveType, const DrawStates& state = DrawStates::getDefault());
 
 		void complete();
 	};

@@ -10,7 +10,7 @@ namespace sb
 		Triangle() 
 		{ }
 
-		virtual void draw(DrawTarget& window, DrawState state = DrawState::getDefault());
+		virtual void draw(DrawTarget& window, DrawStates state = DrawStates::getDefault());
 
 		inline Mesh& getMesh() { return TriangleMesh; }
 

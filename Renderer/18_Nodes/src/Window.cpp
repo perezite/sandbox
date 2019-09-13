@@ -69,24 +69,24 @@ namespace sb
 		GL_CHECK(glClear(GL_COLOR_BUFFER_BIT));
 	}
 
-	void Window::draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawState& state)
+	void Window::draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawStates& state)
 	{
 		Transform cameraTransform;
 
-		DrawState fullStates = state;
+		DrawStates fullStates = state;
 		fullStates.transform = m_camera.getTransform() * fullStates.transform;
 
 		m_renderer->render(vertices, primitiveType, fullStates);
 	}
 
-	void Window::draw(const Mesh & mesh, const DrawState & state) {
+	void Window::draw(const Mesh & mesh, const DrawStates & state) {
 		SB_ERROR("please implement!");
 	}
 
-	void Window::drawImmediate(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawState& state) {
+	void Window::drawImmediate(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawStates& state) {
 		Transform cameraTransform;
 
-		DrawState fullStates = state;
+		DrawStates fullStates = state;
 		fullStates.transform = m_camera.getTransform() * fullStates.transform;
 
 		m_renderer->render(vertices, primitiveType, fullStates);

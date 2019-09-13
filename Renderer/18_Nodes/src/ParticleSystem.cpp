@@ -122,7 +122,7 @@ namespace sb
 		SB_DEBUG_IF(id == "main", "num pool items: " << _pool.getNumItems() << " num active pool items: " << _pool.getNumActiveItems());
 	}
 
-	void ParticleSystem::draw(DrawTarget& target, DrawState state) {
+	void ParticleSystem::draw(DrawTarget& target, DrawStates state) {
 		if (isPlaying()) {
 			state.texture = _texture;
 			target.draw(_mesh.getVertices(), _mesh.getPrimitiveType(), state);
@@ -393,7 +393,7 @@ namespace sb
 			_state = State::Garbage;
 	}
 
-	void ParticleSystem::drawSubSystems(DrawTarget& target, DrawState& state)
+	void ParticleSystem::drawSubSystems(DrawTarget& target, DrawStates& state)
 	{
 		std::vector<Pool::Item>& poolItems = _pool.getAllItems();
 		for (std::size_t i = 0; i < poolItems.size(); i++) {

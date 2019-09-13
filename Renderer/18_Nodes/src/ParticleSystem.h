@@ -184,7 +184,7 @@ namespace sb
 
 		void update(float ds);
 
-		virtual void draw(DrawTarget& target, DrawState state = DrawState::getDefault());
+		virtual void draw(DrawTarget& target, DrawStates state = DrawStates::getDefault());
 
 		std::string id;
 
@@ -247,7 +247,7 @@ namespace sb
 
 		void updateDying();
 
-		void drawSubSystems(DrawTarget& target, DrawState& state);
+		void drawSubSystems(DrawTarget& target, DrawStates& state);
 
 	private:
 		Mesh _mesh;

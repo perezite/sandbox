@@ -1,19 +1,19 @@
-#include "DrawState.h"
+#include "DrawStates.h"
 
 namespace sb
 {
-	DrawState& DrawState::getDefault()
+	DrawStates& DrawStates::getDefault()
 	{
-		static DrawState defaultStates;
+		static DrawStates defaultStates;
 		return defaultStates;
 	}
 
-	const bool operator==(const DrawState& left, const DrawState& right)
+	const bool operator==(const DrawStates& left, const DrawStates& right)
 	{
 		return left.drawLayer && right.drawLayer && left.shader == right.shader && left.texture == right.texture;
 	}
 
-	const bool canBatch(const DrawState & left, const DrawState & right)
+	const bool canBatch(const DrawStates & left, const DrawStates & right)
 	{
 		return left.shader == right.shader && left.texture == right.texture;
 	}

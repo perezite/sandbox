@@ -4,7 +4,7 @@
 #include "Transform.h"
 
 namespace sb {
-	bool DrawBatch::mustFlush(const Mesh& mesh, const DrawState& state)
+	bool DrawBatch::mustFlush(const Mesh& mesh, const DrawStates& state)
 	{
 		if (_vertices.empty())
 			return false;
@@ -22,7 +22,7 @@ namespace sb {
 		_vertices.clear();
 	}
 
-	void DrawBatch::insert(const std::vector<Vertex>& vertices, const PrimitiveType & primitiveType, const DrawState & state) {
+	void DrawBatch::insert(const std::vector<Vertex>& vertices, const PrimitiveType & primitiveType, const DrawStates & state) {
 		std::vector<Vertex> transformedVertices(vertices);
 		transformVertices(transformedVertices, state);
 
@@ -34,7 +34,7 @@ namespace sb {
 			SB_ERROR("The primitive type " << (int)primitiveType << " is not eligible for batching");
 	}
 
-	inline void DrawBatch::transformVertices(std::vector<Vertex>& vertices, const DrawState& state) {
+	inline void DrawBatch::transformVertices(std::vector<Vertex>& vertices, const DrawStates& state) {
 		for (std::size_t i = 0; i < vertices.size(); i++) {
 			vertices[i].position *= state.transform;
 			vertices[i].texCoords *= state.textureTransform;
@@ -56,7 +56,7 @@ namespace sb {
 		_target = target;
 	}
 
-	void DrawBatch::draw(const Mesh& mesh, const DrawState& state) {
+	void DrawBatch::draw(const Mesh& mesh, const DrawStates& state) {
 		if (mustFlush(mesh, state))
 			flush();
 
@@ -66,7 +66,7 @@ namespace sb {
 			insert(mesh.getVertices(), mesh.getPrimitiveType(), state);
 	}
 
-	void DrawBatch::draw(const std::vector<Vertex>& vertices, const PrimitiveType & primitiveType, const DrawState & state) {
+	void DrawBatch::draw(const std::vector<Vertex>& vertices, const PrimitiveType & primitiveType, const DrawStates & state) {
 		SB_ERROR("Will be deleted");
 	}
 

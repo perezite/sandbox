@@ -35,12 +35,12 @@ namespace sb
 		
 		using DrawTarget::draw;
 		virtual void draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType = PrimitiveType::Triangles, 
-			const DrawState& state = DrawState::getDefault());
+			const DrawStates& state = DrawStates::getDefault());
 
-		virtual void draw(const Mesh& mesh, const DrawState& state = DrawState::getDefault());
+		virtual void draw(const Mesh& mesh, const DrawStates& state = DrawStates::getDefault());
 
 		virtual void drawImmediate(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType = PrimitiveType::Triangles, 
-			const DrawState& state = DrawState::getDefault());
+			const DrawStates& state = DrawStates::getDefault());
 
 		void display();
 

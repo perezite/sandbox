@@ -16,7 +16,7 @@ namespace sb {
 		inline size_t getDrawLayer() const { return _drawLayer; }
 		inline void setDrawLayer(size_t drawLayer) { _drawLayer = drawLayer; }
 		inline virtual void update(Scene& scene) { };
-		inline virtual void draw(DrawTarget& target, sb::DrawState drawStates = DrawState::getDefault()) { }
+		inline virtual void draw(DrawTarget& target, sb::DrawStates drawStates = DrawStates::getDefault()) { }
 		template <class T>
 		T& createChild() {
 			T* child = new T();

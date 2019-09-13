@@ -7,6 +7,6 @@ namespace sb
 	class ImmediateDrawTarget : public DrawTarget
 	{
 	public:
-		virtual void drawImmediate(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawState& state) = 0;
+		virtual void drawImmediate(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawStates& state) = 0;
 	};
 }

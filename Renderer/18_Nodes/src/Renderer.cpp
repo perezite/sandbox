@@ -7,7 +7,7 @@ namespace sb
 {
 	std::size_t Renderer::m_numDrawCalls = 0;
 	
-	void Renderer::render(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawState& state)
+	void Renderer::render(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawStates& state)
 	{
 		if (vertices.empty())
 			return;
@@ -28,7 +28,7 @@ namespace sb
 		m_numDrawCalls = 0;
 	}
 
-	Shader* Renderer::selectShader(const DrawState& state)
+	Shader* Renderer::selectShader(const DrawStates& state)
 	{
 		if (state.shader)
 			return state.shader;
@@ -46,7 +46,7 @@ namespace sb
 		#endif
 	}
 
-	void Renderer::setup(Shader* shader, const std::vector<Vertex>& vertices, const DrawState& state)
+	void Renderer::setup(Shader* shader, const std::vector<Vertex>& vertices, const DrawStates& state)
 	{
 		GL_CHECK(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 		GL_CHECK(glEnable(GL_BLEND));
@@ -58,7 +58,7 @@ namespace sb
 		setupShaderAttributes(shader, vertices, state);
 	}
 
-	void Renderer::setupShaderUniforms(Shader* shader, const DrawState & state)
+	void Renderer::setupShaderUniforms(Shader* shader, const DrawStates & state)
 	{
 		shader->setMatrix3("transform", state.transform.getMatrix());
 		if (state.texture) {
@@ -68,7 +68,7 @@ namespace sb
 		}
 	}
 
-	void Renderer::setupShaderAttributes(Shader * shader, const std::vector<Vertex>& vertices, const DrawState & state)
+	void Renderer::setupShaderAttributes(Shader * shader, const std::vector<Vertex>& vertices, const DrawStates & state)
 	{
 		GLvoid* position = (GLvoid*) &(vertices[0].position);
 		GLvoid* color = (GLvoid*) &(vertices[0].color);
@@ -92,7 +92,7 @@ namespace sb
 		m_numDrawCalls++;
 	}
 
-	void Renderer::cleanup(Shader* shader, const DrawState& state)
+	void Renderer::cleanup(Shader* shader, const DrawStates& state)
 	{
 		if (state.texture)
 			GL_CHECK(glDisableVertexAttribArray(shader->getAttributeLocation("texCoords")));

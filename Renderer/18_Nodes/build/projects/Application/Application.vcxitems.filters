@@ -135,13 +135,13 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Demo.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawState.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\ImmediateDrawTarget.h">
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Node.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawStates.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>
@@ -173,9 +173,9 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Sound.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Box.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Demo.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawState.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Scene.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Mesh.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawStates.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)..\..\..\src\Vector.inl" />

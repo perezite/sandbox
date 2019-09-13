@@ -9,7 +9,7 @@ namespace sb {
 		node.update(*this);
 	}
 
-	void Scene::drawRecursively(Node& node, const DrawState& state) {
+	void Scene::drawRecursively(Node& node, const DrawStates& state) {
 		auto& children = node.getChildren();
 		for (size_t i = 0; i < children.size(); i++)
 			drawRecursively(*(children[i]), state);
@@ -30,7 +30,7 @@ namespace sb {
 		_layers.clear();
 	}
 
-	void Scene::flush(const std::vector<const Mesh*>& layer, const DrawState& state) {
+	void Scene::flush(const std::vector<const Mesh*>& layer, const DrawStates& state) {
 		for (size_t i = 0; i < layer.size(); i++)
 			_batch.draw(*layer[i], state);
 	}
@@ -40,13 +40,13 @@ namespace sb {
 			updateRecursively(*(_nodes[i]));
 	}
 
-	void Scene::draw(const std::vector<Vertex>& vertices, const PrimitiveType & primitiveType, const DrawState & state) {
+	void Scene::draw(const std::vector<Vertex>& vertices, const PrimitiveType & primitiveType, const DrawStates & state) {
 		SB_ERROR("Will be deleted");
 	}
 
-	void Scene::draw(const Mesh& mesh, const sb::DrawState& state) {
-	/*	std::map<sb::DrawState, std::string> myMap;
-		sb::DrawState myState;
+	void Scene::draw(const Mesh& mesh, const sb::DrawStates& state) {
+	/*	std::map<sb::DrawStates, std::string> myMap;
+		sb::DrawStates myState;
 		 auto& value = myMap[myState];*/
 		//myMap[myMap] = "hello";
 		// auto& test = _layers[state];
@@ -56,7 +56,7 @@ namespace sb {
 			flush();*/
 	}
 
-	void Scene::draw(ImmediateDrawTarget& target, DrawState state) {
+	void Scene::draw(ImmediateDrawTarget& target, DrawStates state) {
 		_batch.setTarget(target);
 		Mesh::lock(true);
 		for (size_t i = 0; i < _nodes.size(); i++)
