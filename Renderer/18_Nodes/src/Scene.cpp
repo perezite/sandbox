@@ -1,4 +1,5 @@
 #include "Scene.h"
+#include "DrawStates.h"
 #include <algorithm>
 
 namespace sb {
@@ -17,7 +18,7 @@ namespace sb {
 	}
 
 	bool Scene::mustFlush() {
-		return _queueCount > _capacity;
+		return _numQueued > _capacity;
 	}
 
 	void Scene::flush()	{
@@ -28,6 +29,7 @@ namespace sb {
 		}
 		_batch.complete();
 		_layers.clear();
+		_numQueued = 0;
 	}
 
 	void Scene::flush(const std::vector<const Mesh*>& layer, const DrawStates& states) {
@@ -43,17 +45,12 @@ namespace sb {
 	void Scene::draw(const std::vector<Vertex>& vertices, const PrimitiveType & primitiveType, const DrawStates & states) {
 		SB_ERROR("Will be deleted");
 	}
-
+		
 	void Scene::draw(const Mesh& mesh, const sb::DrawStates& states) {
-	/*	std::map<sb::DrawStates, std::string> myMap;
-		sb::DrawStates myState;
-		 auto& value = myMap[myState];*/
-		//myMap[myMap] = "hello";
-		// auto& test = _layers[states];
-		// _layers[states].push_back(&mesh);
-		/*_queueCount++;
+		_layers[states].push_back(&mesh);
+		_numQueued++;
 		if (mustFlush())
-			flush();*/
+			flush();
 	}
 
 	void Scene::draw(ImmediateDrawTarget& target, DrawStates states) {
@@ -63,5 +60,6 @@ namespace sb {
 			drawRecursively(*(_nodes[i]), states);
 		if (!_nodes.empty())
 			flush();
+		Mesh::lock(false);
 	}
 }

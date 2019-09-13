@@ -2,19 +2,20 @@
 
 namespace sb
 {
-	DrawStates& DrawStates::getDefault()
-	{
+	DrawStates& DrawStates::getDefault() {
 		static DrawStates defaultStates;
 		return defaultStates;
 	}
 
-	const bool operator==(const DrawStates& left, const DrawStates& right)
-	{
-		return left.drawLayer && right.drawLayer && left.shader == right.shader && left.texture == right.texture;
+	const bool operator==(const DrawStates& left, const DrawStates& right) {
+		return std::tie(left.drawLayer, left.shader, left.texture) == std::tie(right.drawLayer, right.shader, right.texture);
 	}
 
-	const bool canBatch(const DrawStates & left, const DrawStates & right)
-	{
-		return left.shader == right.shader && left.texture == right.texture;
+	const bool operator<(const DrawStates& left, const DrawStates& right) {
+		return std::tie(left.drawLayer, left.shader) < std::tie(right.drawLayer, right.shader);
+	}
+
+	const bool canBatch(const DrawStates & left, const DrawStates & right) {
+		return std::tie(left.shader, left.texture) == std::tie(right.shader, right.texture);
 	}
 }

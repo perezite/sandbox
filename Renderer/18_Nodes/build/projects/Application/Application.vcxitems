@@ -94,7 +94,4 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Triangle.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Window.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)..\..\..\src\Vector.inl" />
-  </ItemGroup>
 </Project>

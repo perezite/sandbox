@@ -8,7 +8,7 @@
 
 namespace sb {
 	class DrawBatch : public DrawTarget {
-		ImmediateDrawTarget& _target;
+		ImmediateDrawTarget* _target;
 		std::vector<Vertex> _vertices;
 		DrawStates _currentState;
 		PrimitiveType _currentPrimitiveType;
@@ -26,8 +26,10 @@ namespace sb {
 
 		inline void insertTriangleStrip(const std::vector<Vertex>& vertices);
 
+		inline void drawImmediate(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawStates& states);
+
 	public:
-		inline DrawBatch(ImmediateDrawTarget& target, size_t capacity = 512)
+		inline DrawBatch(ImmediateDrawTarget* target = NULL, size_t capacity = 512)
 			: _target(target)
 		{
 			_vertices.reserve(capacity);

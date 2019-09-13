@@ -18,7 +18,7 @@ namespace sb {
 	}
 
 	void DrawBatch::flush() {
-		_target.drawImmediate(_vertices, _currentPrimitiveType, _currentState);
+		drawImmediate(_vertices, _currentPrimitiveType, _currentState);
 		_vertices.clear();
 	}
 
@@ -51,9 +51,14 @@ namespace sb {
 		_vertices.push_back(vertices[vertices.size() - 1]);
 	}
 
+	inline void DrawBatch::drawImmediate(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawStates& states) {
+		SB_ERROR_IF(_target == NULL, "No target was set for the draw batch");
+		_target->drawImmediate(vertices, primitiveType, states);
+	}
+
 	void DrawBatch::setTarget(ImmediateDrawTarget& target) {
 		complete();
-		_target = target;
+		_target = &target;
 	}
 
 	void DrawBatch::draw(const Mesh& mesh, const DrawStates& states) {
@@ -61,12 +66,14 @@ namespace sb {
 			flush();
 
 		if (mesh.getVertexCount() > _vertices.capacity())
-			_target.drawImmediate(mesh.getVertices(), mesh.getPrimitiveType(), states);
-		else 
+			drawImmediate(mesh.getVertices(), mesh.getPrimitiveType(), states);
+		else {
+			_currentPrimitiveType = mesh.getPrimitiveType();
 			insert(mesh.getVertices(), mesh.getPrimitiveType(), states);
+		}
 	}
 
-	void DrawBatch::draw(const std::vector<Vertex>& vertices, const PrimitiveType & primitiveType, const DrawStates & states) {
+	void DrawBatch::draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawStates& states) {
 		SB_ERROR("Will be deleted");
 	}
 

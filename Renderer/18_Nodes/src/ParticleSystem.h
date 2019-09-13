@@ -1,6 +1,5 @@
 #pragma once
-#include "Drawable.h"
-#include "Transformable.h"
+#include "Node.h"
 #include "Body.h"
 #include "Color.h"
 #include "Vector2.h"
@@ -16,7 +15,7 @@
 
 namespace sb
 {
-	class ParticleSystem : public Drawable, public Body {
+	class ParticleSystem : public Node, public Body {
 		struct Particle : public Body {
 			std::vector<Color> startVertexColors = std::vector<Color>(4);
 			std::vector<Color> vertexColors = std::vector<Color>(4);

@@ -15,7 +15,7 @@ namespace sb
 
 		Shader* shader = NULL;
 
-		size_t drawLayer;
+		int drawLayer;
 
 		DrawStates()
 		{ }
@@ -39,7 +39,9 @@ namespace sb
 		static DrawStates& getDefault();
 	};
 
-	const bool operator ==(const DrawStates& left, const DrawStates& right);
+	const bool operator==(const DrawStates& left, const DrawStates& right);
+
+	const bool operator<(const DrawStates& left, const DrawStates& right);
 
 	const bool canBatch(const DrawStates& left, const DrawStates& right);
 

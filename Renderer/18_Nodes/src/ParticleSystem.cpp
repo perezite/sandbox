@@ -125,7 +125,7 @@ namespace sb
 	void ParticleSystem::draw(DrawTarget& target, DrawStates states) {
 		if (isPlaying()) {
 			states.texture = _texture;
-			target.draw(_mesh.getVertices(), _mesh.getPrimitiveType(), states);
+			target.draw(_mesh, states);
 			drawSubSystems(target, states);
 		}
 	}

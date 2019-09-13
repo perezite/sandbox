@@ -43,6 +43,6 @@ namespace sb
 		states.transform *= getTransform();
 		states.texture = m_texture;
 		states.textureTransform = m_textureTransform;
-		target.draw(m_mesh.getVertices(), m_mesh.getPrimitiveType(), states);
+		target.draw(m_mesh, states);
 	}
 }

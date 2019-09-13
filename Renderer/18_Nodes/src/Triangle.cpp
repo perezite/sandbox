@@ -13,6 +13,6 @@ namespace sb
 	{
 		states.transform *= getTransform();
 		states.drawLayer = getDrawLayer();
-		target.draw(TriangleMesh.getVertices(), TriangleMesh.getPrimitiveType(), states);
+		target.draw(TriangleMesh, states);
 	}
 }

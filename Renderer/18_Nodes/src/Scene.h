@@ -12,7 +12,7 @@ namespace sb {
 		std::vector<Node*> _nodes;
 		LayerMap _layers;
 		size_t _capacity;
-		size_t _queueCount;
+		size_t _numQueued;
 	protected:
 		void updateRecursively(Node& node);
 		void drawRecursively(Node& node, const DrawStates& states);
@@ -20,8 +20,8 @@ namespace sb {
 		void flush();
 		void flush(const std::vector<const Mesh*>& layer, const DrawStates& states);
 	public:
-		Scene(ImmediateDrawTarget& target, size_t capacity = 8192)
-			: _batch(target), _capacity(capacity)
+		Scene( size_t capacity = 8192)
+			: _capacity(capacity), _numQueued(0)
 		{ }
 		inline static bool compareVertexCount(const Mesh* left, const Mesh* right) { return left->getVertexCount() < right->getVertexCount(); }
 		inline virtual ~Scene() {

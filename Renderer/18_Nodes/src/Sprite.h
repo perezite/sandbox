@@ -1,14 +1,13 @@
 #pragma once
 
-#include "Drawable.h"
+#include "Node.h"
 #include "Transformable.h"
 #include "Texture.h"
 #include "Rect.h"
 
 namespace sb
 {
-	class Sprite : public Drawable, public Transformable
-	{
+	class Sprite : public Node, public Transformable {
 	public:
 		Sprite();
 

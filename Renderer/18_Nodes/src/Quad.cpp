@@ -14,6 +14,6 @@ namespace sb
 	{
 		states.transform *= getTransform();
 		states.drawLayer = getDrawLayer();
-		target.draw(QuadMesh.getVertices(), QuadMesh.getPrimitiveType(), states);
+		target.draw(QuadMesh, states);
 	}
 }

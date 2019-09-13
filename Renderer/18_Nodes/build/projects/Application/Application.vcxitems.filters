@@ -177,7 +177,4 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Mesh.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawStates.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)..\..\..\src\Vector.inl" />
-  </ItemGroup>
 </Project>
