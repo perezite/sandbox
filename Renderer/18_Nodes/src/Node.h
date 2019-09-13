@@ -12,7 +12,7 @@ namespace sb {
 			for (size_t i = 0; i < _children.size(); i++)
 				delete _children[i];
 		}
-		inline std::vector<Node*> getChildren() const { return _children; }
+		inline const std::vector<Node*>& getChildren() const { return _children; }
 		inline size_t getDrawLayer() const { return _drawLayer; }
 		inline void setDrawLayer(size_t drawLayer) { _drawLayer = drawLayer; }
 		inline virtual void update(Scene& scene) { };

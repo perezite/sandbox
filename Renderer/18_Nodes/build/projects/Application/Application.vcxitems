@@ -72,9 +72,11 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\GL.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Image.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Logger.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Mesh.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Music.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\ParticleSystem.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Physics.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Scene.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Sound.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Sprite.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Texture.cpp" />

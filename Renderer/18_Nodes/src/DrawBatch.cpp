@@ -51,6 +51,11 @@ namespace sb {
 		_vertices.push_back(vertices[vertices.size() - 1]);
 	}
 
+	void DrawBatch::setTarget(ImmediateDrawTarget& target) {
+		complete();
+		_target = target;
+	}
+
 	void DrawBatch::draw(const Mesh& mesh, const DrawState& state) {
 		if (mustFlush(mesh, state))
 			flush();
@@ -63,5 +68,10 @@ namespace sb {
 
 	void DrawBatch::draw(const std::vector<Vertex>& vertices, const PrimitiveType & primitiveType, const DrawState & state) {
 		SB_ERROR("Will be deleted");
+	}
+
+	void DrawBatch::complete() {
+		if (!_vertices.empty())
+			flush();
 	}
 }

@@ -14,7 +14,7 @@ namespace demo {
 		Quad& quad = scene.create<Quad>();
 		quad.setScale(.5f, .5f);
 		quad.setDrawLayer(2);
-		Triangle& childTriangle = quad.createChild<Triangle>();
+		quad.createChild<Triangle>();
 		Triangle& triangle = scene.create<Triangle>();
 		triangle.setScale(.1f, .1f);
 		triangle.setPosition(.1f, -.1f);
@@ -22,11 +22,12 @@ namespace demo {
 
 		while (window.isOpen()) {
 			window.update();
-			/*scene.update();
+			scene.update();
 			
 			window.clear();
-			window.draw(scene);
-			window.display();*/
+			// window.draw(scene);
+			// scene.display();
+			window.display();
 		}
 	}
 

@@ -33,9 +33,13 @@ namespace sb {
 			_vertices.reserve(capacity);
 		}
 		
+		void setTarget(ImmediateDrawTarget& target);
+
 		virtual void draw(const Mesh& mesh, const DrawState& state = DrawState::getDefault());
 
 		virtual void draw(const std::vector<Vertex>& vertices,
 			const PrimitiveType& primitiveType, const DrawState& state = DrawState::getDefault());
+
+		void complete();
 	};
 }

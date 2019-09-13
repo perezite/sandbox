@@ -29,7 +29,7 @@ namespace sb
 		}
 		else if (error == GL_INVALID_FRAMEBUFFER_OPERATION) {
 			code = "GL_INVALID_FRAMEBUFFER_OPERATION";
-			description = "Attempting to read from or write/render to a framebuffer that is not complete.";
+			description = "Attempting to read from or write/render to a framebuffer that is not display.";
 		}
 	#ifndef __ANDROID__
 		else if (error == GL_STACK_OVERFLOW) {

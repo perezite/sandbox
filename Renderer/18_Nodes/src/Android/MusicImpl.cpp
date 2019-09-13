@@ -31,7 +31,7 @@ namespace sb
 				SDL_Delay(1);
 			}
 
-			SB_WARNING_IF(m_id == jint(-1), "unable to complete loading of music track " << filePath);
+			SB_WARNING_IF(m_id == jint(-1), "unable to display loading of music track " << filePath);
 		#endif
 	}
 
