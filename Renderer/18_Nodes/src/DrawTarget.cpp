@@ -3,13 +3,13 @@
 
 namespace sb
 {
-	void DrawTarget::draw(Drawable* drawable, const DrawStates& state)
+	void DrawTarget::draw(Drawable* drawable, const DrawStates& states)
 	{
-		drawable->draw(*this, state);
+		drawable->draw(*this, states);
 	}
 
-	void DrawTarget::draw(Drawable& drawable, const DrawStates& state)
+	void DrawTarget::draw(Drawable& drawable, const DrawStates& states)
 	{
-		drawable.draw(*this, state);
+		drawable.draw(*this, states);
 	}
 }

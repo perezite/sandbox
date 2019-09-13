@@ -87,7 +87,7 @@ namespace sb
 		setLifetime(0);
 		setEmissionRatePerSecond(0);
 		clearBursts();
-		_state = State::Dying;
+		_states = State::Dying;
 	}
 
 	void ParticleSystem::reset()
@@ -122,11 +122,11 @@ namespace sb
 		SB_DEBUG_IF(id == "main", "num pool items: " << _pool.getNumItems() << " num active pool items: " << _pool.getNumActiveItems());
 	}
 
-	void ParticleSystem::draw(DrawTarget& target, DrawStates state) {
+	void ParticleSystem::draw(DrawTarget& target, DrawStates states) {
 		if (isPlaying()) {
-			state.texture = _texture;
-			target.draw(_mesh.getVertices(), _mesh.getPrimitiveType(), state);
-			drawSubSystems(target, state);
+			states.texture = _texture;
+			target.draw(_mesh.getVertices(), _mesh.getPrimitiveType(), states);
+			drawSubSystems(target, states);
 		}
 	}
 
@@ -134,7 +134,7 @@ namespace sb
 
 	void ParticleSystem::updateState()
 	{
-		if (_state == State::Dying)
+		if (_states == State::Dying)
 			updateDying();
 	}
 
@@ -390,15 +390,15 @@ namespace sb
 	void ParticleSystem::updateDying()
 	{
 		if (!isPlaying())
-			_state = State::Garbage;
+			_states = State::Garbage;
 	}
 
-	void ParticleSystem::drawSubSystems(DrawTarget& target, DrawStates& state)
+	void ParticleSystem::drawSubSystems(DrawTarget& target, DrawStates& states)
 	{
 		std::vector<Pool::Item>& poolItems = _pool.getAllItems();
 		for (std::size_t i = 0; i < poolItems.size(); i++) {
 			if (poolItems[i].isActive)
-				target.draw(*poolItems[i].particleSystem, state);
+				target.draw(*poolItems[i].particleSystem, states);
 		}
 	}
 

@@ -116,7 +116,7 @@ namespace sb
 			_particleSizeRange(0.1f, 0.1f), _particleRotationRange(0, 0), _particleSpeedRange(1, 1),
 			_particleVertexColors(4, Color(1, 1, 1, 1)), _hasParticleColorChannelsOverLifetime(4, false), 
 			_particleColorChannelsOverLifetime(4), _hasParticleScaleOverLifetime(false), 
-			_emissionType(EmissionType::Concentric), _emissionDirection(1, 0), _state(State::Alive)
+			_emissionType(EmissionType::Concentric), _emissionDirection(1, 0), _states(State::Alive)
 		{ }
 
 		inline float getEmissionRatePerSecond() const { return _emissionRatePerSecond; }
@@ -149,7 +149,7 @@ namespace sb
 
 		inline void setEmissionType(EmissionType type) { _emissionType = type; }
 
-		inline State getState() const { return _state; }
+		inline State getState() const { return _states; }
 
 		bool isPlaying();
 
@@ -184,7 +184,7 @@ namespace sb
 
 		void update(float ds);
 
-		virtual void draw(DrawTarget& target, DrawStates state = DrawStates::getDefault());
+		virtual void draw(DrawTarget& target, DrawStates states = DrawStates::getDefault());
 
 		std::string id;
 
@@ -247,7 +247,7 @@ namespace sb
 
 		void updateDying();
 
-		void drawSubSystems(DrawTarget& target, DrawStates& state);
+		void drawSubSystems(DrawTarget& target, DrawStates& states);
 
 	private:
 		Mesh _mesh;
@@ -280,7 +280,7 @@ namespace sb
 		Emission _emission;
 		EmissionType _emissionType;
 		sb::Vector2f _emissionDirection;
-		State _state;
+		State _states;
 
 		Pool _pool;
 	};

@@ -21,7 +21,7 @@ namespace sb
 		}
 		else if (error == GL_INVALID_OPERATION) {
 			code = "GL_INVALID_OPERATION";
-			description = "The set of state for a command is not legal for the parameters given to that command";
+			description = "The set of states for a command is not legal for the parameters given to that command";
 		}
 		else if (error == GL_OUT_OF_MEMORY) {
 			code = "GL_OUT_OF_MEMORY";

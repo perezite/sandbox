@@ -4,7 +4,7 @@
 #include "Transform.h"
 
 namespace sb {
-	bool DrawBatch::mustFlush(const Mesh& mesh, const DrawStates& state)
+	bool DrawBatch::mustFlush(const Mesh& mesh, const DrawStates& states)
 	{
 		if (_vertices.empty())
 			return false;
@@ -12,7 +12,7 @@ namespace sb {
 			return true;
 		if (mesh.getPrimitiveType() != _currentPrimitiveType)
 			return true;
-		if (!canBatch(state, _currentState))
+		if (!canBatch(states, _currentState))
 			return true;
 		return false;
 	}
@@ -22,9 +22,9 @@ namespace sb {
 		_vertices.clear();
 	}
 
-	void DrawBatch::insert(const std::vector<Vertex>& vertices, const PrimitiveType & primitiveType, const DrawStates & state) {
+	void DrawBatch::insert(const std::vector<Vertex>& vertices, const PrimitiveType & primitiveType, const DrawStates & states) {
 		std::vector<Vertex> transformedVertices(vertices);
-		transformVertices(transformedVertices, state);
+		transformVertices(transformedVertices, states);
 
 		if (primitiveType == PrimitiveType::Triangles)
 			insertTriangles(transformedVertices);
@@ -34,10 +34,10 @@ namespace sb {
 			SB_ERROR("The primitive type " << (int)primitiveType << " is not eligible for batching");
 	}
 
-	inline void DrawBatch::transformVertices(std::vector<Vertex>& vertices, const DrawStates& state) {
+	inline void DrawBatch::transformVertices(std::vector<Vertex>& vertices, const DrawStates& states) {
 		for (std::size_t i = 0; i < vertices.size(); i++) {
-			vertices[i].position *= state.transform;
-			vertices[i].texCoords *= state.textureTransform;
+			vertices[i].position *= states.transform;
+			vertices[i].texCoords *= states.textureTransform;
 		}
 	}
 
@@ -56,17 +56,17 @@ namespace sb {
 		_target = target;
 	}
 
-	void DrawBatch::draw(const Mesh& mesh, const DrawStates& state) {
-		if (mustFlush(mesh, state))
+	void DrawBatch::draw(const Mesh& mesh, const DrawStates& states) {
+		if (mustFlush(mesh, states))
 			flush();
 
 		if (mesh.getVertexCount() > _vertices.capacity())
-			_target.drawImmediate(mesh.getVertices(), mesh.getPrimitiveType(), state);
+			_target.drawImmediate(mesh.getVertices(), mesh.getPrimitiveType(), states);
 		else 
-			insert(mesh.getVertices(), mesh.getPrimitiveType(), state);
+			insert(mesh.getVertices(), mesh.getPrimitiveType(), states);
 	}
 
-	void DrawBatch::draw(const std::vector<Vertex>& vertices, const PrimitiveType & primitiveType, const DrawStates & state) {
+	void DrawBatch::draw(const std::vector<Vertex>& vertices, const PrimitiveType & primitiveType, const DrawStates & states) {
 		SB_ERROR("Will be deleted");
 	}
 

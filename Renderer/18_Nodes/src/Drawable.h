@@ -12,6 +12,6 @@ namespace sb
 	public:
 		virtual ~Drawable() { };
 
-		virtual void draw(DrawTarget& target, DrawStates drawState) = 0;
+		virtual void draw(DrawTarget& target, DrawStates drawStates) = 0;
 	};
 }

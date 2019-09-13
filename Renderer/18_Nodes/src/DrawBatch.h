@@ -14,13 +14,13 @@ namespace sb {
 		PrimitiveType _currentPrimitiveType;
 
 	protected:
-		bool mustFlush(const Mesh& mesh, const DrawStates& state);
+		bool mustFlush(const Mesh& mesh, const DrawStates& states);
 
 		void flush();
 
-		void insert(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawStates& state);
+		void insert(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawStates& states);
 
-		inline void transformVertices(std::vector<Vertex>& vertices, const DrawStates& state);
+		inline void transformVertices(std::vector<Vertex>& vertices, const DrawStates& states);
 
 		inline void insertTriangles(const std::vector<Vertex>& vertices);
 
@@ -35,10 +35,10 @@ namespace sb {
 		
 		void setTarget(ImmediateDrawTarget& target);
 
-		virtual void draw(const Mesh& mesh, const DrawStates& state = DrawStates::getDefault());
+		virtual void draw(const Mesh& mesh, const DrawStates& states = DrawStates::getDefault());
 
 		virtual void draw(const std::vector<Vertex>& vertices,
-			const PrimitiveType& primitiveType, const DrawStates& state = DrawStates::getDefault());
+			const PrimitiveType& primitiveType, const DrawStates& states = DrawStates::getDefault());
 
 		void complete();
 	};

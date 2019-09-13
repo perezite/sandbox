@@ -38,11 +38,11 @@ namespace sb
 			m_mesh[i].color = color;
 	}
 
-	void Sprite::draw(DrawTarget& target, DrawStates state)
+	void Sprite::draw(DrawTarget& target, DrawStates states)
 	{
-		state.transform *= getTransform();
-		state.texture = m_texture;
-		state.textureTransform = m_textureTransform;
-		target.draw(m_mesh.getVertices(), m_mesh.getPrimitiveType(), state);
+		states.transform *= getTransform();
+		states.texture = m_texture;
+		states.textureTransform = m_textureTransform;
+		target.draw(m_mesh.getVertices(), m_mesh.getPrimitiveType(), states);
 	}
 }

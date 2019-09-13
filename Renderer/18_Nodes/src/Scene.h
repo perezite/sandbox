@@ -15,10 +15,10 @@ namespace sb {
 		size_t _queueCount;
 	protected:
 		void updateRecursively(Node& node);
-		void drawRecursively(Node& node, const DrawStates& state);
+		void drawRecursively(Node& node, const DrawStates& states);
 		bool mustFlush();
 		void flush();
-		void flush(const std::vector<const Mesh*>& layer, const DrawStates& state);
+		void flush(const std::vector<const Mesh*>& layer, const DrawStates& states);
 	public:
 		Scene(ImmediateDrawTarget& target, size_t capacity = 8192)
 			: _batch(target), _capacity(capacity)
@@ -36,8 +36,8 @@ namespace sb {
 		}
 		void update();
 		virtual void draw(const std::vector<Vertex>& vertices,
-			const PrimitiveType& primitiveType, const DrawStates& state = DrawStates::getDefault());
-		virtual void draw(const Mesh& mesh, const sb::DrawStates &state = sb::DrawStates::getDefault());
+			const PrimitiveType& primitiveType, const DrawStates& states = DrawStates::getDefault());
+		virtual void draw(const Mesh& mesh, const sb::DrawStates &states = sb::DrawStates::getDefault());
 		virtual void draw(ImmediateDrawTarget& target, DrawStates drawStates = DrawStates::getDefault());
 	};
 }

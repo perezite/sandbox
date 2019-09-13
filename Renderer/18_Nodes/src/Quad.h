@@ -9,7 +9,7 @@ namespace sb
 		Quad() 
 		{ }
 		
-		virtual void draw(DrawTarget& window, DrawStates state = DrawStates::getDefault());
+		virtual void draw(DrawTarget& window, DrawStates states = DrawStates::getDefault());
 
 		inline Mesh& getMesh() { return QuadMesh; }
 	private:
