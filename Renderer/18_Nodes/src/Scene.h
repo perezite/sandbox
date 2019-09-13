@@ -1,21 +1,28 @@
 #pragma once
 #include "Drawable.h"
+#include "DrawBatch.h"
+#include "Node.h"
 
 namespace sb 
 {
-	class Scene : public Drawable
-	{
+	class Scene {
+		DrawBatch _batch;
+		//size_t _capacity;
+		//size_t _drawableCount;
+		std::vector<Node*> _nodes;
 	public:
-		Scene()
-			: m_isPlaying(true)
+		Scene(ImmediateDrawTarget& target, size_t capacity = 8192)
+			: _batch(target) /*, _capacity(capacity), _drawableCount(0)*/
 		{ }
-
-		inline bool isPlaying() const { return m_isPlaying; }
-
-		inline void endScene() { m_isPlaying = false; };
-
-		virtual void update() = 0;
-	private: 
-		bool m_isPlaying;
+		inline virtual ~Scene() {
+			for (int i = _nodes.size() - 1; i >= 0; i--)
+				delete _nodes[i];
+		}
+		template <class T>
+		T& create() {
+			T* node = new T();
+			_nodes.push_back(node);
+			return *node;
+		}
 	};
 }

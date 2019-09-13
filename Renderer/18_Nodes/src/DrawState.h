@@ -15,6 +15,8 @@ namespace sb
 
 		Shader* shader = NULL;
 
+		size_t drawLayer;
+
 		DrawState()
 		{ }
 

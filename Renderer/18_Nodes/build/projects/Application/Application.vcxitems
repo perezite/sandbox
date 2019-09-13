@@ -36,6 +36,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\GL.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Memory.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Music.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Node.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\ParticleSystem.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Physics.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Rect.h" />

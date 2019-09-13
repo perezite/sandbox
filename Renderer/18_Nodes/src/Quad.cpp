@@ -13,6 +13,7 @@ namespace sb
 	void Quad::draw(DrawTarget& target, DrawState state)
 	{
 		state.transform *= getTransform();
+		state.drawLayer = getDrawLayer();
 		target.draw(QuadMesh.getVertices(), QuadMesh.getPrimitiveType(), state);
 	}
 }

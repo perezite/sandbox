@@ -27,7 +27,7 @@ namespace sb {
 		inline void insertTriangleStrip(const std::vector<Vertex>& vertices);
 
 	public:
-		DrawBatch(ImmediateDrawTarget& target, size_t capacity = 512)
+		inline DrawBatch(ImmediateDrawTarget& target, size_t capacity = 512)
 			: _target(target)
 		{
 			_vertices.reserve(capacity);

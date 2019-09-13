@@ -12,7 +12,7 @@ namespace sb
 	void Triangle::draw(DrawTarget& target, DrawState state)
 	{
 		state.transform *= getTransform();
-
+		state.drawLayer = getDrawLayer();
 		target.draw(TriangleMesh.getVertices(), TriangleMesh.getPrimitiveType(), state);
 	}
 }
