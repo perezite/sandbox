@@ -144,6 +144,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawStates.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\BaseNode.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Main.cpp" />
@@ -176,5 +179,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Scene.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Mesh.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawStates.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\BaseNode.cpp" />
   </ItemGroup>
 </Project>

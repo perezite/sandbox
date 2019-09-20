@@ -5,7 +5,7 @@
 
 namespace sb
 {
-	class Triangle : public Node, public Transformable
+	class Triangle : public Node<Triangle>, public Transformable
 	{
 	public:
 		Triangle() 

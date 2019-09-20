@@ -16,6 +16,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Asset.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\BaseNode.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Body.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Box.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Camera.h" />
@@ -64,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Asset.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\BaseNode.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Box.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Camera.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Demo.cpp" />

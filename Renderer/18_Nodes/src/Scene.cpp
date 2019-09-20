@@ -3,14 +3,25 @@
 #include <algorithm>
 
 namespace sb {
-	void Scene::updateRecursively(Node& node) {
+	void Scene::init() {
+		_stopwatch.reset();
+	}
+
+	void Scene::updateDeltaSeconds() {
+		if (!_initialized)
+			init();
+		_deltaSeconds = _stopwatch.getElapsedSeconds();
+		_stopwatch.reset();
+	}
+
+	void Scene::updateRecursively(BaseNode& node) {
 		auto& children = node.getChildren();
 		for (size_t i = 0; i < children.size(); i++)
 			updateRecursively(*(children[i]));
 		node.update(*this);
 	}
 
-	void Scene::drawRecursively(Node& node, const DrawStates& states) {
+	void Scene::drawRecursively(BaseNode& node, const DrawStates& states) {
 		auto& children = node.getChildren();
 		for (size_t i = 0; i < children.size(); i++)
 			drawRecursively(*(children[i]), states);
@@ -38,6 +49,8 @@ namespace sb {
 	}
 
 	void Scene::update() {
+		updateDeltaSeconds();
+
 		for (size_t i = 0; i < _nodes.size(); i++)
 			updateRecursively(*(_nodes[i]));
 	}
