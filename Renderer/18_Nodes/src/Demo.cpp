@@ -33,7 +33,34 @@ namespace demo {
 		}
 	}
 
+	void demo2() {
+		Window window;
+		Scene scene;
+
+		Quad& quad = scene.create<Quad>();
+		Triangle& triangle = quad.createChild<Triangle>();
+		Triangle& triangle2 = triangle.createChild<Triangle>();
+		triangle.setDrawLayer(1);
+		triangle2.setDrawLayer(2);
+
+		// scene.find<Quad>().setPosition(.8f);
+		// auto triangles = scene.findMany<Triangle>();
+		// for (size_t i = 0; i < triangles.size(); i++) {
+		//		triangles[i]->setPosition(1 - float(i) * 0.1f);
+		// }
+
+		while (window.isOpen()) {
+			Input::update();
+			window.update();
+			scene.update();
+
+			window.clear();
+			scene.draw(window);
+			window.display();
+		}
+	}
+
 	void runDemo() {
-		demo1();
+		demo2();
 	}
 }
