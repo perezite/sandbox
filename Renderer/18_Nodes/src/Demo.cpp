@@ -39,15 +39,20 @@ namespace demo {
 
 		Quad& quad = scene.create<Quad>();
 		Triangle& triangle = quad.createChild<Triangle>();
-		Triangle& triangle2 = triangle.createChild<Triangle>();
-		triangle.setDrawLayer(1);
-		triangle2.setDrawLayer(2);
+		//quad.setScale(.1f);
+		triangle.setScale(.1f);
+		// Triangle& triangle2 = triangle.createChild<Triangle>();
 
-		// scene.find<Quad>().setPosition(.8f);
-		// auto triangles = scene.findMany<Triangle>();
-		// for (size_t i = 0; i < triangles.size(); i++) {
-		//		triangles[i]->setPosition(1 - float(i) * 0.1f);
-		// }
+		//scene.findNode<Quad>()->setScale(.5f);
+		
+		// auto node = scene.findNode<Triangle>();
+		// triangle.setScale(.1f);
+		//auto triangles = scene.findNodes<Triangle>();
+		//for (size_t i = 0; i < triangles.size(); i++) {
+		//	auto triangle = *triangles[i];
+		//	triangle.setDrawLayer(i);
+		//	triangle.setScale(1 - float(i) * 0.3f);
+		//}
 
 		while (window.isOpen()) {
 			Input::update();

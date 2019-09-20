@@ -25,6 +25,19 @@ namespace sb {
 		bool mustFlush();
 		void flush();
 		void flush(const std::vector<const Mesh*>& layer, const DrawStates& states);
+		template <class T>
+		inline void collectNodesRecursively(BaseNode& node, std::vector<T*>& collectedNodes) {
+			auto children = node.getChildren();
+			for (size_t i = 0; i < children.size(); i++) {
+				auto child = children[i];
+				collectNodesRecursively(*child, collectedNodes);
+			}
+			
+			if (T::getStaticTypeId() == node.getTypeId()) {
+				auto nodePointer = &node;
+				collectedNodes.push_back((T*)nodePointer);
+			}
+		}
 	public:
 		Scene( size_t capacity = 8192)
 			: _initialized(false), _capacity(capacity), _numQueued(0), _deltaSeconds(0)
@@ -36,10 +49,25 @@ namespace sb {
 				delete _nodes[i];
 		}
 		template <class T>
-		T& create() {
+		inline T& create() {
 			T* node = new T();
 			_nodes.push_back(node);
 			return *node;
+		}
+		template <class T>
+		inline std::vector<T*> findNodes() {
+			std::vector<T*> collectedNodes;
+			for (size_t i = 0; i < _nodes.size(); i++) {
+				auto node = _nodes[i];
+				collectNodesRecursively(*node, collectedNodes);
+			}
+
+			return collectedNodes;
+		}
+		template <class T>
+		inline T* findNode() {
+			auto nodes = findNodes<T>();
+			return nodes.empty() ? NULL : nodes[0];
 		}
 		void update();
 		virtual void draw(const std::vector<Vertex>& vertices,

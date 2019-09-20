@@ -191,8 +191,10 @@ namespace demo2
 		}
 		void drawRecursively(Node& node, DrawState& state) {
 			auto& children = node.getChildren();
-			for (size_t i = 0; i < children.size(); i++) 
-				drawRecursively(*(children[i]), state);
+			for (size_t i = 0; i < children.size(); i++) {
+				auto child = children[i];
+				drawRecursively(*child, state);
+			}
 			draw(node, state);
 		}
 	public:

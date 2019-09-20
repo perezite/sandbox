@@ -12,17 +12,20 @@ namespace sb {
 			return true;
 		if (mesh.getPrimitiveType() != _currentPrimitiveType)
 			return true;
-		if (!canBatch(states, _currentState))
+		if (!canBatch(states, _currentStates))
 			return true;
 		return false;
 	}
 
 	void DrawBatch::flush() {
-		drawImmediate(_vertices, _currentPrimitiveType, _currentState);
+		DrawStates states = _currentStates;
+		states.transform = Transform();
+		states.textureTransform = Transform();
+		drawImmediate(_vertices, _currentPrimitiveType, states);
 		_vertices.clear();
 	}
 
-	void DrawBatch::insert(const std::vector<Vertex>& vertices, const PrimitiveType & primitiveType, const DrawStates & states) {
+	void DrawBatch::insert(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawStates& states) {
 		std::vector<Vertex> transformedVertices(vertices);
 		transformVertices(transformedVertices, states);
 
@@ -68,6 +71,7 @@ namespace sb {
 		if (mesh.getVertexCount() > _vertices.capacity())
 			drawImmediate(mesh.getVertices(), mesh.getPrimitiveType(), states);
 		else {
+			_currentStates = states;
 			_currentPrimitiveType = mesh.getPrimitiveType();
 			insert(mesh.getVertices(), mesh.getPrimitiveType(), states);
 		}

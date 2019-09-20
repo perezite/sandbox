@@ -10,7 +10,7 @@ namespace sb {
 	class DrawBatch : public DrawTarget {
 		ImmediateDrawTarget* _target;
 		std::vector<Vertex> _vertices;
-		DrawStates _currentState;
+		DrawStates _currentStates;
 		PrimitiveType _currentPrimitiveType;
 
 	protected:

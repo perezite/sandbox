@@ -12,19 +12,26 @@ namespace sb {
 	template <class T>
 	class Node : public BaseNode {
 	public:
-		static int getStaticTypeId();
-		const int getTypeId() const;
+		inline static int getStaticTypeId() {
+			static int typeId = generateTypeId();
+			return typeId;
+		}
+		inline virtual const int getTypeId() const { return getStaticTypeId(); }
+		template <class U>
+		inline std::vector<U*> findChildren() {
+			std::vector<U*> children;
+			auto allChildren = getChildren();
+			for (size_t i = 0; i < allChildren.size(); i++) {
+				if (allChildren[i]->getTypeId() == U::getStaticTypeId())
+					children.push_back(allChildren[i]);
+			}
+
+			return children;
+		}
+		template <class U>
+		inline U* findChild() {
+			auto children = findChildren<U>();
+			return children.empty() ? null : children[0];
+		}
 	};
-
-	template<class T>
-	inline int Node<T>::getStaticTypeId() {
-		static int typeId = generateTypeId();
-		return typeId;
-	}
-
-	template<class T>
-	inline const int Node<T>::getTypeId() const
-	{
-		return getStaticTypeId();
-	}
 }

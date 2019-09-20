@@ -11,6 +11,7 @@ namespace sb {
 		BaseNode() :_drawLayer(0) 
 		{}
 		virtual ~BaseNode();
+		inline virtual const int getTypeId() const = 0;
 		inline const std::vector<BaseNode*>& getChildren() const { return _children; }
 		inline int getDrawLayer() const { return _drawLayer; }
 		inline void setDrawLayer(int drawLayer) { _drawLayer = drawLayer; }
@@ -22,11 +23,6 @@ namespace sb {
 			U* child = new U();
 			_children.push_back(child);
 			return *child;
-		}
-		template <class U>
-		inline std::vector<U*> findChildren() {
-			for (size_t i = 0; i < _children.size(); i++) {
-			}
 		}
 	};
 }
