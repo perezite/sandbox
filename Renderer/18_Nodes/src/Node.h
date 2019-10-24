@@ -31,7 +31,7 @@ namespace sb {
 		template <class U>
 		inline U* findChild() {
 			auto children = findChildren<U>();
-			return children.empty() ? null : children[0];
+			return children.empty() ? NULL : children[0];
 		}
 	};
 }

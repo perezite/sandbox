@@ -9,6 +9,11 @@
 using namespace sb;
 
 namespace demo {
+	void printRenderStatistics() {
+		std::cout << "Draw calls: " << Renderer::getNumDrawCalls() << std::endl;
+		Renderer::resetStatistics();
+	}
+
 	void demo1() {
 		Window window;
 		Scene scene;
@@ -37,22 +42,19 @@ namespace demo {
 		Window window;
 		Scene scene;
 
-		Quad& quad = scene.create<Quad>();
-		Triangle& triangle = quad.createChild<Triangle>();
-		//quad.setScale(.1f);
-		triangle.setScale(.1f);
-		// Triangle& triangle2 = triangle.createChild<Triangle>();
+		auto& shape1 = scene.create<Triangle>();
+		auto& shape2 = scene.create<Triangle>();
+		auto& shape3 = scene.create<Quad>();
+		auto& shape4 = scene.create<Quad>();
 
-		//scene.findNode<Quad>()->setScale(.5f);
-		
-		// auto node = scene.findNode<Triangle>();
-		// triangle.setScale(.1f);
-		//auto triangles = scene.findNodes<Triangle>();
-		//for (size_t i = 0; i < triangles.size(); i++) {
-		//	auto triangle = *triangles[i];
-		//	triangle.setDrawLayer(i);
-		//	triangle.setScale(1 - float(i) * 0.3f);
-		//}
+		shape1.setPosition(-.25f);
+		shape1.setScale(.3f);
+		shape2.setPosition(.25f, -.25f);		
+		shape2.setScale(.4f);
+		shape3.setPosition(.25f);
+		shape3.setScale(.2f);
+		shape4.setPosition(-.25f, .25f);
+		shape4.setScale(.1f);
 
 		while (window.isOpen()) {
 			Input::update();
@@ -62,6 +64,8 @@ namespace demo {
 			window.clear();
 			scene.draw(window);
 			window.display();
+
+			printRenderStatistics();
 		}
 	}
 

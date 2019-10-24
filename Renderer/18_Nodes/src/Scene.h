@@ -4,15 +4,16 @@
 #include "DrawBatch.h"
 #include "BaseNode.h"
 #include "Stopwatch.h"
+#include "DrawCommand.h"
 
 namespace sb {
 	class Scene : public DrawTarget {
-		typedef std::vector<const Mesh*> Layer;
-		typedef std::map<sb::DrawStates, Layer> LayerMap;
+		typedef std::vector<DrawCommand> Layer;
+		typedef std::map<sb::DrawStates, Layer> Layers;
 		bool _initialized;
 		DrawBatch _batch;
 		std::vector<BaseNode*> _nodes;
-		LayerMap _layers;
+		Layers _layers;
 		size_t _capacity;
 		size_t _numQueued;
 		Stopwatch _stopwatch;
@@ -24,7 +25,7 @@ namespace sb {
 		void drawRecursively(BaseNode& node, const DrawStates& states);
 		bool mustFlush();
 		void flush();
-		void flush(const std::vector<const Mesh*>& layer, const DrawStates& states);
+		void flush(const std::vector<DrawCommand>& layer);
 		template <class T>
 		inline void collectNodesRecursively(BaseNode& node, std::vector<T*>& collectedNodes) {
 			auto children = node.getChildren();
@@ -42,7 +43,7 @@ namespace sb {
 		Scene( size_t capacity = 8192)
 			: _initialized(false), _capacity(capacity), _numQueued(0), _deltaSeconds(0)
 		{ }
-		inline static bool compareVertexCount(const Mesh* left, const Mesh* right) { return left->getVertexCount() < right->getVertexCount(); }
+		inline static bool compareVertexCount(DrawCommand& left, DrawCommand& right) { return left.mesh->getVertexCount() < right.mesh->getVertexCount(); }
 		inline float getDeltaSeconds() const { return _deltaSeconds; }
 		inline virtual ~Scene() {
 			for (int i = _nodes.size() - 1; i >= 0; i--)

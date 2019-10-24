@@ -8,7 +8,7 @@ void version() {
 	#else
 		std::string configuration = "Release";
 	#endif	
-	SB_MESSAGE("Audio - Build: " << configuration << ", " << __DATE__ << ", " << __TIME__);
+	SB_MESSAGE("Nodes - Build: " << configuration << ", " << __DATE__ << ", " << __TIME__);
 }
 
 int main() {
