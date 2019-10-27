@@ -41,7 +41,7 @@ namespace sb {
 			}
 		}
 	public:
-		Scene( size_t capacity = 8192)
+		Scene(size_t capacity = 8192)
 			: _initialized(false), _capacity(capacity), _numQueued(0), _deltaSeconds(0)
 		{ }
 		inline float getDeltaSeconds() const { return _deltaSeconds; }
