@@ -5,6 +5,7 @@
 namespace sb {
 	void Scene::init() {
 		_stopwatch.reset();
+		_initialized = true;
 	}
 
 	void Scene::updateDeltaSeconds() {
@@ -23,12 +24,13 @@ namespace sb {
 		node.update(*this);
 	}
 
-	void Scene::drawRecursively(BaseNode& node, const DrawStates& states) {
+	void Scene::drawRecursively(BaseNode& node, DrawStates states) {
+		DrawTarget::draw(node, states);
+		states.transform *= node.getTransform();
+
 		auto& children = node.getChildren();
 		for (size_t i = 0; i < children.size(); i++)
 			drawRecursively(*(children[i]), states);
-
-		DrawTarget::draw(node, states);
 	}
 
 	bool Scene::mustFlush() {
@@ -38,9 +40,10 @@ namespace sb {
 	void Scene::flush() {
 		for (Layers::iterator it = _layers.begin(); it != _layers.end(); it++) {
 			auto& layer = it->second;
-			std::sort(layer.begin(), layer.end(), compareVertexCount);
+			// std::sort(layer.begin(), layer.end(), compareVertexCount);
 			flush(it->second);
 		}
+
 		_batch.complete();
 		_layers.clear();
 		_numQueued = 0;

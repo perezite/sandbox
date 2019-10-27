@@ -5,6 +5,7 @@
 #include "Quad.h"
 #include "Triangle.h"
 #include "Input.h"
+#include "Math.h"
 
 using namespace sb;
 
@@ -69,7 +70,43 @@ namespace demo {
 		}
 	}
 
+	void demo3() {
+		Window window;
+		Scene scene;
+
+		auto& shape1 = scene.create<Quad>();
+		auto& shape2 = shape1.createChild<Triangle>();
+		auto& shape3 = shape2.createChild<Triangle>();
+		auto& shape4 = shape2.createChild<Quad>();
+
+		shape1.setScale(.5f);
+		// shape1.setRotation(30 * sb::ToRadian);
+		shape2.setScale(.5f);
+		shape2.setPosition(.5f);
+		shape3.setScale(0.5f);
+		shape3.setPosition(-.5f);
+		// shape2.setRotation(-90 * sb::ToRadian);
+		shape4.setScale(.5f);
+		shape4.setPosition(0, 0.5f);
+
+		while (window.isOpen()) {
+			Input::update();
+			window.update();					
+			scene.update();
+
+			shape1.rotate(scene.getDeltaSeconds());
+			shape2.rotate(-2 * scene.getDeltaSeconds());
+			shape3.rotate(3 * scene.getDeltaSeconds());
+
+			window.clear();
+			scene.draw(window);
+			window.display();
+
+			printRenderStatistics();
+		}
+	}
+
 	void runDemo() {
-		demo2();
+		demo3();
 	}
 }

@@ -22,7 +22,7 @@ namespace sb {
 		void init();
 		void updateDeltaSeconds();
 		void updateRecursively(BaseNode& node);
-		void drawRecursively(BaseNode& node, const DrawStates& states);
+		void drawRecursively(BaseNode& node, DrawStates states);
 		bool mustFlush();
 		void flush();
 		void flush(const std::vector<DrawCommand>& layer);

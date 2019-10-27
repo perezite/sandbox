@@ -4,7 +4,7 @@
 
 namespace sb
 {
-	struct Body : public Transformable 
+	struct Body : virtual public Transformable 
 	{
 		sb::Vector2f velocity;
 

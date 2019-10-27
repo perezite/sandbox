@@ -1,10 +1,11 @@
 #pragma once
 #include "Drawable.h"
+#include "Transformable.h"
 
 namespace sb {
 	class Scene;
 
-	class BaseNode : public Drawable {
+	class BaseNode : public Drawable, virtual public Transformable {
 		int _drawLayer;
 		std::vector<BaseNode*> _children;
 	public:

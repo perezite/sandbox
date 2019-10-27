@@ -15,7 +15,8 @@
 
 namespace sb
 {
-	class ParticleSystem : public Node<ParticleSystem>, public Body {
+	class ParticleSystem : public Node<ParticleSystem>, public Body
+	{
 		struct Particle : public Body {
 			std::vector<Color> startVertexColors = std::vector<Color>(4);
 			std::vector<Color> vertexColors = std::vector<Color>(4);

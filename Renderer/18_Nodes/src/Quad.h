@@ -5,7 +5,7 @@
 
 namespace sb
 {
-	class Quad : public Node<Quad>, public Transformable {
+	class Quad : public Node<Quad> {
 	public:
 		Quad() 
 		{ }
