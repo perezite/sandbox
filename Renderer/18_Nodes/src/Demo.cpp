@@ -142,8 +142,53 @@ namespace demo {
 		}
 	}
 
+	void demo5() {
+		Window window;
+		Scene scene;
+
+		auto& shape1 = scene.create<Quad>();
+		auto& shape2 = shape1.createChild<Triangle>();
+		auto& shape3 = shape2.createChild<Triangle>();
+		auto& shape4 = shape3.createChild<Quad>();
+
+		shape1.setScale(.5f);
+		shape1.setDrawLayer(0);
+		shape2.setScale(.5f);
+		shape2.setPosition(.5f);
+		shape2.setDrawLayer(1);
+		shape3.setScale(0.5f);
+		shape3.setPosition(-.5f);
+		shape3.setDrawLayer(2);
+		shape4.setScale(.5f);
+		shape4.setPosition(0, 0.5f);
+		shape4.setDrawLayer(3);
+
+		auto triangles = scene.findNodes<Triangle>();
+		auto quads = scene.findNodes<Quad>();
+
+		while (window.isOpen()) {
+			Input::update();
+			window.update();
+			scene.update();
+
+			for (size_t i = 0; i < triangles.size(); i++) {
+				int multiplier = (i + 1) * (i % 2 == 0 ? 1 : -1);
+				triangles[i]->rotate(multiplier * 2 * scene.getDeltaSeconds());
+			}
+
+			for (size_t i = 0; i < quads.size(); i++) 
+				quads[i]->setScale(0.1f + oscillate((i + 1) * .1f * scene.getSeconds(), .4f));
+
+			window.clear();
+			scene.draw(window);
+			window.display();
+
+			printRenderStatistics();
+		}
+	}
+
 	void runDemo() {
-		demo4();
+		demo5();
 	}
 }
 

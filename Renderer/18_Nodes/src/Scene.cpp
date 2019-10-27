@@ -5,15 +5,23 @@
 namespace sb {
 	void Scene::init() {
 		_stopwatch.reset();
+		_deltaStopwatch.reset();
 		_initialized = true;
+	}
+
+	void Scene::updateSeconds() {
+		if (!_initialized)
+			init();
+
+		_seconds = _stopwatch.getElapsedSeconds();
 	}
 
 	void Scene::updateDeltaSeconds() {
 		if (!_initialized)
 			init();
 
-		_deltaSeconds = _stopwatch.getElapsedSeconds();
-		_stopwatch.reset();
+		_deltaSeconds = _deltaStopwatch.getElapsedSeconds();
+		_deltaStopwatch.reset();
 	}
 
 	void Scene::updateRecursively(BaseNode& node) {
@@ -45,6 +53,7 @@ namespace sb {
 	}
 
 	void Scene::update() {
+		updateSeconds();
 		updateDeltaSeconds();
 
 		for (size_t i = 0; i < _nodes.size(); i++)
