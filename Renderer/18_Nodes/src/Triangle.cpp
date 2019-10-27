@@ -14,5 +14,6 @@ namespace sb
 		states.transform *= getTransform();
 		states.drawLayer = getDrawLayer();
 		target.draw(TriangleMesh, states);
+		drawChildren(target, states);
 	}
 }

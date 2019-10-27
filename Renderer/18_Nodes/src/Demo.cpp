@@ -148,7 +148,6 @@ namespace demo {
 }
 
 // TODO
-// Implement recursive drawing using drawChildren(...)
-// Replace fixed capacity in scene by dynamic layer sizes
 // Implement removal of nodes
+// Replace fixed capacity in scene by dynamic layer sizes
 // Get rid of the deprecated draw() function in scene

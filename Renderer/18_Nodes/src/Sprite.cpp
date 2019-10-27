@@ -44,5 +44,6 @@ namespace sb
 		states.texture = m_texture;
 		states.textureTransform = m_textureTransform;
 		target.draw(m_mesh, states);
+		drawChildren(target, states);
 	}
 }

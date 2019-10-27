@@ -24,24 +24,13 @@ namespace sb {
 		node.update(*this);
 	}
 
-	void Scene::drawRecursively(BaseNode& node, DrawStates states) {
-		DrawTarget::draw(node, states);
-		states.transform *= node.getTransform();
-
-		auto& children = node.getChildren();
-		for (size_t i = 0; i < children.size(); i++)
-			drawRecursively(*(children[i]), states);
-	}
-
 	bool Scene::mustFlush() {
 		return _numQueued > _capacity;
 	}
 
 	void Scene::flush() {
-		for (Layers::iterator it = _layers.begin(); it != _layers.end(); it++) {
-			auto& layer = it->second;
+		for (Layers::iterator it = _layers.begin(); it != _layers.end(); it++) 
 			flush(it->second);
-		}
 
 		_batch.complete();
 		_layers.clear();
@@ -62,7 +51,7 @@ namespace sb {
 			updateRecursively(*(_nodes[i]));
 	}
 
-	void Scene::draw(const std::vector<Vertex>& vertices, const PrimitiveType & primitiveType, const DrawStates & states) {
+	void Scene::draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawStates& states) {
 		SB_ERROR("Will be deleted");
 	}
 		
@@ -77,7 +66,7 @@ namespace sb {
 		_batch.setTarget(target);
 		Mesh::lock(true);
 		for (size_t i = 0; i < _nodes.size(); i++)
-			drawRecursively(*(_nodes[i]), states);
+			DrawTarget::draw(_nodes[i], states);
 		if (!_nodes.empty())
 			flush();
 		Mesh::lock(false);

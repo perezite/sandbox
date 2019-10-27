@@ -7,7 +7,7 @@
 
 namespace sb
 {
-	class Sprite : public Node<Sprite> {
+	class Sprite : public Node<Sprite>, public Transformable {
 	public:
 		Sprite();
 

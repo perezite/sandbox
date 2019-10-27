@@ -5,7 +5,7 @@
 namespace sb {
 	class Scene;
 
-	class BaseNode : public Drawable, virtual public Transformable {
+	class BaseNode : public Drawable {
 		int _drawLayer;
 		std::vector<BaseNode*> _children;
 	public:
@@ -24,6 +24,10 @@ namespace sb {
 			U* child = new U();
 			_children.push_back(child);
 			return *child;
+		}
+		inline void drawChildren(DrawTarget& target, const DrawStates& drawStates) {
+			for (size_t i = 0; i < _children.size(); i++)
+				_children[i]->draw(target, drawStates);
 		}
 	};
 }

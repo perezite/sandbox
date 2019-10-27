@@ -128,6 +128,8 @@ namespace sb
 			target.draw(_mesh, states);
 			drawSubSystems(target, states);
 		}
+		
+		drawChildren(target, states);
 	}
 
 

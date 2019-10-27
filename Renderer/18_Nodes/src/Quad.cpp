@@ -15,5 +15,6 @@ namespace sb
 		states.transform *= getTransform();
 		states.drawLayer = getDrawLayer();
 		target.draw(QuadMesh, states);
+		drawChildren(target, states);
 	}
 }
