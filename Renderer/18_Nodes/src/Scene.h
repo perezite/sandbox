@@ -5,11 +5,12 @@
 #include "BaseNode.h"
 #include "Stopwatch.h"
 #include "DrawCommand.h"
+#include "LayerType.h"
 
 namespace sb {
 	class Scene : public DrawTarget {
-		typedef std::vector<DrawCommand> Layer;
-		typedef std::map<sb::DrawStates, Layer> Layers;
+		typedef std::vector<DrawCommand> DrawCommands;
+		typedef std::map<LayerType, DrawCommands> Layers;
 		bool _initialized;
 		DrawBatch _batch;
 		std::vector<BaseNode*> _nodes;
@@ -25,7 +26,7 @@ namespace sb {
 		void drawRecursively(BaseNode& node, DrawStates states);
 		bool mustFlush();
 		void flush();
-		void flush(const std::vector<DrawCommand>& layer);
+		void flush(const DrawCommands& layer);
 		template <class T>
 		inline void collectNodesRecursively(BaseNode& node, std::vector<T*>& collectedNodes) {
 			auto children = node.getChildren();
@@ -43,7 +44,6 @@ namespace sb {
 		Scene( size_t capacity = 8192)
 			: _initialized(false), _capacity(capacity), _numQueued(0), _deltaSeconds(0)
 		{ }
-		inline static bool compareVertexCount(DrawCommand& left, DrawCommand& right) { return left.mesh->getVertexCount() < right.mesh->getVertexCount(); }
 		inline float getDeltaSeconds() const { return _deltaSeconds; }
 		inline virtual ~Scene() {
 			for (int i = _nodes.size() - 1; i >= 0; i--)

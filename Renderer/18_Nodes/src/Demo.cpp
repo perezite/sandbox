@@ -77,15 +77,13 @@ namespace demo {
 		auto& shape1 = scene.create<Quad>();
 		auto& shape2 = shape1.createChild<Triangle>();
 		auto& shape3 = shape2.createChild<Triangle>();
-		auto& shape4 = shape2.createChild<Quad>();
+		auto& shape4 = shape3.createChild<Quad>();
 
 		shape1.setScale(.5f);
-		// shape1.setRotation(30 * sb::ToRadian);
 		shape2.setScale(.5f);
 		shape2.setPosition(.5f);
 		shape3.setScale(0.5f);
 		shape3.setPosition(-.5f);
-		// shape2.setRotation(-90 * sb::ToRadian);
 		shape4.setScale(.5f);
 		shape4.setPosition(0, 0.5f);
 

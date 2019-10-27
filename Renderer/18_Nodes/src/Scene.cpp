@@ -40,7 +40,6 @@ namespace sb {
 	void Scene::flush() {
 		for (Layers::iterator it = _layers.begin(); it != _layers.end(); it++) {
 			auto& layer = it->second;
-			// std::sort(layer.begin(), layer.end(), compareVertexCount);
 			flush(it->second);
 		}
 
@@ -49,7 +48,7 @@ namespace sb {
 		_numQueued = 0;
 	}
 
-	void Scene::flush(const std::vector<DrawCommand>& layer) {
+	void Scene::flush(const DrawCommands& layer) {
 		for (size_t i = 0; i < layer.size(); i++) {
 			auto& drawCommand = layer[i];
 			_batch.draw(*drawCommand.mesh, drawCommand.drawStates);
@@ -68,7 +67,7 @@ namespace sb {
 	}
 		
 	void Scene::draw(const Mesh& mesh, const sb::DrawStates& states) {
-		_layers[states].emplace_back(mesh, states);
+		_layers[LayerType(states, mesh.getPrimitiveType())].emplace_back(mesh, states);
 		_numQueued++;
 		if (mustFlush())
 			flush();
