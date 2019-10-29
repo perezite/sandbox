@@ -6,10 +6,11 @@
 #include "Stopwatch.h"
 #include "DrawCommand.h"
 #include "LayerType.h"
+#include "Enumerable.h"
 
 namespace sb {
 	class Scene : public DrawTarget {
-		typedef std::vector<DrawCommand> DrawCommands;
+		typedef Enumerable<DrawCommand> DrawCommands;
 		typedef std::map<LayerType, DrawCommands> Layers;
 		bool _initialized;
 		DrawBatch _batch;
@@ -29,6 +30,7 @@ namespace sb {
 		bool mustFlush();
 		void flush();
 		void flush(const DrawCommands& layer);
+		void cleanup();
 		template <class T>
 		inline void collectNodesRecursively(BaseNode& node, std::vector<T*>& collectedNodes) {
 			if (T::getStaticTypeId() == node.getTypeId()) {
@@ -46,6 +48,7 @@ namespace sb {
 		Scene(size_t capacity = 8192)
 			: _initialized(false), _capacity(capacity), _numQueued(0), _seconds(0), _deltaSeconds(0)
 		{ }
+		static bool hasZeroCapacity(const LayerType& layerType, const DrawCommands& commands) { return commands.capacity() == 0; }
 		inline float getSeconds() const { return _seconds; }
 		inline float getDeltaSeconds() const { return _deltaSeconds; }
 		inline virtual ~Scene() {

@@ -1,4 +1,6 @@
 #pragma once
+#include <vector>
+#include <map>
 
 namespace sb
 {
@@ -33,5 +35,17 @@ namespace sb
 
 		for (std::size_t i = 0; i < toDelete.size(); i++)
 			delete toDelete[i];
+	}
+
+	template <class TKey, class TVal>
+	inline void deleteFromMap(std::map<TKey, TVal>& m, bool(*predicate)(const TKey&, const TVal&)) {
+		for (std::map<TKey, TVal>::iterator it = m.begin(), e = m.end(); it != e; )
+		{
+			if (predicate(it->first, it->second))
+				m.erase(it++);
+			else
+				++it;
+		}
+
 	}
 }

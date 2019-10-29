@@ -153,6 +153,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\LayerType.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Enumerable.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\src\Main.cpp" />

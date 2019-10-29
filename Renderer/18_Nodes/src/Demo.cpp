@@ -6,6 +6,8 @@
 #include "Triangle.h"
 #include "Input.h"
 #include "Math.h"
+#include "Enumerable.h"
+#include "Memory.h"
 
 using namespace sb;
 
@@ -187,6 +189,70 @@ namespace demo {
 		}
 	}
 
+	void print(std::map<std::string, Enumerable<int>>& m) {
+		for (auto it = m.begin(); it != m.end(); it++) {
+			std::cout << it->first << ": ";
+			for (size_t i = 0; i < it->second.size(); i++) {
+				std::cout << i << " ";
+			}
+
+			std::cout << std::endl;
+		}
+	}
+
+	void fill(std::map<std::string, Enumerable<int>>& m, const std::string& key, size_t count) {
+		for (size_t i = 0; i < count; i++) {
+			m[key].push_back(i);
+		}
+	}
+
+	void clear(std::map<std::string, Enumerable<int>>& m, const std::string& key) {
+		size_t count = m[key].size();
+		for (size_t i = 0; i < count; i++) {
+			m[key].pop_back();
+		}
+	}
+
+	bool isEmpty(const std::string& key, const Enumerable<int>& val) {
+		return val.empty();
+	}
+
+	void demo6() {
+		{
+			std::cout << "test 1" << std::endl;
+			Enumerable<int> list;
+			for (auto i = 0; i < 16; i++) {
+				list.push_back(i);
+				std::cout << list.size() << " " << list.capacity() << std::endl;
+			}
+		}
+
+		{
+			std::cout << "test 2" << std::endl;
+			Enumerable<int> list(32);
+			auto count = list.size();
+			for (size_t i = 0; i < count; i++) {
+				list.pop_back();
+				list.adjust_capacity();
+				std::cout << list.size() << " " << list.capacity() << std::endl;
+			}
+		}
+
+		{
+			std::cout << "test 3" << std::endl;
+			std::map<std::string, Enumerable<int>> myMap;
+			fill(myMap, "one", 16);
+			fill(myMap, "two", 16);
+			fill(myMap, "three", 16);
+			clear(myMap, "two");
+			deleteFromMap(myMap, isEmpty);
+
+			print(myMap);
+		}
+
+		std::cin.get();
+	}
+
 	void runDemo() {
 		demo5();
 	}
@@ -194,5 +260,5 @@ namespace demo {
 
 // TODO
 // Implement removal of nodes
-// Replace fixed capacity in scene by dynamic layer sizes
+// implement update() recursively, just like draw()
 // Get rid of the deprecated draw() function in scene

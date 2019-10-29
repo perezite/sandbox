@@ -1,5 +1,6 @@
 #include "Scene.h"
 #include "DrawStates.h"
+#include "Memory.h"
 #include <algorithm>
 
 namespace sb {
@@ -37,12 +38,23 @@ namespace sb {
 	}
 
 	void Scene::flush() {
-		for (Layers::iterator it = _layers.begin(); it != _layers.end(); it++) 
+		for (Layers::iterator it = _layers.begin(); it != _layers.end(); it++) {
 			flush(it->second);
+		}
 
 		_batch.complete();
-		_layers.clear();
+		cleanup();
 		_numQueued = 0;
+	}
+
+	void Scene::cleanup() {
+		for (Layers::iterator it = _layers.begin(); it != _layers.end(); it++) {
+			// TODO: Maybe make this smarter
+			it->second.adjust_capacity();
+			it->second.clear();
+		}
+
+		deleteFromMap(_layers, hasZeroCapacity);
 	}
 
 	void Scene::flush(const DrawCommands& layer) {
