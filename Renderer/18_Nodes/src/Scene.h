@@ -15,6 +15,7 @@ namespace sb {
 		bool _initialized;
 		DrawBatch _batch;
 		std::vector<BaseNode*> _nodes;
+		std::vector<const BaseNode*> _nodesToRemove;
 		Layers _layers;
 		size_t _capacity;
 		size_t _numQueued;
@@ -31,6 +32,9 @@ namespace sb {
 		void flush();
 		void flush(const DrawCommands& layer);
 		void cleanup();
+		void removeNodes();
+		std::pair<BaseNode*, int> findNode(const BaseNode& nodeToFind);
+		std::pair<BaseNode*, int> findNodeRecursively(BaseNode& startNode, const BaseNode& nodeToFind, int depth);
 		template <class T>
 		inline void collectNodesRecursively(BaseNode& node, std::vector<T*>& collectedNodes) {
 			if (T::getStaticTypeId() == node.getTypeId()) {
@@ -62,7 +66,7 @@ namespace sb {
 			return *node;
 		}
 		template <class T>
-		inline std::vector<T*> findNodes() {
+		inline std::vector<T*> findMany() {
 			std::vector<T*> collectedNodes;
 			for (size_t i = 0; i < _nodes.size(); i++) {
 				auto node = _nodes[i];
@@ -72,10 +76,11 @@ namespace sb {
 			return collectedNodes;
 		}
 		template <class T>
-		inline T* findNode() {
-			auto nodes = findNodes<T>();
+		inline T* find() {
+			auto nodes = findMany<T>();
 			return nodes.empty() ? NULL : nodes[0];
 		}
+		void remove(const BaseNode& node) { _nodesToRemove.push_back(&node); }
 		void update();
 		virtual void draw(const std::vector<Vertex>& vertices,
 			const PrimitiveType& primitiveType, const DrawStates& states = DrawStates::getDefault());

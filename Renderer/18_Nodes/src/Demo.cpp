@@ -165,8 +165,8 @@ namespace demo {
 		shape4.setPosition(0, 0.5f);
 		shape4.setDrawLayer(3);
 
-		auto triangles = scene.findNodes<Triangle>();
-		auto quads = scene.findNodes<Quad>();
+		auto triangles = scene.findMany<Triangle>();
+		auto quads = scene.findMany<Quad>();
 
 		while (window.isOpen()) {
 			Input::update();
@@ -253,12 +253,36 @@ namespace demo {
 		std::cin.get();
 	}
 
+	void demo7() {
+		Window window;
+		Scene scene;
+
+		auto& triangle = scene.create<Triangle>();
+
+		while (window.isOpen()) {
+			Input::update();
+			window.update();
+			if (Input::isKeyGoingDown(KeyCode::d))
+				scene.remove(triangle);
+			scene.update();
+			
+			window.clear();
+			scene.draw(window);
+			window.display();
+
+			printRenderStatistics();
+		}
+	}
+
 	void runDemo() {
-		demo5();
+		demo7();
 	}
 }
 
 // TODO
 // Implement removal of nodes
+// Make scene inherit from node (remove is overly complicated otherwise)
+// Add printing of scene memory footprint
+// Add a test with loads of fast removals and insertions
 // implement update() recursively, just like draw()
 // Get rid of the deprecated draw() function in scene

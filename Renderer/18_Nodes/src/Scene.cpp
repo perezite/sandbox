@@ -1,6 +1,7 @@
 #include "Scene.h"
 #include "DrawStates.h"
 #include "Memory.h"
+#include "Triangle.h"
 #include <algorithm>
 
 namespace sb {
@@ -49,7 +50,6 @@ namespace sb {
 
 	void Scene::cleanup() {
 		for (Layers::iterator it = _layers.begin(); it != _layers.end(); it++) {
-			// TODO: Maybe make this smarter
 			it->second.adjust_capacity();
 			it->second.clear();
 		}
@@ -68,8 +68,42 @@ namespace sb {
 		updateSeconds();
 		updateDeltaSeconds();
 
+		removeNodes();
+
 		for (size_t i = 0; i < _nodes.size(); i++)
 			updateRecursively(*(_nodes[i]));
+	}
+
+	void Scene::removeNodes() {
+		std::vector<std::pair<BaseNode*, int>> foundNodes;
+		for (size_t i = 0; i < _nodesToRemove.size(); i++) {
+			auto result = findNode(*_nodesToRemove[i]);
+			SB_ERROR_IF(result.first == NULL, "Trying to delete a non-existing node from a scene");
+			foundNodes.push_back(result);
+		}
+
+		_nodesToRemove.clear();
+	}
+
+	std::pair<BaseNode*, int> Scene::findNode(const BaseNode& nodeToFind) {
+		for (size_t i = 0; i < _nodes.size(); i++)
+			return findNodeRecursively(*_nodes[i], nodeToFind, 0);
+
+		return std::make_pair((BaseNode*)NULL, 0);
+	}
+
+	std::pair<BaseNode*, int> Scene::findNodeRecursively(BaseNode& startNode, const BaseNode& nodeToFind, int depth) {
+		if (&startNode == &nodeToFind)
+			return std::make_pair(&startNode, depth);
+
+		auto children = startNode.getChildren();
+		for (size_t i = 0; i < children.size(); i++) {
+			auto result = findNodeRecursively(*children[i], nodeToFind, depth + 1);
+			if (result.first != NULL)
+				return result;
+		}
+
+		return std::make_pair((BaseNode*)NULL, depth);
 	}
 
 	void Scene::draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawStates& states) {
