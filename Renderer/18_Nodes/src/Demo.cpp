@@ -245,7 +245,7 @@ namespace demo {
 			fill(myMap, "two", 16);
 			fill(myMap, "three", 16);
 			clear(myMap, "two");
-			deleteFromMap(myMap, isEmpty);
+			removeFromMap(myMap, isEmpty);
 
 			print(myMap);
 		}
@@ -260,6 +260,8 @@ namespace demo {
 		auto& triangle = scene.create<Triangle>();
 		auto& quad1 = triangle.createChild<Quad>();
 		auto& quad2 = triangle.createChild<Quad>();
+		auto& triangle2 = quad2.createChild<Triangle>();
+		auto quads = scene.findMany<Quad>();
 
 		triangle.setScale(.5f);
 		quad1.setPosition(-.5f);
@@ -268,12 +270,16 @@ namespace demo {
 		quad2.setPosition(.5f);
 		quad2.setScale(.5f);
 		quad2.setDrawLayer(1);
+		triangle2.setScale(.5f);
+		triangle2.setDrawLayer(2);
 
 		while (window.isOpen()) {
 			Input::update();
 			window.update();
-			if (Input::isTouchGoingDown(1))
-				scene.remove(quad2);
+			if (Input::isTouchGoingDown(1) && !quads.empty()) {
+				scene.remove(*quads[0]);
+				removeFromVector(quads, quads[0]);
+			}
 			scene.update();
 			
 			window.clear();

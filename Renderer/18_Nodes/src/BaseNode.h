@@ -1,7 +1,7 @@
 #pragma once
 #include "Drawable.h"
 #include "Transformable.h"
-#include <algorithm>
+#include "Memory.h"
 
 namespace sb {
 	class Scene;
@@ -36,8 +36,6 @@ namespace sb {
 
 			_children.clear();
 		}
-		inline void removeChild(BaseNode* child) {
-			_children.erase(std::remove(_children.begin(), _children.end(), child), _children.end());
-		}
+		inline void removeChild(BaseNode* child) { removeFromVector(_children, child); }
 	};
 }

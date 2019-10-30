@@ -54,7 +54,7 @@ namespace sb {
 			it->second.clear();
 		}
 
-		deleteFromMap(_layers, hasZeroCapacity);
+		removeFromMap(_layers, hasZeroCapacity);
 	}
 
 	void Scene::flush(const DrawCommands& layer) {
@@ -97,12 +97,11 @@ namespace sb {
 		nodeToRemove->clearAllChildren();
 
 		if (parent == NULL)
-			_nodes.erase(std::remove(_nodes.begin(), _nodes.end(), nodeToRemove), _nodes.end());
+			removeFromVector(_nodes, nodeToRemove);
 		else
 			parent->removeChild(nodeToRemove);
 
-		_nodesToRemove.erase(std::remove(_nodesToRemove.begin(), _nodesToRemove.end(), nodeToRemove), 
-			_nodesToRemove.end());
+		removeFromVector(_nodesToRemove, (const BaseNode*)nodeToRemove);
 	}
 
 	bool Scene::mustRemoveNode(BaseNode* node) {

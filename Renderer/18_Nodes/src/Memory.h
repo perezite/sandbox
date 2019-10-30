@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <map>
+#include <algorithm>
 
 namespace sb
 {
@@ -24,7 +25,7 @@ namespace sb
 	}
 
 	template <class T>
-	inline void deleteFromVector(std::vector<T*>& vec, bool(*predicate)(T*)) {
+	inline void removeFromVector(std::vector<T*>& vec, bool(*predicate)(T*)) {
 		std::vector<T*> toDelete;
 		for (std::size_t i = 0; i < vec.size(); i++) {
 			if (predicate(vec[i]))
@@ -37,8 +38,18 @@ namespace sb
 			delete toDelete[i];
 	}
 
+	template <class T>
+	inline void removeFromVector(std::vector<T>& vec, T& val) {
+		vec.erase(std::remove(vec.begin(), vec.end(), val), vec.end());
+	}
+
+	template <class T>
+	inline void removeFromVector(std::vector<T*>& vec, T* val) {
+		vec.erase(std::remove(vec.begin(), vec.end(), val), vec.end());
+	}
+
 	template <class TKey, class TVal>
-	inline void deleteFromMap(std::map<TKey, TVal>& m, bool(*predicate)(const TKey&, const TVal&)) {
+	inline void removeFromMap(std::map<TKey, TVal>& m, bool(*predicate)(const TKey&, const TVal&)) {
 		for (auto it = m.begin(), e = m.end(); it != e; )
 		{
 			if (predicate(it->first, it->second))
