@@ -39,7 +39,7 @@ namespace sb
 
 	template <class TKey, class TVal>
 	inline void deleteFromMap(std::map<TKey, TVal>& m, bool(*predicate)(const TKey&, const TVal&)) {
-		for (std::map<TKey, TVal>::iterator it = m.begin(), e = m.end(); it != e; )
+		for (auto it = m.begin(), e = m.end(); it != e; )
 		{
 			if (predicate(it->first, it->second))
 				m.erase(it++);

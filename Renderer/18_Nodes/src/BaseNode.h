@@ -1,6 +1,7 @@
 #pragma once
 #include "Drawable.h"
 #include "Transformable.h"
+#include <algorithm>
 
 namespace sb {
 	class Scene;
@@ -28,6 +29,15 @@ namespace sb {
 		inline void drawChildren(DrawTarget& target, const DrawStates& drawStates) {
 			for (size_t i = 0; i < _children.size(); i++)
 				_children[i]->draw(target, drawStates);
+		}
+		inline void clearAllChildren() {
+			for (size_t i = 0; i < _children.size(); i++)
+				_children[i]->clearAllChildren();
+
+			_children.clear();
+		}
+		inline void removeChild(BaseNode* child) {
+			_children.erase(std::remove(_children.begin(), _children.end(), child), _children.end());
 		}
 	};
 }

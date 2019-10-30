@@ -258,12 +258,22 @@ namespace demo {
 		Scene scene;
 
 		auto& triangle = scene.create<Triangle>();
+		auto& quad1 = triangle.createChild<Quad>();
+		auto& quad2 = triangle.createChild<Quad>();
+
+		triangle.setScale(.5f);
+		quad1.setPosition(-.5f);
+		quad1.setScale(.5f);
+		quad1.setDrawLayer(1);
+		quad2.setPosition(.5f);
+		quad2.setScale(.5f);
+		quad2.setDrawLayer(1);
 
 		while (window.isOpen()) {
 			Input::update();
 			window.update();
-			if (Input::isKeyGoingDown(KeyCode::d))
-				scene.remove(triangle);
+			if (Input::isTouchGoingDown(1))
+				scene.remove(quad2);
 			scene.update();
 			
 			window.clear();

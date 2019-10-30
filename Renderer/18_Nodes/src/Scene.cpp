@@ -75,35 +75,38 @@ namespace sb {
 	}
 
 	void Scene::removeNodes() {
-		std::vector<std::pair<BaseNode*, int>> foundNodes;
-		for (size_t i = 0; i < _nodesToRemove.size(); i++) {
-			auto result = findNode(*_nodesToRemove[i]);
-			SB_ERROR_IF(result.first == NULL, "Trying to delete a non-existing node from a scene");
-			foundNodes.push_back(result);
-		}
+		auto nodes = _nodes;
+		for (size_t i = 0; i < nodes.size(); i++) 
+			removeNodesRecursively(nodes[i], NULL);
 
-		_nodesToRemove.clear();
+		SB_ERROR_IF(!_nodesToRemove.empty(), "Trying to remove one or more non-existing nodes from a scene");
 	}
 
-	std::pair<BaseNode*, int> Scene::findNode(const BaseNode& nodeToFind) {
-		for (size_t i = 0; i < _nodes.size(); i++)
-			return findNodeRecursively(*_nodes[i], nodeToFind, 0);
+	void Scene::removeNodesRecursively(BaseNode* current, BaseNode* parent) {
+		auto children = current->getChildren();
 
-		return std::make_pair((BaseNode*)NULL, 0);
-	}
-
-	std::pair<BaseNode*, int> Scene::findNodeRecursively(BaseNode& startNode, const BaseNode& nodeToFind, int depth) {
-		if (&startNode == &nodeToFind)
-			return std::make_pair(&startNode, depth);
-
-		auto children = startNode.getChildren();
 		for (size_t i = 0; i < children.size(); i++) {
-			auto result = findNodeRecursively(*children[i], nodeToFind, depth + 1);
-			if (result.first != NULL)
-				return result;
+			removeNodesRecursively(children[i], current);
 		}
 
-		return std::make_pair((BaseNode*)NULL, depth);
+		if (mustRemoveNode(current))
+			removeNode(current, parent);
+	}
+
+	void Scene::removeNode(BaseNode* nodeToRemove, BaseNode* parent) {
+		nodeToRemove->clearAllChildren();
+
+		if (parent == NULL)
+			_nodes.erase(std::remove(_nodes.begin(), _nodes.end(), nodeToRemove), _nodes.end());
+		else
+			parent->removeChild(nodeToRemove);
+
+		_nodesToRemove.erase(std::remove(_nodesToRemove.begin(), _nodesToRemove.end(), nodeToRemove), 
+			_nodesToRemove.end());
+	}
+
+	bool Scene::mustRemoveNode(BaseNode* node) {
+		return std::find(_nodesToRemove.begin(), _nodesToRemove.end(), node) != _nodesToRemove.end();
 	}
 
 	void Scene::draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawStates& states) {

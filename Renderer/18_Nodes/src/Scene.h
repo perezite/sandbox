@@ -33,8 +33,9 @@ namespace sb {
 		void flush(const DrawCommands& layer);
 		void cleanup();
 		void removeNodes();
-		std::pair<BaseNode*, int> findNode(const BaseNode& nodeToFind);
-		std::pair<BaseNode*, int> findNodeRecursively(BaseNode& startNode, const BaseNode& nodeToFind, int depth);
+		void removeNodesRecursively(BaseNode* currentNode, BaseNode* parent);
+		void removeNode(BaseNode* nodeToRemove, BaseNode* parent);
+		bool mustRemoveNode(BaseNode* node);
 		template <class T>
 		inline void collectNodesRecursively(BaseNode& node, std::vector<T*>& collectedNodes) {
 			if (T::getStaticTypeId() == node.getTypeId()) {
