@@ -48,6 +48,12 @@ namespace sb
 		vec.erase(std::remove(vec.begin(), vec.end(), val), vec.end());
 	}
 
+
+	template <class T>
+	inline void removeFromVector(std::vector<T*>& vec, const T* val) {
+		vec.erase(std::remove(vec.begin(), vec.end(), val), vec.end());
+	}
+
 	template <class TKey, class TVal>
 	inline void removeFromMap(std::map<TKey, TVal>& m, bool(*predicate)(const TKey&, const TVal&)) {
 		for (auto it = m.begin(), e = m.end(); it != e; )

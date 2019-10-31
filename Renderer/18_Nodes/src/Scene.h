@@ -33,10 +33,6 @@ namespace sb {
 		void flush();
 		void flush(const DrawCommands& layer);
 		void cleanup();
-		void removeNodes();
-		void removeNodesRecursively(BaseNode* currentNode, BaseNode* parent);
-		void removeNode(BaseNode* nodeToRemove, BaseNode* parent);
-		bool mustRemoveNode(BaseNode* node);
 	public:
 		Scene(size_t capacity = 8192)
 			: _initialized(false), _capacity(capacity), _numQueued(0), _seconds(0), _deltaSeconds(0)

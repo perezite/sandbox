@@ -68,46 +68,11 @@ namespace sb {
 		updateSeconds();
 		updateDeltaSeconds();
 
-		removeNodes();
+		_root.removeChildren(_nodesToRemove);
 
 		auto children = _root.getChildren();
 		for (size_t i = 0; i < children.size(); i++)
 			updateRecursively(*(children[i]));
-	}
-
-	void Scene::removeNodes() {
-		auto nodes = _root.getChildren();
-		for (size_t i = 0; i < nodes.size(); i++) 
-			removeNodesRecursively(nodes[i], NULL);
-
-		SB_ERROR_IF(!_nodesToRemove.empty(), "Trying to remove one or more non-existing nodes from a scene");
-	}
-
-	void Scene::removeNodesRecursively(BaseNode* current, BaseNode* parent) {
-		auto children = current->getChildren();
-
-		for (size_t i = 0; i < children.size(); i++) {
-			removeNodesRecursively(children[i], current);
-		}
-
-		if (mustRemoveNode(current))
-			removeNode(current, parent);
-	}
-
-	void Scene::removeNode(BaseNode* nodeToRemove, BaseNode* parent) {
-		nodeToRemove->clearAllChildren();
-		auto nodes = _root.getChildren();
-
-		if (parent == NULL)
-			removeFromVector(nodes, nodeToRemove);
-		else
-			parent->removeChild(nodeToRemove);
-
-		removeFromVector(_nodesToRemove, (const BaseNode*)nodeToRemove);
-	}
-
-	bool Scene::mustRemoveNode(BaseNode* node) {
-		return std::find(_nodesToRemove.begin(), _nodesToRemove.end(), node) != _nodesToRemove.end();
 	}
 
 	void Scene::draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawStates& states) {

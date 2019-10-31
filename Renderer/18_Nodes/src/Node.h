@@ -1,5 +1,6 @@
 #pragma once
 #include "BaseNode.h"
+#include "Memory.h"
 #include <algorithm>
 
 namespace sb {
@@ -32,11 +33,23 @@ namespace sb {
 			if (current->getTypeId() == U::getStaticTypeId())
 				found.push_back((U*)current);
 		}
-	public:
-		inline static int getStaticTypeId() {
-			static int typeId = generateTypeId();
-			return typeId;
+
+		void removeChildren(BaseNode* current, BaseNode* parent, std::vector<const BaseNode*>& toRemove) {
+			auto children = current->getChildren();
+			for (size_t i = 0; i < children.size(); i++)
+				removeChildren(children[i], current, toRemove);
+			
+			for (size_t i = 0; i < toRemove.size(); i++) {
+				if (current == toRemove[i]) {
+					parent->removeImmediateChild(toRemove[i]);
+					removeFromVector(toRemove, toRemove[i]);
+					break;
+				}
+			}
 		}
+
+	public:
+		inline static int getStaticTypeId() { return generateTypeId(); }
 		inline virtual const int getTypeId() const { return getStaticTypeId(); }
 
 		template <class U>
@@ -50,6 +63,15 @@ namespace sb {
 			findAll<U>(this, found);
 			std::reverse(found.begin(), found.end());
 			return found;
+		}
+
+		inline void removeChildren(std::vector<const BaseNode*>& toRemove) {
+			auto remove = toRemove;
+			auto children = getChildren();
+			for (size_t i = 0; i < children.size(); i++)
+				removeChildren(children[i], this, remove);
+
+			SB_ERROR_IF(!remove.empty(), "Trying to remove one or more non-existing nodes");
 		}
 	};
 }
