@@ -11,17 +11,11 @@ namespace sb {
 		_initialized = true;
 	}
 
-	void Scene::updateSeconds() {
+	void Scene::updateTime() {
 		if (!_initialized)
 			init();
 
 		_seconds = _stopwatch.getElapsedSeconds();
-	}
-
-	void Scene::updateDeltaSeconds() {
-		if (!_initialized)
-			init();
-
 		_deltaSeconds = _deltaStopwatch.getElapsedSeconds();
 		_deltaStopwatch.reset();
 	}
@@ -34,10 +28,6 @@ namespace sb {
 		node.update(*this);
 	}
 
-	bool Scene::mustFlush() {
-		return _numQueued > _capacity;
-	}
-
 	void Scene::flush() {
 		for (Layers::iterator it = _layers.begin(); it != _layers.end(); it++) {
 			flush(it->second);
@@ -45,7 +35,6 @@ namespace sb {
 
 		_batch.complete();
 		cleanup();
-		_numQueued = 0;
 	}
 
 	void Scene::cleanup() {
@@ -54,7 +43,7 @@ namespace sb {
 			it->second.clear();
 		}
 
-		removeFromMap(_layers, hasZeroCapacity);
+		eraseFromMap(_layers, hasZeroCapacity);
 	}
 
 	void Scene::flush(const DrawCommands& layer) {
@@ -65,15 +54,24 @@ namespace sb {
 	}
 
 	void Scene::update() {
-		updateSeconds();
-		updateDeltaSeconds();
+		updateTime();
+		removeNodes();
+		updateNodes();
+	}
 
-		_root.removeChildren(_nodesToRemove);
+	void Scene::removeNodes() {
+		if (!_nodesToRemove.empty()) {
+			_root.removeChildren(_nodesToRemove);
+			_nodesToRemove.clear();
+		}
+	}
 
+	void Scene::updateNodes() {
 		auto children = _root.getChildren();
 		for (size_t i = 0; i < children.size(); i++)
 			updateRecursively(*(children[i]));
 	}
+
 
 	void Scene::draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawStates& states) {
 		SB_ERROR("Will be deleted");
@@ -81,19 +79,13 @@ namespace sb {
 		
 	void Scene::draw(const Mesh& mesh, const sb::DrawStates& states) {
 		_layers[LayerType(states, mesh.getPrimitiveType())].emplace_back(mesh, states);
-		_numQueued++;
-		if (mustFlush())
-			flush();
 	}
 
 	void Scene::draw(ImmediateDrawTarget& target, DrawStates states) {
 		_batch.setTarget(target);
-		auto nodes = _root.getChildren();
 		Mesh::lock(true);
-		for (size_t i = 0; i < nodes.size(); i++)
-			DrawTarget::draw(nodes[i], states);
-		if (!nodes.empty())
-			flush();
+		DrawTarget::draw(_root, states);
+		flush();
 		Mesh::lock(false);
 	}
 }

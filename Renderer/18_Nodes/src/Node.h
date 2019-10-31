@@ -42,14 +42,17 @@ namespace sb {
 			for (size_t i = 0; i < toRemove.size(); i++) {
 				if (current == toRemove[i]) {
 					parent->removeImmediateChild(toRemove[i]);
-					removeFromVector(toRemove, toRemove[i]);
+					eraseFromVector(toRemove, toRemove[i]);
 					break;
 				}
 			}
 		}
 
 	public:
-		inline static int getStaticTypeId() { return generateTypeId(); }
+		inline static int getStaticTypeId() {
+			static int typeId = generateTypeId();
+			return typeId;
+		}
 		inline virtual const int getTypeId() const { return getStaticTypeId(); }
 
 		template <class U>
@@ -65,7 +68,7 @@ namespace sb {
 			return found;
 		}
 
-		inline void removeChildren(std::vector<const BaseNode*>& toRemove) {
+		inline void removeChildren(const std::vector<const BaseNode*>& toRemove) {
 			auto remove = toRemove;
 			auto children = getChildren();
 			for (size_t i = 0; i < children.size(); i++)

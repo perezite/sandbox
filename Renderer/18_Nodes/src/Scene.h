@@ -18,24 +18,22 @@ namespace sb {
 		EmptyNode _root;
 		std::vector<const BaseNode*> _nodesToRemove;
 		Layers _layers;
-		size_t _capacity;
-		size_t _numQueued;
 		Stopwatch _stopwatch;
 		Stopwatch _deltaStopwatch;
 		float _seconds;
 		float _deltaSeconds;
 	protected:
 		void init();
-		void updateSeconds();
-		void updateDeltaSeconds();
+		void updateTime();
 		void updateRecursively(BaseNode& node);
-		bool mustFlush();
+		void removeNodes();
+		void updateNodes();
 		void flush();
 		void flush(const DrawCommands& layer);
 		void cleanup();
 	public:
-		Scene(size_t capacity = 8192)
-			: _initialized(false), _capacity(capacity), _numQueued(0), _seconds(0), _deltaSeconds(0)
+		Scene()
+			: _initialized(false), _seconds(0), _deltaSeconds(0)
 		{ }
 		static bool hasZeroCapacity(const LayerType& layerType, const DrawCommands& commands) { return commands.capacity() == 0; }
 		inline float getSeconds() const { return _seconds; }
