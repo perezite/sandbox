@@ -245,7 +245,7 @@ namespace demo {
 			fill(myMap, "two", 16);
 			fill(myMap, "three", 16);
 			clear(myMap, "two");
-			removeFromMap(myMap, isEmpty);
+			eraseFromMap(myMap, isEmpty);
 
 			print(myMap);
 		}
@@ -273,15 +273,17 @@ namespace demo {
 		triangle2.setScale(.5f);
 		triangle2.setDrawLayer(2);
 
+		scene.enableDiagnostics(true);
+
 		while (window.isOpen()) {
 			Input::update();
 			window.update();
 			if (Input::isTouchGoingDown(1) && !quads.empty()) {
 				scene.remove(*quads[0]);
-				removeFromVector(quads, quads[0]);
+				eraseFromVector(quads, quads[0]);
 			}
 			scene.update();
-			
+
 			window.clear();
 			scene.draw(window);
 			window.display();
@@ -296,8 +298,6 @@ namespace demo {
 }
 
 // TODO
-// Implementing deletion using root node
-// Add printing of scene memory footprint
 // Add a test with loads of fast removals and insertions
 // implement update() recursively, just like draw()
 // Get rid of the deprecated draw() function in scene

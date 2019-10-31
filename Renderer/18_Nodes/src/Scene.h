@@ -22,7 +22,10 @@ namespace sb {
 		Stopwatch _deltaStopwatch;
 		float _seconds;
 		float _deltaSeconds;
+		bool _diagnosticsEnabled;
 	protected:
+		void printDiagnostics();
+		static bool hasZeroCapacity(const LayerType& layerType, const DrawCommands& commands) { return commands.capacity() == 0; }
 		void init();
 		void updateTime();
 		void updateRecursively(BaseNode& node);
@@ -33,9 +36,9 @@ namespace sb {
 		void cleanup();
 	public:
 		Scene()
-			: _initialized(false), _seconds(0), _deltaSeconds(0)
+			: _initialized(false), _seconds(0), _deltaSeconds(0), _diagnosticsEnabled(false)
 		{ }
-		static bool hasZeroCapacity(const LayerType& layerType, const DrawCommands& commands) { return commands.capacity() == 0; }
+		inline void enableDiagnostics(bool enable) { _diagnosticsEnabled = enable; }
 		inline float getSeconds() const { return _seconds; }
 		inline float getDeltaSeconds() const { return _deltaSeconds; }
 		template <class T>

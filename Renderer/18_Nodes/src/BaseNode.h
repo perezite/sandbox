@@ -36,6 +36,6 @@ namespace sb {
 
 			_children.clear();
 		}
-		inline void removeImmediateChild(const BaseNode* child) { removeFromVector(_children, child); }
+		inline void removeImmediateChild(const BaseNode* child) { eraseFromVector(_children, child); }
 	};
 }

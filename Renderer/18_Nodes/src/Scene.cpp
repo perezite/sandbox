@@ -46,6 +46,20 @@ namespace sb {
 		eraseFromMap(_layers, hasZeroCapacity);
 	}
 
+	void Scene::printDiagnostics() {
+		std::cout << "Scene diagnostics: " << std::endl;
+		std::cout << "\t Layers: " << std::endl;
+
+		size_t nodeCount = 0;
+		for (auto it = _layers.begin(); it != _layers.end(); it++) {
+			std::cout << "\t\tLayer " << std::distance(_layers.begin(), it) << " has " << it->second.size() << " nodes" << std::endl;
+			it->second.size();
+		}
+
+		std::cout << "\tNode count total: " << nodeCount << std::endl;
+
+	}
+
 	void Scene::flush(const DrawCommands& layer) {
 		for (size_t i = 0; i < layer.size(); i++) {
 			auto& drawCommand = layer[i];
@@ -85,6 +99,8 @@ namespace sb {
 		_batch.setTarget(target);
 		Mesh::lock(true);
 		DrawTarget::draw(_root, states);
+		if (_diagnosticsEnabled)
+			printDiagnostics();
 		flush();
 		Mesh::lock(false);
 	}

@@ -25,7 +25,7 @@ namespace sb
 	}
 
 	template <class T>
-	inline void removeFromVector(std::vector<T*>& vec, bool(*predicate)(T*)) {
+	inline void eraseFromVector(std::vector<T*>& vec, bool(*predicate)(T*)) {
 		std::vector<T*> toDelete;
 		for (std::size_t i = 0; i < vec.size(); i++) {
 			if (predicate(vec[i]))
@@ -39,23 +39,23 @@ namespace sb
 	}
 
 	template <class T>
-	inline void removeFromVector(std::vector<T>& vec, T& val) {
+	inline void eraseFromVector(std::vector<T>& vec, T& val) {
 		vec.erase(std::remove(vec.begin(), vec.end(), val), vec.end());
 	}
 
 	template <class T>
-	inline void removeFromVector(std::vector<T*>& vec, T* val) {
+	inline void eraseFromVector(std::vector<T*>& vec, T* val) {
 		vec.erase(std::remove(vec.begin(), vec.end(), val), vec.end());
 	}
 
 
 	template <class T>
-	inline void removeFromVector(std::vector<T*>& vec, const T* val) {
+	inline void eraseFromVector(std::vector<T*>& vec, const T* val) {
 		vec.erase(std::remove(vec.begin(), vec.end(), val), vec.end());
 	}
 
 	template <class TKey, class TVal>
-	inline void removeFromMap(std::map<TKey, TVal>& m, bool(*predicate)(const TKey&, const TVal&)) {
+	inline void eraseFromMap(std::map<TKey, TVal>& m, bool(*predicate)(const TKey&, const TVal&)) {
 		for (auto it = m.begin(), e = m.end(); it != e; )
 		{
 			if (predicate(it->first, it->second))
