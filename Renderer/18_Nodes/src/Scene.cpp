@@ -70,12 +70,13 @@ namespace sb {
 
 		removeNodes();
 
-		for (size_t i = 0; i < _nodes.size(); i++)
-			updateRecursively(*(_nodes[i]));
+		auto children = _root.getChildren();
+		for (size_t i = 0; i < children.size(); i++)
+			updateRecursively(*(children[i]));
 	}
 
 	void Scene::removeNodes() {
-		auto nodes = _nodes;
+		auto nodes = _root.getChildren();
 		for (size_t i = 0; i < nodes.size(); i++) 
 			removeNodesRecursively(nodes[i], NULL);
 
@@ -95,9 +96,10 @@ namespace sb {
 
 	void Scene::removeNode(BaseNode* nodeToRemove, BaseNode* parent) {
 		nodeToRemove->clearAllChildren();
+		auto nodes = _root.getChildren();
 
 		if (parent == NULL)
-			removeFromVector(_nodes, nodeToRemove);
+			removeFromVector(nodes, nodeToRemove);
 		else
 			parent->removeChild(nodeToRemove);
 
@@ -121,10 +123,11 @@ namespace sb {
 
 	void Scene::draw(ImmediateDrawTarget& target, DrawStates states) {
 		_batch.setTarget(target);
+		auto nodes = _root.getChildren();
 		Mesh::lock(true);
-		for (size_t i = 0; i < _nodes.size(); i++)
-			DrawTarget::draw(_nodes[i], states);
-		if (!_nodes.empty())
+		for (size_t i = 0; i < nodes.size(); i++)
+			DrawTarget::draw(nodes[i], states);
+		if (!nodes.empty())
 			flush();
 		Mesh::lock(false);
 	}

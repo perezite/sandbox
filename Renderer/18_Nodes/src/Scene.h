@@ -6,6 +6,7 @@
 #include "Stopwatch.h"
 #include "DrawCommand.h"
 #include "LayerType.h"
+#include "EmptyNode.h"
 #include "Enumerable.h"
 
 namespace sb {
@@ -14,7 +15,7 @@ namespace sb {
 		typedef std::map<LayerType, DrawCommands> Layers;
 		bool _initialized;
 		DrawBatch _batch;
-		std::vector<BaseNode*> _nodes;
+		EmptyNode _root;
 		std::vector<const BaseNode*> _nodesToRemove;
 		Layers _layers;
 		size_t _capacity;
@@ -36,19 +37,6 @@ namespace sb {
 		void removeNodesRecursively(BaseNode* currentNode, BaseNode* parent);
 		void removeNode(BaseNode* nodeToRemove, BaseNode* parent);
 		bool mustRemoveNode(BaseNode* node);
-		template <class T>
-		inline void collectNodesRecursively(BaseNode& node, std::vector<T*>& collectedNodes) {
-			if (T::getStaticTypeId() == node.getTypeId()) {
-				auto nodePointer = &node;
-				collectedNodes.push_back((T*)nodePointer);
-			}
-			
-			auto children = node.getChildren();
-			for (size_t i = 0; i < children.size(); i++) {
-				auto child = children[i];
-				collectNodesRecursively(*child, collectedNodes);
-			}
-		}
 	public:
 		Scene(size_t capacity = 8192)
 			: _initialized(false), _capacity(capacity), _numQueued(0), _seconds(0), _deltaSeconds(0)
@@ -56,31 +44,12 @@ namespace sb {
 		static bool hasZeroCapacity(const LayerType& layerType, const DrawCommands& commands) { return commands.capacity() == 0; }
 		inline float getSeconds() const { return _seconds; }
 		inline float getDeltaSeconds() const { return _deltaSeconds; }
-		inline virtual ~Scene() {
-			for (int i = _nodes.size() - 1; i >= 0; i--)
-				delete _nodes[i];
-		}
 		template <class T>
-		inline T& create() {
-			T* node = new T();
-			_nodes.push_back(node);
-			return *node;
-		}
+		inline T& create() { return _root.createChild<T>(); }
 		template <class T>
-		inline std::vector<T*> findMany() {
-			std::vector<T*> collectedNodes;
-			for (size_t i = 0; i < _nodes.size(); i++) {
-				auto node = _nodes[i];
-				collectNodesRecursively(*node, collectedNodes);
-			}
-
-			return collectedNodes;
-		}
+		inline std::vector<T*> findAll() { return _root.findAll<T>(); }
 		template <class T>
-		inline T* find() {
-			auto nodes = findMany<T>();
-			return nodes.empty() ? NULL : nodes[0];
-		}
+		inline T* find() { return _root.find<T>(); }
 		void remove(const BaseNode& node) { _nodesToRemove.push_back(&node); }
 		void update();
 		virtual void draw(const std::vector<Vertex>& vertices,

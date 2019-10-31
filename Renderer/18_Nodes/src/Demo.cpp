@@ -165,8 +165,8 @@ namespace demo {
 		shape4.setPosition(0, 0.5f);
 		shape4.setDrawLayer(3);
 
-		auto triangles = scene.findMany<Triangle>();
-		auto quads = scene.findMany<Quad>();
+		auto triangles = scene.findAll<Triangle>();
+		auto quads = scene.findAll<Quad>();
 
 		while (window.isOpen()) {
 			Input::update();
@@ -261,7 +261,7 @@ namespace demo {
 		auto& quad1 = triangle.createChild<Quad>();
 		auto& quad2 = triangle.createChild<Quad>();
 		auto& triangle2 = quad2.createChild<Triangle>();
-		auto quads = scene.findMany<Quad>();
+		auto quads = scene.findAll<Quad>();
 
 		triangle.setScale(.5f);
 		quad1.setPosition(-.5f);
@@ -296,8 +296,7 @@ namespace demo {
 }
 
 // TODO
-// Implement removal of nodes
-// Make scene inherit from node (remove is overly complicated otherwise)
+// Implementing deletion using root node
 // Add printing of scene memory footprint
 // Add a test with loads of fast removals and insertions
 // implement update() recursively, just like draw()

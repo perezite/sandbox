@@ -29,6 +29,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawStates.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\DrawTarget.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Easing.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\EmptyNode.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Enumerable.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\Image.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\src\ImmediateDrawTarget.h" />
