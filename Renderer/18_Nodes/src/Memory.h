@@ -63,6 +63,10 @@ namespace sb
 			else
 				++it;
 		}
+	}
 
+	template <class T>
+	inline void pushBackRange(std::vector<T>& vec, const std::vector<T>& range) {
+		vec.insert(vec.end(), range.begin(), range.end());
 	}
 }

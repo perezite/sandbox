@@ -41,6 +41,7 @@ namespace sb {
 		inline void enableDiagnostics(bool enable) { _diagnosticsEnabled = enable; }
 		inline float getSeconds() const { return _seconds; }
 		inline float getDeltaSeconds() const { return _deltaSeconds; }
+		inline std::vector<BaseNode*> getNodes() { return _root.getChildren(); }
 		template <class T>
 		inline T& create() { return _root.createChild<T>(); }
 		template <class T>

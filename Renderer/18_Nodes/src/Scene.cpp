@@ -21,7 +21,7 @@ namespace sb {
 	}
 
 	void Scene::updateRecursively(BaseNode& node) {
-		auto& children = node.getChildren();
+		auto& children = node.getImmediateChildren();
 		for (size_t i = 0; i < children.size(); i++)
 			updateRecursively(*(children[i]));
 
@@ -53,7 +53,7 @@ namespace sb {
 		size_t nodeCount = 0;
 		for (auto it = _layers.begin(); it != _layers.end(); it++) {
 			std::cout << "\t\tLayer " << std::distance(_layers.begin(), it) << " has " << it->second.size() << " nodes" << std::endl;
-			it->second.size();
+			nodeCount += it->second.size();
 		}
 
 		std::cout << "\tNode count total: " << nodeCount << std::endl;
@@ -81,7 +81,7 @@ namespace sb {
 	}
 
 	void Scene::updateNodes() {
-		auto children = _root.getChildren();
+		auto children = _root.getImmediateChildren();
 		for (size_t i = 0; i < children.size(); i++)
 			updateRecursively(*(children[i]));
 	}

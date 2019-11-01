@@ -292,8 +292,85 @@ namespace demo {
 		}
 	}
 
+	BaseNode* getRandom(Scene& scene) {
+		auto nodes = scene.getNodes();
+		if (nodes.empty()) 
+			nodes.push_back(&scene.create<EmptyNode>());
+
+		return nodes[rand() % nodes.size()];
+	}
+
+	template <class T>
+	void randomize(T& node) {
+		node.setPosition(random(-.5f, .5f), random(-.5f, .5f));
+		node.setScale(random(.1f, .5f));
+		node.setRotation(random(0, 2) * Pi);
+		node.setDrawLayer(rand() % 10);
+	}
+
+	template <class T>
+	void createRandom(Scene& scene, BaseNode* parent) {
+		randomize(parent->createChild<T>());
+	}
+
+	void createRandom(Scene& scene) {
+		auto parent = getRandom(scene);
+
+		if (rand() % 2 == 0)
+			createRandom<Triangle>(scene, parent);
+		else
+			createRandom<Quad>(scene, parent);
+	}
+
+	void createRandom(Scene& scene, size_t count) {
+		for (size_t i = 0; i < count; i++)
+			createRandom(scene);
+	}
+	
+	void eraseRandom(Scene& scene) {
+		auto nodes = scene.getNodes();
+		if (scene.getNodes().size() <= 1)
+			return;
+
+		scene.remove(*nodes[rand() % nodes.size()]);
+	}
+
+	void eraseRandom(Scene& scene, size_t count) {
+		for (size_t i = 0; i < count; i++)
+			eraseRandom(scene);
+	}
+
+
+	void demo8() {
+		Window window;
+		Scene scene;
+		
+		scene.enableDiagnostics(false);
+		srand(42);
+
+		scene.create<EmptyNode>();
+		// createRandom(scene, 20);
+
+		auto count = 0;
+		while (window.isOpen()) {
+			Input::update();
+			window.update();
+			createRandom(scene, rand() % 5);
+			if (scene.getNodes().size() > 100)
+				eraseRandom(scene, rand() % 20);
+			scene.update();
+
+			window.clear();
+			scene.draw(window);
+			window.display();
+
+			// printRenderStatistics();
+		}
+
+	}
+
 	void runDemo() {
-		demo7();
+		demo8();
 	}
 }
 

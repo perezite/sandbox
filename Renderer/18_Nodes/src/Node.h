@@ -16,7 +16,7 @@ namespace sb {
 	private:
 		template <class U>
 		inline U* find(BaseNode* current) {
-			auto children = current->getChildren();
+			auto children = current->getImmediateChildren();
 			for (size_t i = 0; i < children.size(); i++)
 				find(children[i]);
 
@@ -26,7 +26,7 @@ namespace sb {
 
 		template <class U>
 		inline void findAll(BaseNode* current, std::vector<U*>& found) {
-			auto& children = current->getChildren();
+			auto& children = current->getImmediateChildren();
 			for (size_t i = 0; i < children.size(); i++)
 				findAll(children[i], found);
 
@@ -35,7 +35,7 @@ namespace sb {
 		}
 
 		void removeChildren(BaseNode* current, BaseNode* parent, std::vector<const BaseNode*>& toRemove) {
-			auto children = current->getChildren();
+			auto children = current->getImmediateChildren();
 			for (size_t i = 0; i < children.size(); i++)
 				removeChildren(children[i], current, toRemove);
 			
@@ -70,7 +70,7 @@ namespace sb {
 
 		inline void removeChildren(const std::vector<const BaseNode*>& toRemove) {
 			auto remove = toRemove;
-			auto children = getChildren();
+			auto children = getImmediateChildren();
 			for (size_t i = 0; i < children.size(); i++)
 				removeChildren(children[i], this, remove);
 
