@@ -1,6 +1,7 @@
 #include "ParticleSystem.h"
 #include "DrawTarget.h"
 #include "Logger.h"
+#include "Scene.h"
 #include <algorithm>
 
 namespace sb
@@ -122,6 +123,11 @@ namespace sb
 		SB_DEBUG_IF(id == "main", "num pool items: " << _pool.getNumItems() << " num active pool items: " << _pool.getNumActiveItems());
 	}
 
+	void ParticleSystem::update(Scene& scene) {
+		update(scene.getDeltaSeconds());
+		updateChildren(scene);
+	}
+
 	void ParticleSystem::draw(DrawTarget& target, DrawStates states) {
 		if (isPlaying()) {
 			states.texture = _texture;
@@ -131,8 +137,6 @@ namespace sb
 		
 		drawChildren(target, states);
 	}
-
-
 
 	void ParticleSystem::updateState()
 	{

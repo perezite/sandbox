@@ -349,7 +349,6 @@ namespace demo {
 		srand(42);
 
 		scene.create<EmptyNode>();
-		// createRandom(scene, 20);
 
 		auto count = 0;
 		while (window.isOpen()) {
@@ -375,6 +374,7 @@ namespace demo {
 }
 
 // TODO
-// Add a test with loads of fast removals and insertions
 // implement update() recursively, just like draw()
+// store the parent for each node and update the erase function accordigly
 // Get rid of the deprecated draw() function in scene
+// final cleanup

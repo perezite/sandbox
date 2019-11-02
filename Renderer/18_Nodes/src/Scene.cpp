@@ -20,14 +20,6 @@ namespace sb {
 		_deltaStopwatch.reset();
 	}
 
-	void Scene::updateRecursively(BaseNode& node) {
-		auto& children = node.getImmediateChildren();
-		for (size_t i = 0; i < children.size(); i++)
-			updateRecursively(*(children[i]));
-
-		node.update(*this);
-	}
-
 	void Scene::flush() {
 		for (Layers::iterator it = _layers.begin(); it != _layers.end(); it++) {
 			flush(it->second);
@@ -70,7 +62,7 @@ namespace sb {
 	void Scene::update() {
 		updateTime();
 		removeNodes();
-		updateNodes();
+		_root.update(*this);
 	}
 
 	void Scene::removeNodes() {
@@ -79,13 +71,6 @@ namespace sb {
 			_nodesToRemove.clear();
 		}
 	}
-
-	void Scene::updateNodes() {
-		auto children = _root.getImmediateChildren();
-		for (size_t i = 0; i < children.size(); i++)
-			updateRecursively(*(children[i]));
-	}
-
 
 	void Scene::draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawStates& states) {
 		SB_ERROR("Will be deleted");

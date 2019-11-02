@@ -28,9 +28,7 @@ namespace sb {
 		static bool hasZeroCapacity(const LayerType& layerType, const DrawCommands& commands) { return commands.capacity() == 0; }
 		void init();
 		void updateTime();
-		void updateRecursively(BaseNode& node);
 		void removeNodes();
-		void updateNodes();
 		void flush();
 		void flush(const DrawCommands& layer);
 		void cleanup();

@@ -34,6 +34,10 @@ namespace sb {
 			_children.push_back(child);
 			return *child;
 		}
+		inline void updateChildren(Scene& scene) {
+			for (size_t i = 0; i < _children.size(); i++)
+				_children[i]->update(scene);
+		}
 		inline void drawChildren(DrawTarget& target, const DrawStates& drawStates) {
 			for (size_t i = 0; i < _children.size(); i++)
 				_children[i]->draw(target, drawStates);

@@ -11,6 +11,8 @@ namespace sb
 		Triangle() 
 		{ }
 
+		virtual void update(Scene& scene);
+
 		virtual void draw(DrawTarget& window, DrawStates states = DrawStates::getDefault());
 
 		inline Mesh& getMesh() { return TriangleMesh; }
