@@ -123,11 +123,6 @@ namespace sb
 		SB_DEBUG_IF(id == "main", "num pool items: " << _pool.getNumItems() << " num active pool items: " << _pool.getNumActiveItems());
 	}
 
-	void ParticleSystem::update(Scene& scene) {
-		update(scene.getDeltaSeconds());
-		updateChildren(scene);
-	}
-
 	void ParticleSystem::draw(DrawTarget& target, DrawStates states) {
 		if (isPlaying()) {
 			states.texture = _texture;

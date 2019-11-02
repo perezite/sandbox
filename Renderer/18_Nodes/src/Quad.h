@@ -9,9 +9,6 @@ namespace sb
 	public:
 		Quad() 
 		{ }
-		
-
-		void update(Scene& scene);
 
 		virtual void draw(DrawTarget& window, DrawStates states = DrawStates::getDefault());
 

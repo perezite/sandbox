@@ -9,10 +9,6 @@ namespace sb
 		Vertex(Vector2f(0.0f,  0.5f), Color(0, 0, 1, 1))
 	}, PrimitiveType::Triangles);
 
-	void Triangle::update(Scene& scene) {
-		updateChildren(scene);
-	}
-
 	void Triangle::draw(DrawTarget& target, DrawStates states)
 	{
 		states.transform *= getTransform();

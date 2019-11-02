@@ -4,10 +4,6 @@
 namespace sb {
 	class EmptyNode : public Node<EmptyNode> {
 	public:
-		inline virtual void update(Scene& scene) {
-			updateChildren(scene);
-		}
-
 		inline virtual void draw(DrawTarget& target, DrawStates states) {
 			drawChildren(target, states);
 		}

@@ -22,8 +22,6 @@ namespace sb
 		void setColor(const Color& color);
 
 		inline Mesh& getMesh() { return m_mesh; }
-		
-		virtual void update(Scene& scene);
 
 		virtual void draw(DrawTarget& window, DrawStates states = DrawStates::getDefault());
 

@@ -25,9 +25,9 @@ namespace sb {
 		inline const std::vector<BaseNode*>& getImmediateChildren() const { return _children; }
 		inline int getDrawLayer() const { return _drawLayer; }
 		inline void setDrawLayer(int drawLayer) { _drawLayer = drawLayer; }
-		virtual void update(Scene& scene);
 		inline virtual void update(float ds) {  }
-		inline virtual void draw(DrawTarget& target, sb::DrawStates drawStates = DrawStates::getDefault()) { }
+		virtual void update(Scene& scene);
+		inline virtual void draw(DrawTarget& target, sb::DrawStates drawStates = DrawStates::getDefault());
 		template <class U>
 		inline U& createChild() {
 			U* child = new U();

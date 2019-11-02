@@ -184,8 +184,6 @@ namespace sb
 
 		void update(float ds);
 
-		virtual void update(Scene& scene);
-
 		virtual void draw(DrawTarget& target, DrawStates states = DrawStates::getDefault());
 
 		std::string id;

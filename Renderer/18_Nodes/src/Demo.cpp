@@ -348,8 +348,6 @@ namespace demo {
 		scene.enableDiagnostics(false);
 		srand(42);
 
-		scene.create<EmptyNode>();
-
 		auto count = 0;
 		while (window.isOpen()) {
 			Input::update();
@@ -377,4 +375,5 @@ namespace demo {
 // implement update() recursively, just like draw()
 // store the parent for each node and update the erase function accordigly
 // Get rid of the deprecated draw() function in scene
+// naming conventions: direct-child functions are named normally, recursive functions have the 'all' suffix
 // final cleanup
