@@ -32,10 +32,6 @@ namespace sb
 		void update();
 
 		void clear(const Color& clearColor = Color(0, 0, 0, 1));
-		
-		using DrawTarget::draw;
-		virtual void draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType = PrimitiveType::Triangles, 
-			const DrawStates& states = DrawStates::getDefault());
 
 		virtual void draw(const Mesh& mesh, const DrawStates& states = DrawStates::getDefault());
 

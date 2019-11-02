@@ -27,7 +27,7 @@ namespace sb {
 		inline void setDrawLayer(int drawLayer) { _drawLayer = drawLayer; }
 		inline virtual void update(float ds) {  }
 		virtual void update(Scene& scene);
-		inline virtual void draw(DrawTarget& target, sb::DrawStates drawStates = DrawStates::getDefault());
+		virtual void draw(DrawTarget& target, sb::DrawStates drawStates = DrawStates::getDefault());
 		template <class U>
 		inline U& createChild() {
 			U* child = new U();

@@ -38,20 +38,6 @@ namespace sb {
 		eraseFromMap(_layers, hasZeroCapacity);
 	}
 
-	void Scene::printDiagnostics() {
-		std::cout << "Scene diagnostics: " << std::endl;
-		std::cout << "\t Layers: " << std::endl;
-
-		size_t nodeCount = 0;
-		for (auto it = _layers.begin(); it != _layers.end(); it++) {
-			std::cout << "\t\tLayer " << std::distance(_layers.begin(), it) << " has " << it->second.size() << " nodes" << std::endl;
-			nodeCount += it->second.size();
-		}
-
-		std::cout << "\tNode count total: " << nodeCount << std::endl;
-
-	}
-
 	void Scene::flush(const DrawCommands& layer) {
 		for (size_t i = 0; i < layer.size(); i++) {
 			auto& drawCommand = layer[i];
@@ -72,10 +58,6 @@ namespace sb {
 		}
 	}
 
-	void Scene::draw(const std::vector<Vertex>& vertices, const PrimitiveType& primitiveType, const DrawStates& states) {
-		SB_ERROR("Will be deleted");
-	}
-		
 	void Scene::draw(const Mesh& mesh, const sb::DrawStates& states) {
 		_layers[LayerType(states, mesh.getPrimitiveType())].emplace_back(mesh, states);
 	}
@@ -89,4 +71,18 @@ namespace sb {
 		flush();
 		Mesh::lock(false);
 	}
+
+	void Scene::printDiagnostics() {
+		std::cout << "Scene diagnostics: " << std::endl;
+		std::cout << "\t Layers: " << std::endl;
+
+		size_t nodeCount = 0;
+		for (auto it = _layers.begin(); it != _layers.end(); it++) {
+			std::cout << "\t\tLayer " << std::distance(_layers.begin(), it) << " has " << it->second.size() << " nodes" << std::endl;
+			nodeCount += it->second.size();
+		}
+
+		std::cout << "\tNode count total: " << nodeCount << std::endl;
+	}
+
 }

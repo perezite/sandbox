@@ -24,7 +24,6 @@ namespace sb {
 		float _deltaSeconds;
 		bool _diagnosticsEnabled;
 	protected:
-		void printDiagnostics();
 		static bool hasZeroCapacity(const LayerType& layerType, const DrawCommands& commands) { return commands.capacity() == 0; }
 		void init();
 		void updateTime();
@@ -48,9 +47,8 @@ namespace sb {
 		inline T* find() { return _root.find<T>(); }
 		void remove(const BaseNode& node) { _nodesToRemove.push_back(&node); }
 		void update();
-		virtual void draw(const std::vector<Vertex>& vertices,
-			const PrimitiveType& primitiveType, const DrawStates& states = DrawStates::getDefault());
 		virtual void draw(const Mesh& mesh, const sb::DrawStates &states = sb::DrawStates::getDefault());
 		virtual void draw(ImmediateDrawTarget& target, DrawStates drawStates = DrawStates::getDefault());
+		void printDiagnostics();
 	};
 }

@@ -348,7 +348,6 @@ namespace demo {
 		scene.enableDiagnostics(false);
 		srand(42);
 
-		auto count = 0;
 		while (window.isOpen()) {
 			Input::update();
 			window.update();
@@ -363,17 +362,64 @@ namespace demo {
 
 			// printRenderStatistics();
 		}
+	}
 
+	class Sierpinski : public Node<Sierpinski>, public Transformable {
+		size_t _reverseDepth;
+		Triangle triangle;
+	protected:
+		void addChildTriangle(float x, float y) {
+			auto& child = createChild<Sierpinski>();
+			child.setScale(.5f); child.setPosition(x, y);
+			child.init(_reverseDepth - 1);
+		}
+	public:
+
+		void init(size_t reverseDepth) {
+			_reverseDepth = reverseDepth;
+
+			if (_reverseDepth > 0) {
+				addChildTriangle(-.25f, -.25f);
+				addChildTriangle(.25f, -.25f);
+				addChildTriangle(0, .25f);
+			}
+		}
+
+		virtual void draw(DrawTarget& target, DrawStates states = DrawStates::getDefault()) {
+			states.transform *= getTransform();
+			if (_reverseDepth == 0)
+				target.draw(triangle, states);
+			drawChildren(target, states);
+		}
+	};
+
+	void demo9() {
+		Window window;
+		Scene scene;
+
+		auto& sierpinski = scene.create<Sierpinski>();
+		sierpinski.init(7);
+
+		while (window.isOpen()) {
+			Input::update();
+			window.update();
+			scene.update();
+
+			window.clear();
+			scene.draw(window);
+			window.display();
+		}
 	}
 
 	void runDemo() {
-		demo8();
+		demo9();
 	}
 }
 
 // TODO
-// implement update() recursively, just like draw()
-// store the parent for each node and update the erase function accordigly
-// Get rid of the deprecated draw() function in scene
+// create a sierpinski triangle for testing
+// implement creating nodes with constructor arguments
+// store the parent for each node together with it's depth and update the erase function accordingly
+// test on mobile
 // naming conventions: direct-child functions are named normally, recursive functions have the 'all' suffix
 // final cleanup
