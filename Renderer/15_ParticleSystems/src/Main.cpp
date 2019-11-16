@@ -957,8 +957,8 @@ struct Propulsion : public sb::Drawable, public sb::Body {
 		trail.setParticleColor(sb::Color(1, 1, 1, 0.3f));
 		trail.setEmissionRatePerSecond(100);
 		trail.setParticleInertia(0.5f);
-		trail.setParticleColorChannelOverLifetime(3, sb::Tween().linear(1, 0, 1));
-		trail.setParticleScaleOverLifetime(sb::Tween().bounceOut(0, 1, 0.1f).quadInOut(1, 0, 0.9f));
+		trail.setParticleColorChannelOverLifetime(3, sb::Tween().linear(1, 0.3f, 1));
+		trail.setParticleScaleOverLifetime(sb::Tween().bounceOut(0, 1, 0.1f).quadInOut(1, 0.3f, 0.9f));
 		float halfAngle = 35;
 		trail.setEmissionShape(sb::Disk(0, 0.6f, (270 - halfAngle) * sb::ToRadian, (270 + halfAngle) * sb::ToRadian));
 		trail.setScale(0.3f);
@@ -1084,7 +1084,7 @@ void demo16() {
 
 	window.getCamera().setWidth(2);
 	coordinatesTex.loadFromAsset("Textures/CoordinateSystem.png");
-	propulsionTex.loadFromAsset("Textures/GreenPropulsion.png");
+	propulsionTex.loadFromAsset("Textures/LightGreenPropulsion.png");
 	ballTex.loadFromAsset("Textures/Ball.png");
 	ballTex.enableMipmap(true);
 	ball.setTexture(ballTex);
