@@ -3,9 +3,10 @@
 #include "Input.h"
 #include "Stopwatch.h"
 #include "Sprite.h"
-#include <iostream>
+#include "ParticleSystem.h"
 
 using namespace sb;
+using namespace std;
 
 namespace demo
 {
@@ -23,7 +24,22 @@ namespace demo
 		return delta;
 	}
 
-	class Sprite0 {
+	template <class T>
+	void release(T& container) {
+		for (size_t i = 0; i < container.size(); i++)
+			delete container[i];
+	}
+
+	class Entity0 {
+		vector<Entity0*> _children;
+
+	public:
+		virtual ~Entity0() {
+			release(_children);
+		}
+	};
+
+	class Sprite0 : public Entity0 {
 		Sprite _sprite;
 
 	public:
@@ -38,18 +54,37 @@ namespace demo
 		virtual void draw(DrawTarget& window, DrawStates states = DrawStates::getDefault()) { _sprite.draw(window, states); }
 	};
 
+	class ParticleSystem0 {
+		ParticleSystem _emitter;
+		
+	public:
+		ParticleSystem0() :_emitter(512) { 
+			_emitter.setParticleColor(Color::createFromRGB(255, 0, 0));
+			_emitter.setParticleSizeRange(.01f);
+			_emitter.setEmissionRatePerSecond(5);
+			_emitter.setParticleSpeedRange(.1f);
+		}
+
+		void update(float ds) { _emitter.update(ds); }
+
+		virtual void draw(DrawTarget& window, DrawStates states = DrawStates::getDefault()) { _emitter.draw(window, states); }
+	};
+
 	void demo0() {
 		sb::Window window;
 		sb::Texture texture("Textures/YellowBlock.png");
 		Sprite0 sprite(texture);
+		ParticleSystem0 emitter;
 		sprite.setScale(.3f);
 
 		while (window.isOpen()) {
 			sb::Input::update();
 			window.update();
+			emitter.update(getDeltaSeconds());
 
 			window.clear(sb::Color(1, 1, 1, 1));
 			sprite.draw(window);
+			emitter.draw(window);
 			window.display();
 		}
 	}

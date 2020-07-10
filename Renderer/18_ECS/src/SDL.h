@@ -1,10 +1,11 @@
-#pragma once
-
+// get rid of bogus intellisense errors in vs17 when including sdl2
 #if defined(__INTELLISENSE__) && defined(__ANDROID__) 
-#undef __MMX__
-#undef __SSE2__
-#undef __SSE__
+	#undef __MMX__
+	#undef __SSE2__
+	#undef __SSE__
 #endif
+
+#pragma once
 
 #include "Logger.h"
 #include <SDL2/SDL.h>
