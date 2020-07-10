@@ -30,7 +30,7 @@ namespace demo
 			delete *it;
 	}
 
-	class Entity0 {
+	class Entity0 : public Drawable, public Transformable {
 		vector<Entity0*> _children;
 
 	public:
@@ -55,7 +55,7 @@ namespace demo
 		virtual void draw(DrawTarget& window, DrawStates states = DrawStates::getDefault()) { _sprite.draw(window, states); }
 	};
 
-	class ParticleSystem0 {
+	class ParticleSystem0 : public Entity0 {
 		ParticleSystem _emitter;
 		
 	public:
@@ -69,6 +69,8 @@ namespace demo
 		void update(float ds) { _emitter.update(ds); }
 
 		virtual void draw(DrawTarget& window, DrawStates states = DrawStates::getDefault()) { _emitter.draw(window, states); }
+
+		void setPosition(float x, float y) { _emitter.setPosition(x, y); }
 	};
 
 	void demo0() {
@@ -77,6 +79,7 @@ namespace demo
 		Sprite0 sprite(texture);
 		ParticleSystem0 emitter;
 		sprite.setScale(.3f);
+		emitter.setPosition(0, -.1f);
 
 		while (window.isOpen()) {
 			sb::Input::update();
@@ -95,3 +98,13 @@ namespace demo
 		demo0();
 	}
 }
+
+// TODO
+// Add emitter as child of sprite
+// Create sprite from scene
+// Draw scene
+// Implement getGlobalBounds for sprite
+// Draw the sprite's global bounds
+// Implement setGlobalTransform for emitter
+// Draw the global coordinates as little dots
+// Position emitter along the bottom of the sprite's bounds
