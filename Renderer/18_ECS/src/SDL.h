@@ -1,10 +1,9 @@
 #pragma once
 
-// get rid of bogus intellisense errors
 #if defined(__INTELLISENSE__) && defined(__ANDROID__) 
-	#undef __MMX__
-	#undef __SSE2__
-	#undef __SSE__
+#undef __MMX__
+#undef __SSE2__
+#undef __SSE__
 #endif
 
 #include "Logger.h"
