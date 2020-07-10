@@ -26,14 +26,15 @@ namespace demo
 
 	template <class T>
 	void release(T& container) {
-		for (size_t i = 0; i < container.size(); i++)
-			delete container[i];
+		for (typename T::iterator it = container.begin(); it != container.end(); it++)
+			delete *it;
 	}
 
 	class Entity0 {
 		vector<Entity0*> _children;
 
 	public:
+		
 		virtual ~Entity0() {
 			release(_children);
 		}
