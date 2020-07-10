@@ -398,11 +398,14 @@ namespace demo {
 		Scene scene;
 
 		auto& sierpinski = scene.create<Sierpinski>();
-		sierpinski.init(7);
+		sierpinski.init(1);
 
 		while (window.isOpen()) {
 			Input::update();
 			window.update();
+
+			 sierpinski.setScale(0.2f + oscillate(2 * scene.getSeconds(), 10));
+
 			scene.update();
 
 			window.clear();
@@ -411,8 +414,54 @@ namespace demo {
 		}
 	}
 
+	template <class T>
+	T& create10(EmptyNode& parent, float x, float y) {
+		auto& node = parent.createChild<T>();
+		node.setScale(.5f); node.setPosition(x, y);
+		return node;
+	}
+
+	void createSierpinski10(size_t reverseDepth, EmptyNode& parent);
+
+	void createSierpinski10(size_t reverseDepth, EmptyNode& parent, float x, float y) {
+		auto& sierpinski = create10<EmptyNode>(parent, x, y);
+		createSierpinski10(reverseDepth - 1, sierpinski);
+	}
+
+	void createSierpinski10(size_t reverseDepth, EmptyNode& parent) {
+		if (reverseDepth == 0) {
+			create10<Triangle>(parent, -.25f, -.25f);
+			create10<Triangle>(parent,  .25f, -.25f);
+			create10<Triangle>(parent,   0  ,  .25f);
+			return;
+		}
+
+		createSierpinski10(reverseDepth, parent, -.25f, -.25f);
+		createSierpinski10(reverseDepth, parent, .25f, -.25f);
+		createSierpinski10(reverseDepth, parent, 0, .25f);
+	}
+
+	void demo10() {
+		Window window;
+		Scene scene;
+
+		auto& sierpinski = scene.create<EmptyNode>();
+		createSierpinski10(7, sierpinski);
+
+		while (window.isOpen()) {
+			Input::update();
+			window.update();
+			scene.update();
+			sierpinski.setScale(0.5f + oscillate(2 * scene.getSeconds(), 5));
+
+			window.clear();
+			scene.draw(window);
+			window.display();
+		}
+	}
+
 	void runDemo() {
-		demo9();
+		demo10();
 	}
 }
 
