@@ -4,6 +4,7 @@
 #include "Stopwatch.h"
 #include "Sprite.h"
 #include "ParticleSystem.h"
+#include "Quad.h"
 
 using namespace sb;
 using namespace std;
@@ -93,25 +94,79 @@ namespace demo
 		}
 	}
 
+	class Entity1 { 
+		vector<Entity1*> _children;
+
+	public:
+		virtual ~Entity1() {
+			release(_children);
+		}
+
+		template <class T>
+		T& createChild() {
+			T* entity = new T();
+			_children.push_back(entity);
+			return *entity;
+		}
+	};
+
+	class Quad1 : public Quad, public Entity1 {
+
+	};
+
+	void demo1() {
+		sb::Window window;
+		Quad1 quad;
+		quad.setScale(.2f);
+
+		while (window.isOpen()) {
+			sb::Input::update();
+			window.update();
+
+			window.clear(sb::Color(1, 1, 1, 1));
+			quad.draw(window);
+			window.display();
+		}
+	}
+
+	class Scene1 : public Entity1 { };
+
+	// Create quad entity from scene
+	void demo2() {
+		sb::Window window;
+		Scene1 scene;
+		Quad1& quad = scene.createChild<Quad1>();
+		quad.setScale(.2f);
+
+		while (window.isOpen()) {
+			sb::Input::update();
+			window.update();
+
+			window.clear(sb::Color(1, 1, 1, 1));
+			quad.draw(window);
+			window.display();
+		}
+	}
+
 	void run()
 	{
-		demo0();
+		demo2();
+		//demo1();
+		//demo0();
 	}
 }
 
 // TODO
-// add some full wish code
-// make tasks for implementing blocks game elements here
-// Readd scene code from history as docs
-// Add emitter as child of sprite
-// Create sprite from scene
 // Draw scene
-// Implement getGlobalBounds for sprite
-// Draw the sprite's global bounds
-// Implement setGlobalTransform for emitter
-// Draw the global coordinates as little dots
-// Position emitter along the bottom of the sprite's bounds
-// Add a little quad to the bottom left of the sprite
-// Add a behaviour component for the quad
-// Listen for keypress in the behaviour. Delete self (from scene) when key is pressed: scene.dispose(this)
+// Add triangle as child for quad
+// Implement getGlobalBounds for quad
+// Draw the quad global bounds
+// Implement setGlobalTransform for triangle
+// Position triangle along the bottom of the quads 
+// Add rotator component for the triangle
+// Add deleter component for the triangle
+// Listen for keypress in the delete. Delete self (from scene) when key is pressed: scene.dispose(this)
 // Add scene.find<T>(entity) method to find single child entity or component of given entity
+// Find triangle using scene.find<Triangle>(quad);
+// Find rotator using scene.find<Rotator>(quad);
+// Add sierpinski
