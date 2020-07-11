@@ -5,6 +5,7 @@
 #include "Sprite.h"
 #include "ParticleSystem.h"
 #include "Quad.h"
+#include "Triangle.h"
 
 using namespace sb;
 using namespace std;
@@ -94,7 +95,7 @@ namespace demo
 		}
 	}
 
-	class Entity1 { 
+	class Entity1 : public Drawable, public Transformable { 
 		vector<Entity1*> _children;
 
 	public:
@@ -102,16 +103,37 @@ namespace demo
 			release(_children);
 		}
 
+		vector<Entity1*>& getChildren() { return _children; }
+
+		virtual void draw(DrawTarget& target, DrawStates states) = 0;
+
 		template <class T>
 		T& createChild() {
 			T* entity = new T();
 			_children.push_back(entity);
 			return *entity;
 		}
+
+		void drawAll(DrawTarget& target, DrawStates states) {
+			draw(target, states);
+
+			states.transform *= getTransform();
+			for (size_t i = 0; i < _children.size(); i++) 
+				_children[i]->drawAll(target, states);
+		}
 	};
 
-	class Quad1 : public Quad, public Entity1 {
+	class Quad1 : public Entity1 {
+		Quad _quad;
 
+	public:
+		virtual void draw(DrawTarget& target, DrawStates states = DrawStates::getDefault()) {
+			_quad.draw(target, states);
+		}
+
+		void setScale(float x, float y) { _quad.setScale(x, y); Transformable::setScale(x, y); }
+
+		void setScale(float s) { setScale(s, s); }
 	};
 
 	void demo1() {
@@ -129,12 +151,21 @@ namespace demo
 		}
 	}
 
-	class Scene1 : public Entity1 { };
+	class Scene2 : public Entity1 { 
+	public:
+		virtual void draw(DrawTarget& target, DrawStates states = DrawStates::getDefault()) {
+			states.transform *= getTransform();
+			vector<Entity1*> children = getChildren();
+			for (size_t i = 0; i < children.size(); i++) {
+				children[i]->drawAll(target, states);
+			}
+		}
+	};
 
 	// Create quad entity from scene
 	void demo2() {
 		sb::Window window;
-		Scene1 scene;
+		Scene2 scene;
 		Quad1& quad = scene.createChild<Quad1>();
 		quad.setScale(.2f);
 
@@ -148,17 +179,72 @@ namespace demo
 		}
 	}
 
+	// Draw the scene
+	void demo3() {
+		Window window;
+		Scene2 scene;
+		Quad1& quad = scene.createChild<Quad1>();
+		quad.setScale(.2f);
+
+		while (window.isOpen()) {
+			Input::update();
+			window.update();
+
+			window.clear(Color(1, 1, 1, 1));
+			scene.draw(window);
+			window.display();
+		}
+	}
+
+	class Triangle4 : public Entity1 {
+		Triangle _triangle;
+
+	public:
+		virtual void draw(DrawTarget& target, DrawStates states = DrawStates::getDefault()) {
+			_triangle.draw(target, states);
+		}
+
+		void setScale(float x, float y) { _triangle.setScale(x, y); Transformable::setScale(x, y); }
+
+		void setScale(float s) { setScale(s, s); }
+
+		void setPosition(float x, float y) { _triangle.setPosition(x, y); Transformable::setPosition(x, y); }
+
+		void setPosition(float pos) { setPosition(pos, pos); }
+	};
+
+	// Add triangle as child of quad
+	void demo4() {
+		Window window;
+		Scene2 scene;
+		Quad1& quad = scene.createChild<Quad1>();
+		Triangle4& triangle = quad.createChild<Triangle4>();
+		
+		quad.setScale(.2f);
+		triangle.setScale(.5f);
+		triangle.setPosition(-.5f);
+
+		while (window.isOpen()) {
+			Input::update();
+			window.update();
+
+			window.clear(Color(1, 1, 1, 1));
+			scene.draw(window);
+			window.display();
+		}
+	}
+
 	void run()
 	{
-		demo2();
+		demo4();
+		//demo3();
+		//demo2();
 		//demo1();
 		//demo0();
 	}
 }
 
 // TODO
-// Draw scene
-// Add triangle as child for quad
 // Implement getGlobalBounds for quad
 // Draw the quad global bounds
 // Implement setGlobalTransform for triangle
