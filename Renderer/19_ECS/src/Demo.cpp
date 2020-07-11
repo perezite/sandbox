@@ -221,8 +221,7 @@ namespace demo
 		Triangle4& triangle = quad.createChild<Triangle4>();
 		
 		quad.setScale(.2f);
-		triangle.setScale(.5f);
-		triangle.setPosition(-.5f);
+		triangle.setScale(.5f); triangle.setPosition(-.5f);
 
 		while (window.isOpen()) {
 			Input::update();
