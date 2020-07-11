@@ -100,6 +100,8 @@ namespace demo
 }
 
 // TODO
+// make tasks for implementing blocks game elements here
+// Readd scene code from history as docs
 // Add emitter as child of sprite
 // Create sprite from scene
 // Draw scene
@@ -108,3 +110,7 @@ namespace demo
 // Implement setGlobalTransform for emitter
 // Draw the global coordinates as little dots
 // Position emitter along the bottom of the sprite's bounds
+// Add a little quad to the bottom left of the sprite
+// Add a behaviour component for the quad
+// Listen for keypress in the behaviour. Delete self (from scene) when key is pressed: scene.dispose(this)
+// Add scene.find<T>(entity) method to find single child entity or component of given entity
