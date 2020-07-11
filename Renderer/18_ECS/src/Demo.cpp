@@ -100,6 +100,7 @@ namespace demo
 }
 
 // TODO
+// add some full wish code
 // make tasks for implementing blocks game elements here
 // Readd scene code from history as docs
 // Add emitter as child of sprite
