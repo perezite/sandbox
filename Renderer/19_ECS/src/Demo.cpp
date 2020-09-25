@@ -244,10 +244,13 @@ namespace demo
 }
 
 // TODO
+// Draw a rectangle
 // Implement getGlobalBounds for quad
 // Draw the quad global bounds
 // Implement setGlobalTransform for triangle
 // Position triangle along the bottom of the quads 
+// Add batching in scene (entity.enableBatching(batchIndex) / entity.enableBatching(false))
+// Add draw layers
 // Add rotator component for the triangle
 // Add deleter component for the triangle
 // Listen for keypress in the delete. Delete self (from scene) when key is pressed: scene.dispose(this)
@@ -255,3 +258,4 @@ namespace demo
 // Find triangle using scene.find<Triangle>(quad);
 // Find rotator using scene.find<Rotator>(quad);
 // Add sierpinski
+// Create actual classes and tests for these
